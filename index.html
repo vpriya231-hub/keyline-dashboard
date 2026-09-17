@@ -1,0 +1,3147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keyline - AI API Platform Dashboard</title>
+    <meta name="description" content="Production-ready API platform dashboard for Keyline featuring real-time Firebase Auth and Firestore integration, API key management, credits wallet, and request history." />
+    <meta property="og:title" content="Keyline - AI API Platform Dashboard" />
+    <meta property="og:description" content="Production-ready API platform dashboard for Keyline featuring real-time Firebase Auth and Firestore integration." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts for crisp typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <style>
+      /* =========================================================================
+         KEYLINE DESIGN SYSTEM (Light Orange Modern Theme)
+         Background: Soft Cream (#FFF9F5)
+         Surfaces: Pure White (#FFFFFF) with warm borders (#FFE0CC)
+         Accents: Vibrant Orange (#FF6B00 / #FF7A1A)
+         Typography: Dark charcoal/brown (#2D1F16)
+         ========================================================================= */
+      :root {
+        --bg-warm: #FFF9F5;
+        --surface-white: #FFFFFF;
+        --border-warm: #FFE0CC;
+        --border-subtle: #FFF0E6;
+        --primary-orange: #FF6B00;
+        --primary-hover: #E65E00;
+        --primary-light: #FFF0E6;
+        --primary-subtle: #FFF5EE;
+        --accent-orange: #FF7A1A;
+        --text-primary: #2D1F16;
+        --text-secondary: #7A685D;
+        --text-muted: #A39388;
+        --success-green: #0E9F6E;
+        --success-bg: #DEF7EC;
+        --danger-red: #E02424;
+        --danger-bg: #FDE8E8;
+        --shadow-card: 0 4px 20px -2px rgba(255, 107, 0, 0.05), 0 2px 8px -2px rgba(45, 31, 22, 0.04);
+        --shadow-elevated: 0 10px 30px -4px rgba(255, 107, 0, 0.1), 0 4px 12px -2px rgba(45, 31, 22, 0.06);
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --radius-pill: 9999px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: var(--bg-warm);
+        color: var(--text-primary);
+        line-height: 1.5;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      code, pre, .mono {
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+
+      /* Container */
+      .app-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px 60px 20px;
+      }
+
+      /* Top Navbar */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background-color: rgba(255, 249, 245, 0.95);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-warm);
+        padding: 16px 0;
+        margin-bottom: 28px;
+      }
+
+      .nav-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+        background: linear-gradient(135deg, #FF7A1A 0%, #FF6B00 100%);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.25);
+        color: #FFFFFF;
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .brand-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .badge-version {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        background: var(--primary-light);
+        color: var(--primary-orange);
+        border: 1px solid var(--border-warm);
+        padding: 2px 7px;
+        border-radius: var(--radius-pill);
+        white-space: nowrap;
+      }
+
+      .brand-subtitle {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 18px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        text-decoration: none;
+        user-select: none;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-orange);
+        color: #FFFFFF;
+        box-shadow: 0 2px 6px rgba(255, 107, 0, 0.2);
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: scale(0.98);
+      }
+
+      .btn-secondary {
+        background-color: var(--surface-white);
+        color: var(--text-primary);
+        border-color: var(--border-warm);
+      }
+
+      .btn-secondary:hover {
+        background-color: var(--primary-subtle);
+        border-color: var(--primary-orange);
+        color: var(--primary-orange);
+      }
+
+      .btn-outline-danger {
+        background-color: transparent;
+        color: var(--danger-red);
+        border-color: #F8B4B4;
+      }
+
+      .btn-outline-danger:hover {
+        background-color: var(--danger-bg);
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: var(--radius-sm);
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      /* Badges & Status */
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .status-pill.success {
+        background-color: var(--success-bg);
+        color: var(--success-green);
+        border: 1px solid #BCF0DA;
+      }
+
+      .status-pill.warning {
+        background-color: #FEF08A;
+        color: #854D0E;
+        border: 1px solid #FDE047;
+      }
+
+      .status-pill.muted {
+        background-color: #F3F4F6;
+        color: #4B5563;
+        border: 1px solid #E5E7EB;
+      }
+
+      .pulse-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background-color: currentColor;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.85); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+
+      /* Alert Banner */
+      .alert-banner {
+        background-color: var(--surface-white);
+        border: 1px solid var(--border-warm);
+        border-left: 4px solid var(--primary-orange);
+        border-radius: var(--radius-md);
+        padding: 14px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: var(--shadow-card);
+      }
+
+      .alert-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .alert-icon {
+        color: var(--primary-orange);
+        flex-shrink: 0;
+      }
+
+      .alert-title {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--text-primary);
+      }
+
+      .alert-desc {
+        font-size: 0.84rem;
+        color: var(--text-secondary);
+      }
+
+      /* User Profile Widget in Nav */
+      .user-widget {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 6px 4px 12px;
+        background: var(--surface-white);
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-pill);
+      }
+
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: var(--primary-orange);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        overflow: hidden;
+        border: 1.5px solid var(--border-warm);
+      }
+
+      .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+      }
+
+      .user-name {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-email {
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* Cards & Surfaces */
+      .card {
+        background-color: var(--surface-white);
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+        padding: 24px;
+        position: relative;
+        transition: border-color 0.15s ease;
+      }
+
+      .card:hover {
+        border-color: #FFB380;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .card-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+      }
+
+      /* Top Stat Grid */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+      }
+
+      .stat-card {
+        background: var(--surface-white);
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-lg);
+        padding: 22px 24px;
+        box-shadow: var(--shadow-card);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      /* Featured Wallet Card & Credit Progress */
+      .wallet-card {
+        background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFB 100%);
+        border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+        box-shadow: 0 4px 20px rgba(255, 107, 0, 0.09) !important;
+        position: relative;
+      }
+
+      .credit-progress-track {
+        height: 8px;
+        background-color: #F0EAE5;
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        position: relative;
+        margin: 12px 0 6px 0;
+      }
+
+      .credit-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #FF6B00 0%, #FFA870 100%);
+        border-radius: var(--radius-full);
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .spin {
+        animation: spinAnim 0.75s linear infinite;
+      }
+
+      @keyframes spinAnim {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Top-up Tiers & UPI Modal */
+      .tier-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 18px 0;
+      }
+
+      @media (max-width: 600px) {
+        .tier-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .tier-card {
+        border: 2px solid var(--border-warm);
+        border-radius: var(--radius-md);
+        padding: 16px 14px;
+        background: var(--surface-white);
+        cursor: pointer;
+        position: relative;
+        text-align: center;
+        transition: all 0.18s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .tier-card:hover {
+        border-color: #FFB380;
+        background: #FFFDFC;
+        transform: translateY(-2px);
+      }
+
+      .tier-card.selected {
+        border-color: var(--primary-orange);
+        background: #FFF9F5;
+        box-shadow: 0 4px 14px rgba(255, 107, 0, 0.18);
+      }
+
+      .tier-badge {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary-orange);
+        color: #FFFFFF;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        box-shadow: 0 2px 5px rgba(255, 107, 0, 0.3);
+        white-space: nowrap;
+      }
+
+      .tier-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+      }
+
+      .tier-credits {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.1;
+      }
+
+      .tier-price {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--primary-orange);
+        margin-top: 6px;
+      }
+
+      .tier-subtext {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      .upi-method-tabs {
+        display: flex;
+        gap: 6px;
+        background: #F5EFEB;
+        padding: 4px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 14px;
+      }
+
+      .upi-tab-btn {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-align: center;
+      }
+
+      .upi-tab-btn.active {
+        background: #FFFFFF;
+        color: var(--text-primary);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .upi-app-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .upi-app-btn {
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-sm);
+        padding: 10px 6px;
+        background: var(--surface-white);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .upi-app-btn:hover, .upi-app-btn.selected {
+        border-color: var(--primary-orange);
+        background: #FFF8F3;
+        color: var(--primary-orange);
+      }
+
+      .code-model-dropdown {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 107, 0, 0.35);
+        color: #FFB380;
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 0.82rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .code-model-dropdown:hover, .code-model-dropdown:focus {
+        border-color: var(--primary-orange);
+        background: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.25);
+      }
+
+      .code-model-dropdown option {
+        background: #1F1510;
+        color: #F8F1EC;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 6px 10px;
+      }
+
+      .stat-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .stat-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+      }
+
+      .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        background-color: var(--primary-light);
+        color: var(--primary-orange);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--text-primary);
+        line-height: 1.1;
+      }
+
+      .stat-footer {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+      }
+
+      /* Tables */
+      .table-wrapper {
+        overflow-x: auto;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-warm);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.88rem;
+      }
+
+      thead {
+        background-color: #FFFDFB;
+        border-bottom: 1px solid var(--border-warm);
+      }
+
+      th {
+        padding: 13px 18px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+      }
+
+      tbody tr {
+        border-bottom: 1px solid var(--border-subtle);
+        transition: background-color 0.1s ease;
+      }
+
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+
+      tbody tr:hover {
+        background-color: #FFF9F5;
+      }
+
+      td {
+        padding: 15px 18px;
+        color: var(--text-primary);
+        vertical-align: middle;
+      }
+
+      /* Monospace Key Display */
+      .key-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #FFF5EE;
+        border: 1px solid var(--border-warm);
+        padding: 5px 10px;
+        border-radius: var(--radius-sm);
+        font-size: 0.84rem;
+        color: var(--text-primary);
+      }
+
+      .btn-copy {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        border-radius: var(--radius-sm);
+        transition: all 0.15s;
+      }
+
+      .btn-copy:hover {
+        color: var(--primary-orange);
+        background-color: var(--primary-light);
+      }
+
+      /* Empty States */
+      .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .empty-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: var(--primary-orange);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+
+      .empty-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+      }
+
+      .empty-desc {
+        font-size: 0.86rem;
+        color: var(--text-secondary);
+        max-width: 420px;
+        margin-bottom: 20px;
+      }
+
+      /* Interactive Quickstart & Code Box */
+      .code-card {
+        background-color: #1F1510;
+        border-radius: var(--radius-md);
+        padding: 20px 22px;
+        color: #F8F1EC;
+        margin-top: 24px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 107, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .code-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .code-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #FFB380;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .code-tabs {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 3px;
+        border-radius: var(--radius-sm);
+      }
+
+      .code-tab-btn {
+        background: transparent;
+        border: none;
+        color: #C2B6AF;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+      }
+
+      .code-tab-btn:hover {
+        color: #FFFFFF;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .code-tab-btn.active {
+        background: var(--primary-orange);
+        color: #FFFFFF;
+        box-shadow: 0 2px 6px rgba(255, 107, 0, 0.4);
+      }
+
+      .code-subnav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 0.78rem;
+      }
+
+      .model-selector {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .model-pill-btn {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #D6CCC5;
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        font-size: 0.74rem;
+        font-family: 'JetBrains Mono', monospace;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .model-pill-btn:hover {
+        border-color: var(--primary-orange);
+        color: #FFFFFF;
+      }
+
+      .model-pill-btn.active {
+        background: rgba(255, 107, 0, 0.2);
+        border-color: var(--primary-orange);
+        color: #FFB380;
+        font-weight: 600;
+      }
+
+      .code-block {
+        font-size: 0.82rem;
+        line-height: 1.65;
+        color: #E6DFDA;
+        overflow-x: auto;
+        white-space: pre;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 12px 14px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .code-keyword { color: #FF944D; }
+      .code-string { color: #A8E6CF; }
+      .code-comment { color: #8F7F76; }
+
+      .danger-zone-card {
+        border: 1px solid #FECACA !important;
+        background: #FFFDFD !important;
+        margin-top: 28px;
+        border-left: 4px solid var(--danger-red) !important;
+      }
+
+      /* Modals */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(45, 31, 22, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .modal-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal {
+        background-color: var(--surface-white);
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-elevated);
+        width: 100%;
+        max-width: 520px;
+        padding: 28px;
+        transform: scale(0.95);
+        transition: transform 0.2s ease-in-out;
+      }
+
+      .modal-backdrop.active .modal {
+        transform: scale(1);
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+
+      .modal-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .modal-close {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: var(--radius-sm);
+      }
+
+      .modal-close:hover {
+        color: var(--text-primary);
+        background-color: var(--primary-light);
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+      }
+
+      .form-input, .form-select, .form-textarea {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-sm);
+        background-color: #FFFFFF;
+        color: var(--text-primary);
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+
+      .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-orange);
+        box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.15);
+      }
+
+      .form-helper {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        margin-top: 4px;
+      }
+
+      .modal-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      /* Auth Screen */
+      .auth-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .auth-card {
+        width: 100%;
+        max-width: 440px;
+        background: var(--surface-white);
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-elevated);
+        padding: 36px 32px;
+      }
+
+      .auth-header {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+
+      .auth-logo {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #FF7A1A 0%, #FF6B00 100%);
+        border-radius: var(--radius-md);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(255, 107, 0, 0.3);
+        color: #FFFFFF;
+        margin-bottom: 16px;
+      }
+
+      .auth-title {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
+      }
+
+      .auth-subtitle {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+
+      .auth-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .auth-divider::before, .auth-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--border-warm);
+      }
+
+      .auth-divider span {
+        padding: 0 12px;
+      }
+
+      .auth-tabs {
+        display: flex;
+        border: 1px solid var(--border-warm);
+        border-radius: var(--radius-sm);
+        padding: 3px;
+        background: #FFF9F5;
+        margin-bottom: 20px;
+      }
+
+      .auth-tab {
+        flex: 1;
+        padding: 7px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.15s;
+        text-align: center;
+      }
+
+      .auth-tab.active {
+        background: #FFFFFF;
+        color: var(--text-primary);
+        box-shadow: 0 1px 4px rgba(45, 31, 22, 0.08);
+      }
+
+      .btn-google {
+        width: 100%;
+        background-color: #FFFFFF;
+        color: var(--text-primary);
+        border: 1px solid var(--border-warm);
+        font-weight: 600;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .btn-google:hover {
+        background-color: var(--primary-subtle);
+        border-color: #FFB380;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 100;
+        background-color: #2D1F16;
+        color: #FFFFFF;
+        padding: 12px 20px;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-elevated);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .toast.success { border-left: 4px solid var(--success-green); }
+      .toast.error { border-left: 4px solid var(--danger-red); }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .stat-grid { grid-template-columns: 1fr; }
+        .nav-inner { flex-direction: column; gap: 14px; align-items: flex-start; }
+        .nav-actions { width: 100%; justify-content: space-between; }
+        .card-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-inner">
+        <a href="#" class="brand-group" id="brandLogo">
+          <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">
+              Keyline
+              <span class="badge-version">API Live</span>
+            </div>
+            <span class="brand-subtitle">High-throughput AI Gateway</span>
+          </div>
+        </a>
+
+        <div class="nav-actions">
+          <span class="status-pill success" style="padding: 5px 12px;">
+            <span class="pulse-dot"></span>
+            <span>Production Live</span>
+          </span>
+
+          <!-- User Widget (Rendered dynamically when logged in) -->
+          <div id="userNavSection" style="display: none;">
+            <div class="user-widget">
+              <div class="user-avatar" id="navUserAvatar">K</div>
+              <div class="user-info">
+                <span class="user-name" id="navUserName">Developer</span>
+                <span class="user-email" id="navUserEmail">user@keyline.ai</span>
+              </div>
+              <button id="btnSignOut" class="btn btn-secondary btn-sm" style="padding: 4px 8px; margin-left: 4px;" title="Sign Out">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="app-container">
+      <!-- Auth State View (When Not Authenticated) -->
+      <section id="authSection" class="auth-container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <div class="auth-logo">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+              </svg>
+            </div>
+            <h1 class="auth-title">Welcome to Keyline</h1>
+            <p class="auth-subtitle">Sign in with your Google account to access your AI API keys, credits wallet, and live telemetry.</p>
+          </div>
+
+          <!-- Google Auth Button (Sole authentication method) -->
+          <button id="btnGoogleAuth" class="btn-google" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(45, 31, 22, 0.08); font-weight: 700;">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span id="btnGoogleAuthText">Continue with Google</span>
+          </button>
+
+          <!-- Error Alert for Google Auth with Domain Diagnostics & One-Click Copy -->
+          <div id="authErrorMessage" style="display: none; padding: 14px 16px; background: #FFF5F5; border: 1.5px solid #F8B4B4; border-radius: var(--radius-sm); color: var(--danger-red); font-size: 0.84rem; margin-top: 18px; line-height: 1.5;">
+            <div id="authErrorText" style="font-weight: 600; margin-bottom: 10px;"></div>
+            
+            <div id="authDomainInfoBox" style="display: none; background: #FFFFFF; border: 1px solid #FCA5A5; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 8px;">
+              <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #991B1B; margin-bottom: 6px;">
+                Current App Domain (Authorized Domains Required):
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #FEF2F2; padding: 6px 10px; border-radius: 4px; border: 1px dashed #F87171;">
+                <code id="displayCurrentHostname" class="mono" style="font-size: 0.86rem; font-weight: 700; color: #B91C1C; word-break: break-all;"></code>
+                <button type="button" id="btnCopyDomainHostname" class="btn btn-secondary btn-sm" style="font-size: 0.74rem; padding: 4px 8px; white-space: nowrap; flex-shrink: 0; background: #FFFFFF; border-color: #F87171; color: #991B1B;">
+                  Copy Domain
+                </button>
+              </div>
+              <div style="font-size: 0.72rem; color: #7F1D1D; margin-top: 6px;">
+                💡 Go to <b>Firebase Console &gt; Authentication &gt; Settings &gt; Authorized domains</b> &gt; click <b>Add domain</b> and paste the domain above.
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-warm); text-align: center; font-size: 0.78rem; color: var(--text-muted);">
+            Connected to Cloud Firestore (<span class="mono" style="color: var(--primary-orange);">keyline-ai</span>)
+          </div>
+        </div>
+      </section>
+
+      <!-- Authenticated Dashboard View -->
+      <section id="dashboardSection" style="display: none;">
+        <!-- Top Metrics Cards -->
+        <div class="stat-grid">
+          <!-- Token Credits Wallet (Prominent Card) -->
+          <div class="stat-card wallet-card" id="cardCredits">
+            <div>
+              <div class="stat-top">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="stat-label" style="color: var(--primary-orange); font-weight: 700;">Wallet &amp; Credits</span>
+                  <span class="status-pill success" style="font-size: 0.7rem; padding: 2px 7px;">
+                    <span class="pulse-dot"></span> Live Firestore Sync
+                  </span>
+                </div>
+                <div class="stat-icon" style="background: rgba(255, 107, 0, 0.15); color: var(--primary-orange);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="12" y1="11" x2="12" y2="17"></line>
+                    <line x1="9" y1="14" x2="15" y2="14"></line>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Main Balance Display -->
+              <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+                <span class="stat-value" id="valCredits" style="color: var(--primary-orange); font-size: 2.2rem;">1,000</span>
+                <span style="font-size: 1.05rem; font-weight: 700; color: var(--text-secondary);">Credits available</span>
+              </div>
+
+              <!-- Real-time Quota Progress Bar -->
+              <div style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-secondary);">
+                  <span>Credit Usage Quota</span>
+                  <span id="creditProgressLabel" class="mono" style="font-weight: 600; color: var(--text-primary);">1,000 / 1,000 (100%)</span>
+                </div>
+                <div class="credit-progress-track">
+                  <div id="creditProgressBar" class="credit-progress-bar" style="width: 100%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wallet Actions Footer -->
+            <div class="stat-footer" style="padding-top: 14px; margin-top: 10px; border-top: 1px solid rgba(255, 107, 0, 0.15);">
+              <button id="btnOpenAddCredits" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Credits / Top-up
+              </button>
+
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button id="btnSyncFirestoreCredits" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits from Firestore" style="display: inline-flex; align-items: center; gap: 4px;">
+                  <svg id="iconSyncRefresh" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                  </svg>
+                  <span>Sync</span>
+                </button>
+                <button id="btnClaimFreeCredits" class="btn btn-secondary btn-sm" title="Add +500 test credits directly to Firestore user document" style="font-size: 0.72rem; padding: 5px 8px;">
+                  +500 Test
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active API Keys -->
+          <div class="stat-card" id="cardKeyCount">
+            <div>
+              <div class="stat-top">
+                <span class="stat-label">Active API Credentials</span>
+                <div class="stat-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="valActiveKeys">0</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                Authorized production keys
+              </div>
+            </div>
+            <div class="stat-footer">
+              <span>Managed in <code class="mono" style="font-size: 0.72rem;">users/{uid}/api_keys</code></span>
+            </div>
+          </div>
+
+          <!-- Total Requests Logged -->
+          <div class="stat-card" id="cardRequestCount">
+            <div>
+              <div class="stat-top">
+                <span class="stat-label">Total Requests Logged</span>
+                <div class="stat-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="valTotalRequests">0</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                Real telemetry records
+              </div>
+            </div>
+            <div class="stat-footer">
+              <span class="status-pill success">
+                <span class="pulse-dot"></span> 99.99% Gateway SLA
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Keys Management Section -->
+        <div class="card" style="margin-bottom: 28px;">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-orange);">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                </svg>
+                API Credentials
+              </h2>
+              <p class="card-subtitle">Generate and manage secret keys to authenticate incoming requests to Keyline endpoints.</p>
+            </div>
+            <button id="btnOpenGenerateKey" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Generate New API Key
+            </button>
+          </div>
+
+          <!-- Keys Table Container -->
+          <div id="keysTableContainer" class="table-wrapper" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key Name</th>
+                  <th>API Key Token</th>
+                  <th>Created Date</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="keysTableBody">
+                <!-- Dynamically populated from Firestore -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State (Shown when 0 keys exist in Firestore) -->
+          <div id="keysEmptyState" class="empty-state">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+              </svg>
+            </div>
+            <h3 class="empty-title">No API Keys Generated Yet</h3>
+            <p class="empty-desc">You haven't generated any API keys for this account yet. Click below to generate your first live production secret key.</p>
+            <button id="btnEmptyGenerateKey" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Generate New API Key
+            </button>
+          </div>
+
+          <!-- Interactive Quickstart & API Integration Code Docs Section -->
+          <div class="code-card">
+            <div class="code-header">
+              <div class="code-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                Quickstart • API Integration Docs
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="code-tabs">
+                  <button type="button" class="code-tab-btn active" data-lang="curl">cURL</button>
+                  <button type="button" class="code-tab-btn" data-lang="python">Python</button>
+                  <button type="button" class="code-tab-btn" data-lang="javascript">JavaScript / Node</button>
+                </div>
+                <button id="btnCopyIntegrationCode" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #FFF;" title="Copy Code Snippet">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span id="txtCopyIntegrationBtn" style="margin-left: 4px;">Copy Code</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Subheader: Model switch & Active key indicator -->
+            <div class="code-subnav">
+              <div class="model-selector" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <label for="selectQuickstartModel" style="color: #FFB380; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Model:</label>
+                  <select id="selectQuickstartModel" class="code-model-dropdown">
+                    <option value="llama-3.3-70b-versatile" selected>llama-3.3-70b-versatile (Flagship)</option>
+                    <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Ultra Fast)</option>
+                    <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (High Reasoning)</option>
+                    <option value="openai/gpt-oss-20b">openai/gpt-oss-20b (Speed Reasoning)</option>
+                    <option value="qwen/qwen3-32b">qwen/qwen3-32b</option>
+                  </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                  <button type="button" class="model-pill-btn active" data-model="llama-3.3-70b-versatile" title="Llama 3.3 70B (Flagship)">
+                    llama-3.3-70b
+                  </button>
+                  <button type="button" class="model-pill-btn" data-model="llama-3.1-8b-instant" title="Llama 3.1 8B (Ultra Fast)">
+                    llama-3.1-8b
+                  </button>
+                  <button type="button" class="model-pill-btn" data-model="openai/gpt-oss-120b" title="GPT-OSS 120B (High Reasoning)">
+                    gpt-oss-120b
+                  </button>
+                  <button type="button" class="model-pill-btn" data-model="openai/gpt-oss-20b" title="GPT-OSS 20B (Speed Reasoning)">
+                    gpt-oss-20b
+                  </button>
+                  <button type="button" class="model-pill-btn" data-model="qwen/qwen3-32b" title="Qwen 3 32B">
+                    qwen3-32b
+                  </button>
+                </div>
+              </div>
+              <div id="codeKeyIndicator" style="font-size: 0.76rem; color: #D6CCC5; display: flex; align-items: center; gap: 6px;">
+                <!-- Dynamically populated with active key or placeholder -->
+              </div>
+            </div>
+
+            <pre class="code-block" id="integrationCodeBlock"></pre>
+          </div>
+        </div>
+
+        <!-- Usage Logs Table Section -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-orange);">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                Request & Telemetry History
+              </h2>
+              <p class="card-subtitle">Live request telemetry stream from Cloud Firestore (<code class="mono" style="font-size: 0.78rem;">users/{uid}/usage_logs</code>).</p>
+            </div>
+            <button id="btnOpenTestRequest" class="btn btn-secondary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Simulate Test Request
+            </button>
+          </div>
+
+          <!-- Logs Table Container -->
+          <div id="logsTableContainer" class="table-wrapper" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Endpoint</th>
+                  <th>Model</th>
+                  <th>Tokens Used</th>
+                  <th>HTTP Status</th>
+                  <th>Key ID</th>
+                </tr>
+              </thead>
+              <tbody id="logsTableBody">
+                <!-- Dynamically populated from Firestore -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State (Shown when 0 requests exist) -->
+          <div id="logsEmptyState" class="empty-state">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 14 14"></polyline>
+              </svg>
+            </div>
+            <h3 class="empty-title">No requests logged yet</h3>
+            <p class="empty-desc">Requests processed through your Keyline API keys will be streamed and recorded here in real-time.</p>
+            <button id="btnEmptyTestRequest" class="btn btn-secondary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Simulate a Test Request
+            </button>
+          </div>
+        </div>
+
+        <!-- Danger Zone / Account Deletion Section -->
+        <div class="card danger-zone-card">
+          <div class="card-header" style="border-bottom: 1px solid #FEE2E2; padding-bottom: 16px;">
+            <div>
+              <h2 class="card-title" style="color: var(--danger-red); display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Danger Zone • Account Deletion
+              </h2>
+              <p class="card-subtitle">Permanently delete your user account, tokens, all API keys, and request telemetry history.</p>
+            </div>
+            <button id="btnOpenDeleteAccount" class="btn btn-outline-danger">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Delete Account
+            </button>
+          </div>
+          <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; padding-top: 14px;">
+            This action will permanently delete your authentication profile, wipe your Cloud Firestore user document (<code class="mono">users/{uid}</code>), revoke and delete all generated API keys from the global routing index (<code class="mono">api_keys</code>), and purge your telemetry records. This cannot be undone.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- =========================================================================
+         MODALS
+         ========================================================================= -->
+
+    <!-- Generate API Key Modal -->
+    <div id="modalGenerateKey" class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Generate New API Key</h3>
+          <button class="modal-close" data-close="modalGenerateKey">&times;</button>
+        </div>
+        <form id="formGenerateKey">
+          <div class="form-group">
+            <label class="form-label" for="inputKeyName">Key Label / Description</label>
+            <input type="text" id="inputKeyName" class="form-input" placeholder="e.g. Production Webhook, Localhost Dev" required maxlength="40" />
+            <p class="form-helper">An identifiable label to help you differentiate this key.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Permissions Scope</label>
+            <div style="font-size: 0.86rem; color: var(--text-secondary); background: #FFF9F5; border: 1px solid var(--border-warm); padding: 10px 14px; border-radius: var(--radius-sm);">
+              <strong>Standard Access:</strong> Read/Write Chat Completions, Embeddings, Reasoning Models.
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" data-close="modalGenerateKey">Cancel</button>
+            <button type="submit" id="btnSubmitGenerateKey" class="btn btn-primary">Generate Key</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- API Key Created Success Modal -->
+    <div id="modalKeyCreated" class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" style="color: var(--primary-orange);">API Key Created</h3>
+          <button class="modal-close" data-close="modalKeyCreated">&times;</button>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+            Please copy this secret key now. For your security, <strong>you won't be able to view the full secret key again</strong>.
+          </p>
+
+          <div style="display: flex; gap: 8px; align-items: center; background: #FFF5EE; border: 1px solid var(--border-warm); padding: 10px 14px; border-radius: var(--radius-sm);">
+            <code class="mono" id="displayNewKey" style="font-size: 0.86rem; font-weight: 600; color: var(--primary-orange); word-break: break-all; flex: 1;">keyline_live_...</code>
+            <button id="btnCopyCreatedKey" class="btn btn-primary btn-sm">Copy</button>
+          </div>
+        </div>
+
+        <div style="background-color: var(--danger-bg); border: 1px solid #F8B4B4; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.8rem; color: var(--danger-red); margin-bottom: 20px;">
+          Do not expose this key in client-side repositories or public code.
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-primary" data-close="modalKeyCreated">I Have Copied My Key</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Credits (Top-up Credits UPI Modal) -->
+    <div id="modalAddCredits" class="modal-backdrop">
+      <div class="modal" style="max-width: 560px;">
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-orange);">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <line x1="12" y1="11" x2="12" y2="17"></line>
+                <line x1="9" y1="14" x2="15" y2="14"></line>
+              </svg>
+              Top-up Credits
+            </h3>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              Pay via any UPI App (GPay, PhonePe, Paytm, BHIM) and submit your 12-digit UTR.
+            </p>
+          </div>
+          <button class="modal-close" data-close="modalAddCredits">&times;</button>
+        </div>
+
+        <!-- Top-up Form Container -->
+        <div id="topupFormContainer">
+          <!-- 1. Select Package -->
+          <div style="margin-bottom: 18px;">
+            <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 10px;">
+              1. Select Credit Package:
+            </div>
+            <div class="tier-grid">
+              <!-- Tier 1: ₹49 -->
+              <div class="tier-card" data-tier-id="starter" data-package-amount="49" data-credits="5000">
+                <div>
+                  <div class="tier-title">Starter</div>
+                  <div class="tier-credits">5,000</div>
+                  <div class="tier-subtext">Credits</div>
+                </div>
+                <div>
+                  <div class="tier-price">₹49</div>
+                  <div class="tier-subtext">₹0.0098 / token</div>
+                </div>
+              </div>
+
+              <!-- Tier 2: ₹99 (Popular) -->
+              <div class="tier-card selected" data-tier-id="growth" data-package-amount="99" data-credits="15000">
+                <span class="tier-badge">Popular • 3x Credits</span>
+                <div>
+                  <div class="tier-title">Growth</div>
+                  <div class="tier-credits">15,000</div>
+                  <div class="tier-subtext">Credits</div>
+                </div>
+                <div>
+                  <div class="tier-price">₹99</div>
+                  <div class="tier-subtext">₹0.0066 / token</div>
+                </div>
+              </div>
+
+              <!-- Tier 3: ₹199 (Best Value) -->
+              <div class="tier-card" data-tier-id="scale" data-package-amount="199" data-credits="40000">
+                <span class="tier-badge" style="background: #2E7D32;">Best Value</span>
+                <div>
+                  <div class="tier-title">Scale</div>
+                  <div class="tier-credits">40,000</div>
+                  <div class="tier-subtext">Credits</div>
+                </div>
+                <div>
+                  <div class="tier-price">₹199</div>
+                  <div class="tier-subtext">₹0.0049 / token</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Dynamic UPI QR Code & UPI ID Section -->
+          <div style="margin-bottom: 18px;">
+            <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 10px;">
+              2. Scan UPI QR Code to Pay:
+            </div>
+            <div style="background: #FAF7F4; border: 1.5px solid var(--border-warm); border-radius: var(--radius-sm); padding: 16px; text-align: center;">
+              
+              <!-- Selected Package Amount Indicator -->
+              <div style="display: inline-flex; align-items: center; gap: 6px; background: #FFF0E6; border: 1px solid rgba(255,107,0,0.35); padding: 5px 14px; border-radius: var(--radius-full); margin-bottom: 12px;">
+                <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">Amount to Pay:</span>
+                <span id="displaySelectedAmount" style="font-size: 1.05rem; font-weight: 800; color: var(--primary-orange);">₹99</span>
+                <span id="displaySelectedCredits" style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary);">(15,000 Credits)</span>
+              </div>
+
+              <!-- Dynamic QR Code Display -->
+              <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                <div style="background: #FFFFFF; padding: 12px; border-radius: 8px; border: 1.5px solid var(--border-warm); box-shadow: 0 4px 12px rgba(0,0,0,0.06); width: 174px; height: 174px; display: flex; align-items: center; justify-content: center;">
+                  <img id="upiQrCodeImg" 
+                       src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=upi%3A%2F%2Fpay%3Fpa%3Dkeyline.ai%40upi%26pn%3DKeylineAI%26am%3D99%26cu%3DINR" 
+                       alt="Scan UPI QR Code to Pay" 
+                       width="150" 
+                       height="150" 
+                       style="display: block; border-radius: 4px; object-fit: contain;" />
+                </div>
+              </div>
+
+              <div style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Scan with <strong>Google Pay, PhonePe, Paytm, BHIM</strong> or any UPI banking app.
+              </div>
+
+              <!-- UPI ID with Copy Button -->
+              <div style="max-width: 380px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid var(--border-warm); border-radius: var(--radius-sm); padding: 8px 12px;">
+                <div style="text-align: left;">
+                  <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);">UPI ID (VPA)</div>
+                  <div id="textUpiId" class="mono" style="font-size: 0.92rem; font-weight: 800; color: var(--primary-orange);">keyline.ai@upi</div>
+                </div>
+                <button type="button" id="btnCopyUpiId" class="btn btn-secondary btn-sm" style="font-size: 0.76rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 5px; font-weight: 700;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span id="btnCopyUpiIdText">Copy UPI ID</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. 12-digit UTR Input Field -->
+          <div style="margin-bottom: 18px;">
+            <div class="form-group" style="margin-bottom: 4px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" for="inputUtrNumber" style="margin-bottom: 0; font-weight: 700;">
+                  Enter 12-digit UPI UTR / Transaction ID <span style="color: var(--danger-red);">*</span>
+                </label>
+                <span id="utrCharCounter" class="mono" style="font-size: 0.74rem; color: var(--text-secondary); font-weight: 600;">0 / 12 digits</span>
+              </div>
+              <input type="text" 
+                     id="inputUtrNumber" 
+                     class="form-input" 
+                     placeholder="e.g. 428190348201" 
+                     maxlength="12" 
+                     inputmode="numeric" 
+                     autocomplete="off" 
+                     style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; letter-spacing: 0.08em;" />
+              <p class="form-helper" style="margin-top: 5px; font-size: 0.74rem;">
+                Check your payment confirmation screen or bank SMS for the 12-digit numeric reference number.
+              </p>
+              <div id="utrValidationMsg" style="display: none; font-size: 0.76rem; color: var(--danger-red); margin-top: 6px; font-weight: 600; padding: 6px 10px; background: #FFF5F5; border-radius: 4px; border: 1px solid #FCA5A5;"></div>
+            </div>
+          </div>
+
+          <!-- Modal Actions -->
+          <div class="modal-actions" style="margin-top: 0;">
+            <button type="button" class="btn btn-secondary" data-close="modalAddCredits">Cancel</button>
+            <button type="button" id="btnSubmitPaymentRequest" class="btn btn-primary" style="font-weight: 700; box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35); display: inline-flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Submit Payment</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Clean Confirmation Message View (Shown after successful submission) -->
+        <div id="topupConfirmationContainer" style="display: none; padding: 16px 8px 8px 8px; text-align: center;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: #DEF7EC; color: #0E9F6E; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(14,159,110,0.18);">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">
+            Payment Submitted!
+          </h3>
+
+          <p style="font-size: 0.9rem; color: #0E9F6E; font-weight: 700; line-height: 1.5; max-width: 440px; margin: 0 auto 18px auto; background: #F3FAF7; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid #BCF0DA;">
+            Payment submitted! Your credits will be updated once the transaction is verified.
+          </p>
+
+          <div style="background: #FFFDFB; border: 1px solid var(--border-warm); border-radius: var(--radius-sm); padding: 14px 18px; text-align: left; max-width: 440px; margin: 0 auto 20px auto; font-size: 0.84rem; line-height: 1.7;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-warm); padding-bottom: 6px; margin-bottom: 6px;">
+              <span style="color: var(--text-secondary);">Credit Package:</span>
+              <strong id="confirmPackageText" style="color: var(--text-primary);">₹99 (15,000 Credits)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-warm); padding-bottom: 6px; margin-bottom: 6px;">
+              <span style="color: var(--text-secondary);">Submitted UTR:</span>
+              <code id="confirmUtrText" class="mono" style="color: var(--primary-orange); font-weight: 800;">-</code>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-secondary);">Request Status:</span>
+              <span class="status-pill" style="background: #FEF08A; color: #854D0E; font-weight: 700; font-size: 0.74rem; padding: 3px 9px;">
+                <span class="pulse-dot" style="background: #CA8A04;"></span> Pending Verification
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button type="button" class="btn btn-secondary" id="btnSubmitAnotherTopup">Submit Another Payment</button>
+            <button type="button" class="btn btn-primary" data-close="modalAddCredits">Done</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Simulate API Test Request Modal -->
+    <div id="modalTestRequest" class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Simulate Real API Request</h3>
+          <button class="modal-close" data-close="modalTestRequest">&times;</button>
+        </div>
+        <form id="formTestRequest">
+          <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px;">
+            This will deduct tokens from your Firestore credits balance and write a real record to <code class="mono">users/{uid}/usage_logs</code>.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" for="selectTestKey">Select Active API Key</label>
+            <select id="selectTestKey" class="form-select" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="selectTestEndpoint">API Endpoint &amp; Model</label>
+            <select id="selectTestEndpoint" class="form-select">
+              <option value="/v1/chat/completions">POST /v1/chat/completions (llama-3.3-70b-versatile)</option>
+              <option value="/v1/chat/completions#fast">POST /v1/chat/completions (llama-3.1-8b-instant)</option>
+              <option value="/v1/chat/completions#reasoning">POST /v1/chat/completions (openai/gpt-oss-120b)</option>
+              <option value="/v1/chat/completions#speed">POST /v1/chat/completions (openai/gpt-oss-20b)</option>
+              <option value="/v1/chat/completions#qwen">POST /v1/chat/completions (qwen/qwen3-32b)</option>
+              <option value="/v1/embeddings">POST /v1/embeddings (keyline-embed-v2)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputTokensToUse">Tokens to Consume</label>
+            <input type="number" id="inputTokensToUse" class="form-input" value="25" min="5" max="500" required />
+            <p class="form-helper">Tokens will be deducted from your real-time wallet credits.</p>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" data-close="modalTestRequest">Cancel</button>
+            <button type="submit" id="btnSubmitTestRequest" class="btn btn-primary">Send Request (200 OK)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div id="modalDeleteAccount" class="modal-backdrop">
+      <div class="modal" style="max-width: 520px;">
+        <div class="modal-header">
+          <h3 class="modal-title" style="color: var(--danger-red); display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Permanently Delete Account
+          </h3>
+          <button class="modal-close" data-close="modalDeleteAccount">&times;</button>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <p style="font-size: 0.88rem; color: var(--text-primary); margin-bottom: 12px; line-height: 1.5;">
+            Are you sure you want to delete your Keyline account (<strong id="txtDeleteAccountEmail">your account</strong>)?
+          </p>
+
+          <div style="background-color: var(--danger-bg); border: 1px solid #FCA5A5; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.82rem; color: var(--danger-red); line-height: 1.5; margin-bottom: 16px;">
+            <strong>Irreversible Action:</strong>
+            <ul style="margin-left: 18px; margin-top: 6px;">
+              <li>All active API keys will immediately be deleted from Firestore and reject incoming traffic.</li>
+              <li>Your remaining token credits and request telemetry history will be wiped.</li>
+              <li>Your Firebase Authentication credentials will be permanently terminated.</li>
+            </ul>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="inputConfirmDelete">
+              Type <strong style="color: var(--danger-red);">DELETE</strong> below to confirm:
+            </label>
+            <input type="text" id="inputConfirmDelete" class="form-input" placeholder="DELETE" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modalDeleteAccount">Cancel</button>
+          <button type="button" id="btnConfirmDeleteAccount" class="btn btn-primary" style="background: var(--danger-red); border-color: var(--danger-red);" disabled>
+            Delete Everything & Close Account
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="toast">
+      <span id="toastMessage">Notification</span>
+    </div>
+
+    <!-- =========================================================================
+         ES MODULE JAVASCRIPT WITH FIREBASE JS SDK v10 (CDN)
+         ========================================================================= -->
+    <script type="module">
+      // =========================================================================
+      // 🔑 EMBEDDED FIREBASE CONFIGURATION (keyline-ai)
+      // =========================================================================
+      const firebaseConfig = {
+        apiKey: "AIzaSyAGmK9Np_HfnZBjmy5FYWQhbUqP0yrEvc8",
+        authDomain: "keyline-ai.firebaseapp.com",
+        projectId: "keyline-ai",
+        storageBucket: "keyline-ai.firebasestorage.app",
+        messagingSenderId: "808373985169",
+        appId: "1:808373985169:web:d9b09766ebae2b64a24430",
+        measurementId: "G-TTNP899DJD"
+      };
+
+      // Import modular Firebase SDK v10 via CDN
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+      import {
+        getAuth,
+        signInWithPopup,
+        GoogleAuthProvider,
+        signOut,
+        onAuthStateChanged,
+        reauthenticateWithPopup
+      } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        getDocs,
+        setDoc,
+        updateDoc,
+        deleteDoc,
+        collection,
+        query,
+        orderBy,
+        onSnapshot,
+        serverTimestamp,
+        increment,
+        addDoc
+      } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+      // =========================================================================
+      // APPLICATION STATE & FIREBASE CLIENTS
+      // =========================================================================
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let currentUser = null;
+      let unsubscribeUserDoc = null;
+      let unsubscribeApiKeys = null;
+      let unsubscribeLogs = null;
+      let activeKeysList = [];
+
+      // Error handler conforming to FirestoreErrorInfo
+      const OperationType = {
+        CREATE: 'create',
+        UPDATE: 'update',
+        DELETE: 'delete',
+        LIST: 'list',
+        GET: 'get',
+        WRITE: 'write',
+      };
+
+      function handleFirestoreError(error, operationType, path) {
+        const errInfo = {
+          error: error instanceof Error ? error.message : String(error),
+          authInfo: {
+            userId: auth?.currentUser?.uid || null,
+            email: auth?.currentUser?.email || null,
+            emailVerified: auth?.currentUser?.emailVerified || null,
+            isAnonymous: auth?.currentUser?.isAnonymous || null,
+            tenantId: auth?.currentUser?.tenantId || null,
+            providerInfo: auth?.currentUser?.providerData?.map(provider => ({
+              providerId: provider.providerId,
+              email: provider.email,
+            })) || []
+          },
+          operationType,
+          path
+        };
+        console.error('Firestore Error: ', JSON.stringify(errInfo));
+        return errInfo;
+      }
+
+      // Toast Helper
+      function showToast(message, type = 'success') {
+        const toast = document.getElementById('toastNotification');
+        const text = document.getElementById('toastMessage');
+        text.textContent = message;
+        toast.className = `toast ${type} show`;
+        setTimeout(() => {
+          toast.className = `toast ${type}`;
+        }, 3600);
+      }
+
+      // Modal Helpers
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      }
+
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const modalId = btn.getAttribute('data-close');
+          closeModal(modalId);
+        });
+      });
+
+      // Close modal on background click
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop) backdrop.classList.remove('active');
+        });
+      });
+
+      // Initialize Firebase Auth Listener
+      function setupFirebase() {
+        try {
+          onAuthStateChanged(auth, handleAuthStateChanged);
+          return true;
+        } catch (error) {
+          console.error("Firebase auth listener setup error:", error);
+          showToast("Firebase error: " + error.message, 'error');
+          return false;
+        }
+      }
+
+      // Handle Auth State Changes
+      async function handleAuthStateChanged(user) {
+        const authSection = document.getElementById('authSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const userNavSection = document.getElementById('userNavSection');
+
+        if (user) {
+          currentUser = user;
+          authSection.style.display = 'none';
+          dashboardSection.style.display = 'block';
+          userNavSection.style.display = 'flex';
+
+          // Update user navbar UI
+          const displayName = user.displayName || user.email?.split('@')[0] || 'Developer';
+          document.getElementById('navUserName').textContent = displayName;
+          document.getElementById('navUserEmail').textContent = user.email || 'No email';
+          
+          const avatarEl = document.getElementById('navUserAvatar');
+          if (user.photoURL) {
+            avatarEl.innerHTML = `<img src="${user.photoURL}" alt="${displayName}" referrerpolicy="no-referrer" />`;
+          } else {
+            avatarEl.textContent = displayName.charAt(0).toUpperCase();
+          }
+
+          // Initialize or fetch user document in Firestore (strictly no dummy data!)
+          await initUserFirestoreDoc(user);
+          // Subscribe to real-time collections
+          subscribeToUserData(user.uid);
+        } else {
+          currentUser = null;
+          // Unsubscribe listeners
+          if (unsubscribeUserDoc) unsubscribeUserDoc();
+          if (unsubscribeApiKeys) unsubscribeApiKeys();
+          if (unsubscribeLogs) unsubscribeLogs();
+
+          authSection.style.display = 'flex';
+          dashboardSection.style.display = 'none';
+          userNavSection.style.display = 'none';
+        }
+      }
+
+      // Initialize User Document with 1,000 Free Credits on first sign in
+      async function initUserFirestoreDoc(user) {
+        if (!db) return;
+        const userDocRef = doc(db, 'users', user.uid);
+        try {
+          const snap = await getDoc(userDocRef);
+          if (!snap.exists()) {
+            // New user defaults to 1,000 free tokens
+            await setDoc(userDocRef, {
+              uid: user.uid,
+              email: user.email || '',
+              displayName: user.displayName || user.email?.split('@')[0] || 'Developer',
+              photoURL: user.photoURL || '',
+              credits: 1000,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            showToast('Welcome to Keyline! 1,000 token credits granted.');
+          }
+        } catch (error) {
+          handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
+          showToast('Firestore user doc sync: ' + error.message, 'error');
+        }
+      }
+
+      // Real-time Subscriptions (Users doc, API Keys subcollection, Usage logs subcollection)
+      function updateCreditProgressUI(credits) {
+        const valCreditsEl = document.getElementById('valCredits');
+        if (valCreditsEl) valCreditsEl.textContent = Number(credits).toLocaleString();
+        const quotaBase = Math.max(1000, credits);
+        const pct = Math.min(100, Math.max(0, Math.round((credits / quotaBase) * 100)));
+        const barEl = document.getElementById('creditProgressBar');
+        const labelEl = document.getElementById('creditProgressLabel');
+        if (barEl) barEl.style.width = `${pct}%`;
+        if (labelEl) labelEl.textContent = `${Number(credits).toLocaleString()} / ${Number(quotaBase).toLocaleString()} (${pct}%)`;
+      }
+
+      function subscribeToUserData(uid) {
+        if (!db) return;
+
+        // 1. Credits & Profile Doc Listener
+        const userDocRef = doc(db, 'users', uid);
+        unsubscribeUserDoc = onSnapshot(userDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            const credits = typeof data.credits === 'number' ? data.credits : 0;
+            updateCreditProgressUI(credits);
+          }
+        }, (error) => {
+          handleFirestoreError(error, OperationType.GET, `users/${uid}`);
+        });
+
+        // 2. API Keys Subcollection Listener
+        const keysColRef = collection(db, 'users', uid, 'api_keys');
+        const keysQuery = query(keysColRef, orderBy('createdAt', 'desc'));
+        unsubscribeApiKeys = onSnapshot(keysQuery, (snapshot) => {
+          const keys = [];
+          snapshot.forEach(docSnap => {
+            keys.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          activeKeysList = keys;
+          renderApiKeys(keys);
+          updateIntegrationSnippet();
+        }, (error) => {
+          handleFirestoreError(error, OperationType.LIST, `users/${uid}/api_keys`);
+        });
+
+        // 3. Usage Logs Subcollection Listener
+        const logsColRef = collection(db, 'users', uid, 'usage_logs');
+        const logsQuery = query(logsColRef, orderBy('timestamp', 'desc'));
+        unsubscribeLogs = onSnapshot(logsQuery, (snapshot) => {
+          const logs = [];
+          snapshot.forEach(docSnap => {
+            logs.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          renderUsageLogs(logs);
+        }, (error) => {
+          handleFirestoreError(error, OperationType.LIST, `users/${uid}/usage_logs`);
+        });
+      }
+
+      // Render API Keys in Dashboard Table
+      function renderApiKeys(keys) {
+        const tableContainer = document.getElementById('keysTableContainer');
+        const emptyState = document.getElementById('keysEmptyState');
+        const tableBody = document.getElementById('keysTableBody');
+        const activeCountEl = document.getElementById('valActiveKeys');
+
+        const activeCount = keys.filter(k => k.status === 'active').length;
+        activeCountEl.textContent = activeCount;
+
+        if (keys.length === 0) {
+          tableContainer.style.display = 'none';
+          emptyState.style.display = 'flex';
+          tableBody.innerHTML = '';
+          return;
+        }
+
+        tableContainer.style.display = 'block';
+        emptyState.style.display = 'none';
+        tableBody.innerHTML = '';
+
+        keys.forEach(item => {
+          const tr = document.createElement('tr');
+          const isRevoked = item.status === 'revoked';
+          const maskedDisplay = item.prefix || (item.key ? `${item.key.slice(0, 14)}••••${item.key.slice(-4)}` : 'keyline_live_••••');
+
+          let formattedDate = 'Just now';
+          if (item.createdAt) {
+            try {
+              const d = typeof item.createdAt.toDate === 'function' ? item.createdAt.toDate() : new Date(item.createdAt);
+              formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+              formattedDate = String(item.createdAt);
+            }
+          }
+
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight: 700; color: var(--text-primary);">${escapeHtml(item.name || 'API Key')}</div>
+              <div style="font-size: 0.74rem; color: var(--text-secondary);">ID: ${escapeHtml(item.id)}</div>
+            </td>
+            <td>
+              <div class="key-pill">
+                <span class="mono" id="keyText_${item.id}" data-masked="${escapeHtml(maskedDisplay)}" data-full="${escapeHtml(item.key || '')}">${escapeHtml(maskedDisplay)}</span>
+                <button class="btn-copy btn-toggle-key" data-id="${item.id}" title="Reveal / Mask Key">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+                <button class="btn-copy btn-copy-key" data-key="${escapeHtml(item.key || '')}" title="Copy full key">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+            <td>
+              <span style="font-size: 0.82rem; color: var(--text-secondary);">${formattedDate}</span>
+            </td>
+            <td>
+              <span class="status-pill ${isRevoked ? 'muted' : 'success'}">
+                ${isRevoked ? 'Revoked' : '<span class="pulse-dot"></span> Active'}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px;">
+                ${!isRevoked ? `
+                  <button class="btn btn-secondary btn-sm btn-revoke-key" data-id="${item.id}" title="Revoke this key">
+                    Revoke
+                  </button>
+                ` : ''}
+                <button class="btn btn-outline-danger btn-sm btn-delete-key" data-id="${item.id}" title="Permanently delete key record">
+                  Delete
+                </button>
+              </div>
+            </td>
+          `;
+
+          tableBody.appendChild(tr);
+        });
+
+        // Attach listeners to dynamic key action buttons
+        tableBody.querySelectorAll('.btn-copy-key').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-key');
+            if (key) {
+              navigator.clipboard.writeText(key);
+              showToast('API Key copied to clipboard!');
+            }
+          });
+        });
+
+        tableBody.querySelectorAll('.btn-toggle-key').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const el = document.getElementById(`keyText_${id}`);
+            if (el) {
+              const full = el.getAttribute('data-full');
+              const masked = el.getAttribute('data-masked');
+              if (el.textContent === masked) {
+                el.textContent = full || masked;
+              } else {
+                el.textContent = masked;
+              }
+            }
+          });
+        });
+
+        tableBody.querySelectorAll('.btn-revoke-key').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm('Are you sure you want to revoke this API key? Applications using it will immediately be rejected.')) {
+              revokeApiKey(id);
+            }
+          });
+        });
+
+        tableBody.querySelectorAll('.btn-delete-key').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm('Permanently delete this key record from Firestore?')) {
+              deleteApiKey(id);
+            }
+          });
+        });
+      }
+
+      // Render Usage Logs in Dashboard Table
+      function renderUsageLogs(logs) {
+        const tableContainer = document.getElementById('logsTableContainer');
+        const emptyState = document.getElementById('logsEmptyState');
+        const tableBody = document.getElementById('logsTableBody');
+        const totalRequestsEl = document.getElementById('valTotalRequests');
+
+        totalRequestsEl.textContent = logs.length.toLocaleString();
+
+        if (logs.length === 0) {
+          tableContainer.style.display = 'none';
+          emptyState.style.display = 'flex';
+          tableBody.innerHTML = '';
+          return;
+        }
+
+        tableContainer.style.display = 'block';
+        emptyState.style.display = 'none';
+        tableBody.innerHTML = '';
+
+        logs.forEach(log => {
+          const tr = document.createElement('tr');
+          let formattedTime = 'Just now';
+          if (log.timestamp) {
+            try {
+              const d = typeof log.timestamp.toDate === 'function' ? log.timestamp.toDate() : new Date(log.timestamp);
+              formattedTime = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            } catch (e) {
+              formattedTime = String(log.timestamp);
+            }
+          }
+
+          tr.innerHTML = `
+            <td style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap;">${formattedTime}</td>
+            <td><code class="mono" style="font-size: 0.82rem; color: var(--primary-orange);">${escapeHtml(log.endpoint || '/v1/chat/completions')}</code></td>
+            <td><span style="font-size: 0.84rem; font-weight: 600;">${escapeHtml(log.model || 'keyline-core-v1')}</span></td>
+            <td><span style="font-weight: 700; color: var(--text-primary);">${Number(log.tokensUsed || 0).toLocaleString()} credits</span></td>
+            <td>
+              <span class="status-pill success">${log.status || 200} OK</span>
+            </td>
+            <td><code class="mono" style="font-size: 0.74rem; color: var(--text-secondary);">${escapeHtml(log.keyPrefix || log.keyId?.slice(0, 10) || '--')}</code></td>
+          `;
+
+          tableBody.appendChild(tr);
+        });
+      }
+
+      // Quickstart Integration Snippet State & Methods
+      let currentSelectedLanguage = 'curl'; // 'curl' | 'python' | 'javascript'
+      let currentSelectedModel = 'llama-3.3-70b-versatile'; // 'llama-3.3-70b-versatile' | 'gemma2-9b-it'
+
+      function getActiveUserApiKey() {
+        const activeKey = activeKeysList.find(k => k.status === 'active' && k.key);
+        return activeKey ? activeKey.key : 'YOUR_KEYLINE_API_KEY';
+      }
+
+      function updateIntegrationSnippet() {
+        const key = getActiveUserApiKey();
+        const model = currentSelectedModel;
+        const endpoint = 'https://keyline.v0408688.workers.dev/v1/chat/completions';
+        const baseUrl = 'https://keyline.v0408688.workers.dev/v1';
+
+        const indicatorEl = document.getElementById('codeKeyIndicator');
+        if (indicatorEl) {
+          if (key !== 'YOUR_KEYLINE_API_KEY') {
+            indicatorEl.innerHTML = `<span class="pulse-dot"></span> <span style="color:#A8E6CF;">Injected:</span> <code class="mono" style="color: #FFB380;">${key.slice(0, 16)}••••${key.slice(-4)}</code>`;
+          } else {
+            indicatorEl.innerHTML = `<span style="color: #FF944D;">⚠ No active key (placeholder used)</span>`;
+          }
+        }
+
+        const snippetEl = document.getElementById('integrationCodeBlock');
+        if (!snippetEl) return;
+
+        let codeText = '';
+
+        if (currentSelectedLanguage === 'curl') {
+          codeText = `curl -X POST ${endpoint} \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "${model}",
+    "messages": [
+      {"role": "system", "content": "You are a helpful AI assistant."},
+      {"role": "user", "content": "Explain quantum computing in two sentences."}
+    ],
+    "temperature": 0.7
+  }'`;
+        } else if (currentSelectedLanguage === 'python') {
+          codeText = `from openai import OpenAI
+
+# Keyline is 100% OpenAI SDK compatible
+client = OpenAI(
+    api_key="${key}",
+    base_url="${baseUrl}"
+)
+
+response = client.chat.completions.create(
+    model="${model}",
+    messages=[
+        {"role": "system", "content": "You are a helpful AI assistant."},
+        {"role": "user", "content": "Explain quantum computing in two sentences."}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`;
+        } else if (currentSelectedLanguage === 'javascript') {
+          codeText = `import OpenAI from "openai";
+
+// Keyline is 100% OpenAI SDK compatible
+const client = new OpenAI({
+  apiKey: "${key}",
+  baseURL: "${baseUrl}"
+});
+
+const response = await client.chat.completions.create({
+  model: "${model}",
+  messages: [
+    { role: "system", content: "You are a helpful AI assistant." },
+    { role: "user", content: "Explain quantum computing in two sentences." }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`;
+        }
+
+        snippetEl.textContent = codeText;
+      }
+
+      // Generate New API Key Function (Cryptographically unique + Dual-Write to Firestore)
+      async function generateNewApiKey(name) {
+        if (!currentUser || !db) return;
+        const btnSubmit = document.getElementById('btnSubmitGenerateKey');
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Generating...';
+
+        try {
+          // Guaranteed unique, non-repeating key using crypto.randomUUID() and crypto.getRandomValues()
+          const uuidPart = crypto.randomUUID().replace(/-/g, '');
+          const randomBytes = new Uint8Array(16);
+          crypto.getRandomValues(randomBytes);
+          const entropyHex = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+          const fullKey = `keyline_live_${uuidPart}_${entropyHex}`;
+          const prefix = `keyline_live_${uuidPart.slice(0, 6)}••••${entropyHex.slice(-4)}`;
+
+          // 1. Commit into users/{uid}/api_keys/{keyDocRef.id}
+          const keyDocRef = doc(collection(db, 'users', currentUser.uid, 'api_keys'));
+          const keyData = {
+            id: keyDocRef.id,
+            userId: currentUser.uid,
+            name: name.trim() || 'Production Key',
+            key: fullKey,
+            prefix: prefix,
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            updatedAt: serverTimestamp()
+          };
+          await setDoc(keyDocRef, keyData);
+
+          // 2. Duplicate record in top-level api_keys/{key} for fast gateway lookups
+          const topLevelKeyDocRef = doc(db, 'api_keys', fullKey);
+          await setDoc(topLevelKeyDocRef, {
+            uid: currentUser.uid,
+            keyId: keyDocRef.id,
+            name: name.trim() || 'Production Key',
+            status: 'active',
+            createdAt: new Date().toISOString()
+          });
+
+          closeModal('modalGenerateKey');
+
+          // Show Key Created Modal with one-click copy
+          document.getElementById('displayNewKey').textContent = fullKey;
+          openModal('modalKeyCreated');
+
+          updateIntegrationSnippet();
+          showToast('Cryptographically unique API Key generated & stored in Firestore.');
+        } catch (error) {
+          handleFirestoreError(error, OperationType.CREATE, `users/${currentUser.uid}/api_keys`);
+          showToast('Failed to generate key: ' + error.message, 'error');
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Generate Key';
+        }
+      }
+
+      // Revoke API Key in Firestore (Both subcollection & top-level lookup)
+      async function revokeApiKey(keyId) {
+        if (!currentUser || !db) return;
+        try {
+          const keyObj = activeKeysList.find(k => k.id === keyId);
+          const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
+          await updateDoc(keyDocRef, {
+            status: 'revoked',
+            updatedAt: serverTimestamp()
+          });
+
+          if (keyObj && keyObj.key) {
+            try {
+              await updateDoc(doc(db, 'api_keys', keyObj.key), {
+                status: 'revoked',
+                updatedAt: serverTimestamp()
+              });
+            } catch (err) {
+              console.warn('Could not revoke top-level api_key record:', err);
+            }
+          }
+
+          updateIntegrationSnippet();
+          showToast('API Key revoked.');
+        } catch (error) {
+          handleFirestoreError(error, OperationType.UPDATE, `users/${currentUser.uid}/api_keys/${keyId}`);
+          showToast('Failed to revoke key: ' + error.message, 'error');
+        }
+      }
+
+      // Delete API Key from Firestore (Both subcollection & top-level lookup)
+      async function deleteApiKey(keyId) {
+        if (!currentUser || !db) return;
+        try {
+          const keyObj = activeKeysList.find(k => k.id === keyId);
+          const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
+          await deleteDoc(keyDocRef);
+
+          if (keyObj && keyObj.key) {
+            try {
+              await deleteDoc(doc(db, 'api_keys', keyObj.key));
+            } catch (err) {
+              console.warn('Could not delete top-level api_key record:', err);
+            }
+          }
+
+          updateIntegrationSnippet();
+          showToast('API Key permanently deleted.');
+        } catch (error) {
+          handleFirestoreError(error, OperationType.DELETE, `users/${currentUser.uid}/api_keys/${keyId}`);
+          showToast('Failed to delete key: ' + error.message, 'error');
+        }
+      }
+
+      // Danger Zone: Delete Account Function
+      async function executeDeleteAccount() {
+        if (!currentUser || !db || !auth) return;
+        const btn = document.getElementById('btnConfirmDeleteAccount');
+        btn.disabled = true;
+        btn.textContent = 'Purging account data...';
+
+        const uid = currentUser.uid;
+
+        try {
+          // 1. Fetch and delete all user's API keys (both subcollection and top-level lookup documents)
+          const keysSnap = await getDocs(collection(db, 'users', uid, 'api_keys'));
+          for (const keyDoc of keysSnap.docs) {
+            const data = keyDoc.data();
+            if (data.key) {
+              try {
+                await deleteDoc(doc(db, 'api_keys', data.key));
+              } catch (e) {
+                console.warn('Could not delete top-level api_key record:', data.key, e);
+              }
+            }
+            await deleteDoc(keyDoc.ref);
+          }
+
+          // 2. Fetch and delete all user's usage_logs
+          const logsSnap = await getDocs(collection(db, 'users', uid, 'usage_logs'));
+          for (const logDoc of logsSnap.docs) {
+            await deleteDoc(logDoc.ref);
+          }
+
+          // 3. Delete user document from Firestore
+          await deleteDoc(doc(db, 'users', uid));
+
+          // 4. Delete Firebase Auth user
+          try {
+            await currentUser.delete();
+          } catch (authError) {
+            if (authError.code === 'auth/requires-recent-login') {
+              showToast('Security verification required. Re-authenticating with Google...', 'error');
+              const provider = new GoogleAuthProvider();
+              provider.setCustomParameters({ prompt: 'select_account' });
+              await reauthenticateWithPopup(currentUser, provider);
+              await currentUser.delete();
+            } else {
+              throw authError;
+            }
+          }
+
+          closeModal('modalDeleteAccount');
+          showToast('Your account, API keys, and records have been permanently deleted.');
+        } catch (error) {
+          console.error('Account deletion error:', error);
+          showToast('Account deletion failed: ' + error.message, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Delete Everything & Close Account';
+        }
+      }
+
+      // Claim Free Test Credits
+      async function claimTestCredits() {
+        if (!currentUser || !db) return;
+        const btn = document.getElementById('btnClaimFreeCredits');
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          await updateDoc(userDocRef, {
+            credits: increment(500),
+            updatedAt: serverTimestamp()
+          });
+          showToast('Added 500 token credits to your wallet!');
+        } catch (error) {
+          handleFirestoreError(error, OperationType.UPDATE, `users/${currentUser.uid}`);
+          showToast('Failed to add credits: ' + error.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '+500 Test Credits';
+        }
+      }
+
+      // Simulate Real API Request (Decrements credits, writes usage_log in Firestore)
+      async function simulateApiRequest(keyId, endpoint, tokensToUse) {
+        if (!currentUser || !db) return;
+        const btnSubmit = document.getElementById('btnSubmitTestRequest');
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Processing request...';
+
+        try {
+          // 1. Check user credits first
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userSnap = await getDoc(userDocRef);
+          const currentCredits = userSnap.exists() ? (userSnap.data().credits || 0) : 0;
+
+          if (currentCredits < tokensToUse) {
+            showToast(`Insufficient credits (${currentCredits} available, needed ${tokensToUse}). Click "+500 Test Credits" to top up!`, 'error');
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Send Request (200 OK)';
+            return;
+          }
+
+          // 2. Decrement credits in user doc
+          await updateDoc(userDocRef, {
+            credits: increment(-tokensToUse),
+            updatedAt: serverTimestamp()
+          });
+
+          // 3. Write usage log to subcollection
+          const keyObj = activeKeysList.find(k => k.id === keyId);
+          const logData = {
+            userId: currentUser.uid,
+            keyId: keyId,
+            keyPrefix: keyObj ? keyObj.prefix : 'keyline_live_••••',
+            endpoint: endpoint,
+            model: endpoint.includes('embeddings') ? 'keyline-embed-v2' : currentSelectedModel,
+            tokensUsed: Number(tokensToUse),
+            status: 200,
+            timestamp: new Date().toISOString()
+          };
+
+          await addDoc(collection(db, 'users', currentUser.uid, 'usage_logs'), logData);
+
+          closeModal('modalTestRequest');
+          showToast(`Request 200 OK: Consumed ${tokensToUse} tokens. Telemetry logged in Firestore.`);
+        } catch (error) {
+          handleFirestoreError(error, OperationType.WRITE, `users/${currentUser.uid}/usage_logs`);
+          showToast('API request failed: ' + error.message, 'error');
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Send Request (200 OK)';
+        }
+      }
+
+      // Utility to escape HTML
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // =========================================================================
+      // EVENT LISTENERS & DOM HOOKS
+      // =========================================================================
+
+      // Google Sign In (Sole authentication method)
+      const btnGoogleAuth = document.getElementById('btnGoogleAuth');
+      const btnGoogleAuthText = document.getElementById('btnGoogleAuthText');
+      const authErrorMessage = document.getElementById('authErrorMessage');
+      const authErrorText = document.getElementById('authErrorText');
+      const authDomainInfoBox = document.getElementById('authDomainInfoBox');
+      const displayCurrentHostname = document.getElementById('displayCurrentHostname');
+      const btnCopyDomainHostname = document.getElementById('btnCopyDomainHostname');
+
+      if (btnCopyDomainHostname) {
+        btnCopyDomainHostname.addEventListener('click', () => {
+          const domainToCopy = window.location.hostname;
+          navigator.clipboard.writeText(domainToCopy);
+          btnCopyDomainHostname.textContent = 'Copied!';
+          showToast(`Copied "${domainToCopy}" to clipboard!`);
+          setTimeout(() => {
+            btnCopyDomainHostname.textContent = 'Copy Domain';
+          }, 2500);
+        });
+      }
+
+      btnGoogleAuth.addEventListener('click', async () => {
+        authErrorMessage.style.display = 'none';
+        if (authDomainInfoBox) authDomainInfoBox.style.display = 'none';
+        btnGoogleAuth.disabled = true;
+        btnGoogleAuthText.textContent = 'Connecting with Google...';
+
+        try {
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          await signInWithPopup(auth, provider);
+        } catch (error) {
+          console.error("Google Auth error:", error);
+          if (authErrorText) {
+            authErrorText.textContent = error.message;
+          } else {
+            authErrorMessage.textContent = error.message;
+          }
+
+          // Always display the current window hostname so the user can easily copy it into Firebase Authorized Domains
+          const currentHostname = window.location.hostname;
+          if (displayCurrentHostname) {
+            displayCurrentHostname.textContent = currentHostname;
+          }
+          if (authDomainInfoBox) {
+            authDomainInfoBox.style.display = 'block';
+          }
+
+          authErrorMessage.style.display = 'block';
+        } finally {
+          btnGoogleAuth.disabled = false;
+          btnGoogleAuthText.textContent = 'Continue with Google';
+        }
+      });
+
+      // Sign Out
+      document.getElementById('btnSignOut').addEventListener('click', async () => {
+        if (auth) {
+          await signOut(auth);
+          showToast('Signed out successfully.');
+        }
+      });
+
+      // Quickstart Language Tabs
+      document.querySelectorAll('.code-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSelectedLanguage = btn.getAttribute('data-lang');
+          updateIntegrationSnippet();
+        });
+      });
+
+      // Quickstart Model Selector Dropdown & Pills Sync
+      const selectQuickstartModel = document.getElementById('selectQuickstartModel');
+      if (selectQuickstartModel) {
+        selectQuickstartModel.addEventListener('change', (e) => {
+          currentSelectedModel = e.target.value;
+          document.querySelectorAll('.model-pill-btn').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-model') === currentSelectedModel);
+          });
+          updateIntegrationSnippet();
+        });
+      }
+
+      // Quickstart Model Selector Buttons
+      document.querySelectorAll('.model-pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.model-pill-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSelectedModel = btn.getAttribute('data-model');
+          if (selectQuickstartModel) {
+            selectQuickstartModel.value = currentSelectedModel;
+          }
+          updateIntegrationSnippet();
+        });
+      });
+
+      // Copy Integration Code Snippet
+      const btnCopyIntegrationCode = document.getElementById('btnCopyIntegrationCode');
+      if (btnCopyIntegrationCode) {
+        btnCopyIntegrationCode.addEventListener('click', () => {
+          const snippetEl = document.getElementById('integrationCodeBlock');
+          if (snippetEl) {
+            navigator.clipboard.writeText(snippetEl.textContent);
+            const btnText = document.getElementById('txtCopyIntegrationBtn');
+            if (btnText) btnText.textContent = 'Copied!';
+            showToast('Code snippet copied to clipboard!');
+            setTimeout(() => {
+              if (btnText) btnText.textContent = 'Copy Code';
+            }, 2000);
+          }
+        });
+      }
+
+      // Open Key Generator Modal
+      document.getElementById('btnOpenGenerateKey').addEventListener('click', () => {
+        document.getElementById('inputKeyName').value = `Live Key #${activeKeysList.length + 1}`;
+        openModal('modalGenerateKey');
+      });
+
+      document.getElementById('btnEmptyGenerateKey').addEventListener('click', () => {
+        document.getElementById('inputKeyName').value = 'Production Key';
+        openModal('modalGenerateKey');
+      });
+
+      // Submit Key Generation
+      document.getElementById('formGenerateKey').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('inputKeyName').value;
+        generateNewApiKey(name);
+      });
+
+      // Copy Created Key
+      document.getElementById('btnCopyCreatedKey').addEventListener('click', () => {
+        const text = document.getElementById('displayNewKey').textContent;
+        navigator.clipboard.writeText(text);
+        showToast('Secret API key copied to clipboard!');
+      });
+
+      // Danger Zone: Open Delete Account Modal
+      const btnOpenDeleteAccount = document.getElementById('btnOpenDeleteAccount');
+      if (btnOpenDeleteAccount) {
+        btnOpenDeleteAccount.addEventListener('click', () => {
+          const emailDisplay = document.getElementById('txtDeleteAccountEmail');
+          if (emailDisplay && currentUser) {
+            emailDisplay.textContent = currentUser.email || 'your account';
+          }
+          const confirmInput = document.getElementById('inputConfirmDelete');
+          if (confirmInput) confirmInput.value = '';
+          const confirmBtn = document.getElementById('btnConfirmDeleteAccount');
+          if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Delete Everything & Close Account';
+          }
+          openModal('modalDeleteAccount');
+        });
+      }
+
+      // Confirm Delete Input Listener
+      const inputConfirmDelete = document.getElementById('inputConfirmDelete');
+      if (inputConfirmDelete) {
+        inputConfirmDelete.addEventListener('input', (e) => {
+          const confirmBtn = document.getElementById('btnConfirmDeleteAccount');
+          if (confirmBtn) {
+            confirmBtn.disabled = e.target.value.trim().toUpperCase() !== 'DELETE';
+          }
+        });
+      }
+
+      // Confirm Delete Account Button
+      const btnConfirmDeleteAccount = document.getElementById('btnConfirmDeleteAccount');
+      if (btnConfirmDeleteAccount) {
+        btnConfirmDeleteAccount.addEventListener('click', executeDeleteAccount);
+      }
+
+      // Real-time Firestore balance refresh sync
+      const btnSyncCredits = document.getElementById('btnSyncFirestoreCredits');
+      if (btnSyncCredits) {
+        btnSyncCredits.addEventListener('click', async () => {
+          if (!currentUser || !db) return;
+          const icon = document.getElementById('iconSyncRefresh');
+          if (icon) icon.classList.add('spin');
+          try {
+            const snap = await getDoc(doc(db, 'users', currentUser.uid));
+            if (snap.exists()) {
+              const credits = typeof snap.data().credits === 'number' ? snap.data().credits : 0;
+              updateCreditProgressUI(credits);
+              showToast(`Firestore balance synced: ${Number(credits).toLocaleString()} credits available.`);
+            }
+          } catch (err) {
+            showToast('Sync error: ' + err.message, 'error');
+          } finally {
+            setTimeout(() => {
+              if (icon) icon.classList.remove('spin');
+            }, 600);
+          }
+        });
+      }
+
+      // Add Credits Top-Up Modal State & Event Listeners
+      let selectedPackage = { id: 'growth', amount: 99, credits: 15000 };
+
+      function updateTopupQrCode(amount, credits) {
+        const upiUri = `upi://pay?pa=keyline.ai@upi&pn=KeylineAI&am=${amount}&cu=INR`;
+        const qrImg = document.getElementById('upiQrCodeImg');
+        if (qrImg) {
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiUri)}`;
+        }
+        const displayAmount = document.getElementById('displaySelectedAmount');
+        if (displayAmount) {
+          displayAmount.textContent = `₹${amount}`;
+        }
+        const displayCredits = document.getElementById('displaySelectedCredits');
+        if (displayCredits) {
+          displayCredits.textContent = `(${Number(credits).toLocaleString()} Credits)`;
+        }
+      }
+
+      function resetTopupModal() {
+        const formCont = document.getElementById('topupFormContainer');
+        const confirmCont = document.getElementById('topupConfirmationContainer');
+        if (formCont) formCont.style.display = 'block';
+        if (confirmCont) confirmCont.style.display = 'none';
+
+        const inputUtr = document.getElementById('inputUtrNumber');
+        if (inputUtr) inputUtr.value = '';
+        const counter = document.getElementById('utrCharCounter');
+        if (counter) counter.textContent = '0 / 12 digits';
+        const valMsg = document.getElementById('utrValidationMsg');
+        if (valMsg) {
+          valMsg.textContent = '';
+          valMsg.style.display = 'none';
+        }
+
+        const btnSubmit = document.getElementById('btnSubmitPaymentRequest');
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Submit Payment</span>
+          `;
+        }
+
+        updateTopupQrCode(selectedPackage.amount, selectedPackage.credits);
+      }
+
+      const btnOpenAddCredits = document.getElementById('btnOpenAddCredits');
+      if (btnOpenAddCredits) {
+        btnOpenAddCredits.addEventListener('click', () => {
+          resetTopupModal();
+          openModal('modalAddCredits');
+        });
+      }
+
+      // Package Card Selection
+      document.querySelectorAll('#modalAddCredits .tier-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('#modalAddCredits .tier-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          const id = card.getAttribute('data-tier-id') || 'growth';
+          const amount = parseInt(card.getAttribute('data-package-amount'), 10);
+          const credits = parseInt(card.getAttribute('data-credits'), 10);
+          selectedPackage = { id, amount, credits };
+          updateTopupQrCode(amount, credits);
+        });
+      });
+
+      // Copy UPI ID Button
+      const btnCopyUpiId = document.getElementById('btnCopyUpiId');
+      if (btnCopyUpiId) {
+        btnCopyUpiId.addEventListener('click', () => {
+          navigator.clipboard.writeText('keyline.ai@upi');
+          const textSpan = document.getElementById('btnCopyUpiIdText');
+          if (textSpan) textSpan.textContent = 'Copied!';
+          showToast('UPI ID "keyline.ai@upi" copied to clipboard!');
+          setTimeout(() => {
+            if (textSpan) textSpan.textContent = 'Copy UPI ID';
+          }, 2000);
+        });
+      }
+
+      // 12-digit UTR Input Validation
+      const inputUtr = document.getElementById('inputUtrNumber');
+      if (inputUtr) {
+        inputUtr.addEventListener('input', (e) => {
+          const cleaned = e.target.value.replace(/\D/g, '').slice(0, 12);
+          e.target.value = cleaned;
+          const counter = document.getElementById('utrCharCounter');
+          if (counter) counter.textContent = `${cleaned.length} / 12 digits`;
+          const valMsg = document.getElementById('utrValidationMsg');
+          if (valMsg) valMsg.style.display = 'none';
+        });
+      }
+
+      // Submit Payment Request to Firestore
+      const btnSubmitPayment = document.getElementById('btnSubmitPaymentRequest');
+      if (btnSubmitPayment) {
+        btnSubmitPayment.addEventListener('click', async () => {
+          if (!currentUser || !db) {
+            showToast('Please sign in to submit a payment request.', 'error');
+            return;
+          }
+
+          const utrInput = document.getElementById('inputUtrNumber');
+          const valMsg = document.getElementById('utrValidationMsg');
+          const utrVal = utrInput ? utrInput.value.trim() : '';
+
+          // Validate exactly 12 numeric digits
+          if (!/^\d{12}$/.test(utrVal)) {
+            if (valMsg) {
+              valMsg.textContent = 'Please enter a valid 12-digit numeric UPI UTR / Transaction ID.';
+              valMsg.style.display = 'block';
+            }
+            if (utrInput) utrInput.focus();
+            showToast('Please enter a valid 12-digit UPI UTR number.', 'error');
+            return;
+          }
+
+          btnSubmitPayment.disabled = true;
+          btnSubmitPayment.innerHTML = `
+            <svg class="spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)"></circle>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="#FFF"></path>
+            </svg>
+            <span>Submitting Payment...</span>
+          `;
+
+          try {
+            // Save document to Firestore under payment_requests collection
+            await addDoc(collection(db, 'payment_requests'), {
+              uid: currentUser.uid,
+              userEmail: currentUser.email || '',
+              packageAmount: Number(selectedPackage.amount),
+              creditsToAdd: Number(selectedPackage.credits),
+              utrNumber: utrVal,
+              status: 'pending',
+              timestamp: serverTimestamp()
+            });
+
+            // Display clean confirmation message state
+            const formCont = document.getElementById('topupFormContainer');
+            const confirmCont = document.getElementById('topupConfirmationContainer');
+            const confirmPkg = document.getElementById('confirmPackageText');
+            const confirmUtr = document.getElementById('confirmUtrText');
+
+            if (confirmPkg) confirmPkg.textContent = `₹${selectedPackage.amount} (${Number(selectedPackage.credits).toLocaleString()} Credits)`;
+            if (confirmUtr) confirmUtr.textContent = utrVal;
+
+            if (formCont) formCont.style.display = 'none';
+            if (confirmCont) confirmCont.style.display = 'block';
+
+            showToast('Payment submitted! Your credits will be updated once the transaction is verified.');
+          } catch (error) {
+            console.error('Payment request submission error:', error);
+            handleFirestoreError(error, OperationType.CREATE, 'payment_requests');
+            showToast('Failed to submit payment: ' + error.message, 'error');
+          } finally {
+            btnSubmitPayment.disabled = false;
+            btnSubmitPayment.innerHTML = `
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Submit Payment</span>
+            `;
+          }
+        });
+      }
+
+      // Submit Another Payment button handler
+      const btnSubmitAnother = document.getElementById('btnSubmitAnotherTopup');
+      if (btnSubmitAnother) {
+        btnSubmitAnother.addEventListener('click', () => {
+          resetTopupModal();
+        });
+      }
+
+      // Top up credits
+      document.getElementById('btnClaimFreeCredits').addEventListener('click', claimTestCredits);
+
+      // Open Test Request Modal
+      function setupTestRequestModal() {
+        const activeKeys = activeKeysList.filter(k => k.status === 'active');
+        if (activeKeys.length === 0) {
+          showToast('Please generate an active API key first.', 'error');
+          openModal('modalGenerateKey');
+          return;
+        }
+
+        const select = document.getElementById('selectTestKey');
+        select.innerHTML = '';
+        activeKeys.forEach(k => {
+          const opt = document.createElement('option');
+          opt.value = k.id;
+          opt.textContent = `${k.name} (${k.prefix || k.id.slice(0, 8)})`;
+          select.appendChild(opt);
+        });
+
+        openModal('modalTestRequest');
+      }
+
+      document.getElementById('btnOpenTestRequest').addEventListener('click', setupTestRequestModal);
+      document.getElementById('btnEmptyTestRequest').addEventListener('click', setupTestRequestModal);
+
+      // Submit Test Request
+      document.getElementById('formTestRequest').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const keyId = document.getElementById('selectTestKey').value;
+        const endpoint = document.getElementById('selectTestEndpoint').value;
+        const tokens = parseInt(document.getElementById('inputTokensToUse').value, 10) || 25;
+        simulateApiRequest(keyId, endpoint, tokens);
+      });
+
+      // Boot application
+      setupFirebase();
+      updateIntegrationSnippet();
+    </script>
+  </body>
+</html>

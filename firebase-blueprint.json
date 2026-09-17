@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with token credits and account information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "credits": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "credits"]
+    },
+    "ApiKey": {
+      "title": "ApiKey",
+      "description": "API key generated for the Keyline platform",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "key": { "type": "string" },
+        "prefix": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "revoked"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "key", "status"]
+    },
+    "UsageLog": {
+      "title": "UsageLog",
+      "description": "Logged record of API request and token consumption",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "endpoint": { "type": "string" },
+        "model": { "type": "string" },
+        "tokensUsed": { "type": "number" },
+        "status": { "type": "number" },
+        "timestamp": { "type": "string" },
+        "keyId": { "type": "string" }
+      },
+      "required": ["id", "userId", "endpoint", "tokensUsed", "status"]
+    },
+    "PaymentRequest": {
+      "title": "PaymentRequest",
+      "description": "User UPI payment request with 12-digit UTR for credit top-up verification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string" },
+        "userEmail": { "type": "string", "format": "email" },
+        "packageAmount": { "type": "number" },
+        "creditsToAdd": { "type": "number" },
+        "utrNumber": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["uid", "userEmail", "packageAmount", "creditsToAdd", "utrNumber", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores user credits and profile data"
+    },
+    "/users/{userId}/api_keys/{keyId}": {
+      "schema": "ApiKey",
+      "description": "Stores generated API keys for the user"
+    },
+    "/users/{userId}/usage_logs/{logId}": {
+      "schema": "UsageLog",
+      "description": "Stores real API usage records and telemetry"
+    },
+    "/api_keys/{key}": {
+      "schema": "ApiKey",
+      "description": "Fast lookup index for API gateway token authorization"
+    },
+    "/payment_requests/{requestId}": {
+      "schema": "PaymentRequest",
+      "description": "Stores submitted UPI payment top-up requests with UTR numbers"
+    }
+  }
+}
