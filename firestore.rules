@@ -45,7 +45,7 @@ service cloud.firestore {
         allow update: if isOwner(userId)
                       && request.resource.data.userId == userId
                       && request.resource.data.key == resource.data.key
-                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'name', 'updatedAt']);
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'name', 'updatedAt', 'revokedAt']);
         allow delete: if isOwner(userId);
       }
 

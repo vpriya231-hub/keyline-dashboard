@@ -211,6 +211,18 @@
         background-color: var(--danger-bg);
       }
 
+      .btn-outline-success {
+        background-color: #F0FDF4;
+        color: #15803D;
+        border: 1px solid #BBF7D0;
+      }
+
+      .btn-outline-success:hover {
+        background-color: #DCFCE7;
+        border-color: #86EFAC;
+        color: #166534;
+      }
+
       .btn-sm {
         padding: 6px 12px;
         font-size: 0.8rem;
@@ -251,6 +263,12 @@
         background-color: #F3F4F6;
         color: #4B5563;
         border: 1px solid #E5E7EB;
+      }
+
+      .status-pill.danger {
+        background-color: #FEF2F2;
+        color: #DC2626;
+        border: 1px solid #FECACA;
       }
 
       .pulse-dot {
@@ -887,6 +905,33 @@
         font-weight: 600;
       }
 
+      .key-mode-btn {
+        background: transparent;
+        border: none;
+        color: #C2B6AF;
+        padding: 4px 12px;
+        border-radius: var(--radius-full);
+        font-size: 0.74rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: inherit;
+        white-space: nowrap;
+      }
+
+      .key-mode-btn:hover {
+        color: #FFFFFF;
+      }
+
+      .key-mode-btn.active {
+        background: var(--primary-orange);
+        color: #FFFFFF;
+        box-shadow: 0 2px 6px rgba(255, 107, 0, 0.4);
+      }
+
       .code-block {
         font-size: 0.82rem;
         line-height: 1.65;
@@ -1142,6 +1187,37 @@
         border-color: #FFB380;
       }
 
+      .btn-github {
+        width: 100%;
+        background-color: #24292F;
+        color: #FFFFFF;
+        border: 1px solid #1B1F24;
+        font-weight: 600;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+      }
+
+      .btn-github:hover {
+        background-color: #161B22;
+        border-color: #000000;
+        box-shadow: 0 4px 12px rgba(36, 41, 47, 0.28);
+      }
+
+      .btn-github:active {
+        transform: scale(0.985);
+      }
+
+      .btn-github:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
       .toast {
         position: fixed;
         bottom: 24px;
@@ -1237,10 +1313,10 @@
               </svg>
             </div>
             <h1 class="auth-title">Welcome to Keyline</h1>
-            <p class="auth-subtitle">Sign in with your Google account to access your AI API keys, credits wallet, and live telemetry.</p>
+            <p class="auth-subtitle">Sign in with Google or GitHub to access your AI API keys, credits wallet, and live telemetry.</p>
           </div>
 
-          <!-- Google Auth Button (Sole authentication method) -->
+          <!-- Google Auth Button -->
           <button id="btnGoogleAuth" class="btn-google" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(45, 31, 22, 0.08); font-weight: 700;">
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1249,6 +1325,19 @@
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
             <span id="btnGoogleAuthText">Continue with Google</span>
+          </button>
+
+          <!-- Subtle Divider -->
+          <div class="auth-divider" style="margin: 16px 0;">
+            <span>or continue with</span>
+          </div>
+
+          <!-- GitHub Auth Button -->
+          <button id="btnGithubAuth" class="btn-github" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); font-weight: 700;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+            <span id="btnGithubAuthText">Sign in with GitHub</span>
           </button>
 
           <!-- Error Alert for Google Auth with Domain Diagnostics & One-Click Copy -->
@@ -1476,37 +1565,65 @@
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <label for="selectQuickstartModel" style="color: #FFB380; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Model:</label>
                   <select id="selectQuickstartModel" class="code-model-dropdown">
-                    <option value="llama-3.3-70b-versatile" selected>llama-3.3-70b-versatile (Flagship)</option>
-                    <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Ultra Fast)</option>
-                    <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (High Reasoning)</option>
-                    <option value="openai/gpt-oss-20b">openai/gpt-oss-20b (Speed Reasoning)</option>
-                    <option value="qwen/qwen3-32b">qwen/qwen3-32b</option>
+                    <option value="openai/gpt-oss-20b" selected>openai/gpt-oss-20b (Ultra Fast Reasoning - Flagship)</option>
+                    <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (High Reasoning &amp; Logic)</option>
+                    <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b (Multi-modal &amp; Coding)</option>
+                    <option value="groq/compound-mini">groq/compound-mini (Lightweight Agentic)</option>
                   </select>
                 </div>
                 <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                  <button type="button" class="model-pill-btn active" data-model="llama-3.3-70b-versatile" title="Llama 3.3 70B (Flagship)">
-                    llama-3.3-70b
-                  </button>
-                  <button type="button" class="model-pill-btn" data-model="llama-3.1-8b-instant" title="Llama 3.1 8B (Ultra Fast)">
-                    llama-3.1-8b
-                  </button>
-                  <button type="button" class="model-pill-btn" data-model="openai/gpt-oss-120b" title="GPT-OSS 120B (High Reasoning)">
-                    gpt-oss-120b
-                  </button>
-                  <button type="button" class="model-pill-btn" data-model="openai/gpt-oss-20b" title="GPT-OSS 20B (Speed Reasoning)">
+                  <button type="button" class="model-pill-btn active" data-model="openai/gpt-oss-20b" title="openai/gpt-oss-20b (Ultra Fast Reasoning - Flagship)">
                     gpt-oss-20b
                   </button>
-                  <button type="button" class="model-pill-btn" data-model="qwen/qwen3-32b" title="Qwen 3 32B">
-                    qwen3-32b
+                  <button type="button" class="model-pill-btn" data-model="openai/gpt-oss-120b" title="openai/gpt-oss-120b (High Reasoning &amp; Logic)">
+                    gpt-oss-120b
+                  </button>
+                  <button type="button" class="model-pill-btn" data-model="qwen/qwen3.8-27b" title="qwen/qwen3.8-27b (Multi-modal &amp; Coding)">
+                    qwen3.8-27b
+                  </button>
+                  <button type="button" class="model-pill-btn" data-model="groq/compound-mini" title="groq/compound-mini (Lightweight Agentic)">
+                    compound-mini
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Injection Mode Toggle & Live Key Indicator Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding: 7px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm);">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="color: #FFB380; font-size: 0.74rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Key Injection:</span>
+                <div style="display: inline-flex; background: rgba(0, 0, 0, 0.35); padding: 2px; border-radius: var(--radius-full); border: 1px solid rgba(255, 255, 255, 0.1);">
+                  <button type="button" class="key-mode-btn active" data-mode="direct" id="btnModeDirect" title="Inject your active API key directly into code for quick testing">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    Direct Key (Quick Test)
+                  </button>
+                  <button type="button" class="key-mode-btn" data-mode="secure" id="btnModeSecure" title="Use environment variable (.env / Secrets) convention">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Secure (.env / Secrets)
                   </button>
                 </div>
               </div>
               <div id="codeKeyIndicator" style="font-size: 0.76rem; color: #D6CCC5; display: flex; align-items: center; gap: 6px;">
-                <!-- Dynamically populated with active key or placeholder -->
+                <!-- Dynamically populated with active key or environment status -->
               </div>
             </div>
 
             <pre class="code-block" id="integrationCodeBlock"></pre>
+
+            <!-- Security Helper Tip -->
+            <div style="margin-top: 10px; padding: 9px 12px; background: rgba(255, 107, 0, 0.07); border: 1px solid rgba(255, 107, 0, 0.2); border-radius: var(--radius-sm); font-size: 0.76rem; color: #E6DFDA; display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF944D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <div>
+                <strong style="color: #FFB380;">Security Tip:</strong> For enterprise security and production systems, you can add <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">KEYLINE_API_KEY</code> or <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">V_ASTRA_API_KEY</code> to your <code class="mono" style="color: #A8E6CF;">.env</code> file, Cloudflare Worker secrets, or Android secrets instead of hardcoding raw credentials.
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1874,11 +1991,10 @@
           <div class="form-group">
             <label class="form-label" for="selectTestEndpoint">API Endpoint &amp; Model</label>
             <select id="selectTestEndpoint" class="form-select">
-              <option value="/v1/chat/completions">POST /v1/chat/completions (llama-3.3-70b-versatile)</option>
-              <option value="/v1/chat/completions#fast">POST /v1/chat/completions (llama-3.1-8b-instant)</option>
-              <option value="/v1/chat/completions#reasoning">POST /v1/chat/completions (openai/gpt-oss-120b)</option>
-              <option value="/v1/chat/completions#speed">POST /v1/chat/completions (openai/gpt-oss-20b)</option>
-              <option value="/v1/chat/completions#qwen">POST /v1/chat/completions (qwen/qwen3-32b)</option>
+              <option value="/v1/chat/completions">POST /v1/chat/completions (openai/gpt-oss-20b)</option>
+              <option value="/v1/chat/completions#120b">POST /v1/chat/completions (openai/gpt-oss-120b)</option>
+              <option value="/v1/chat/completions#qwen">POST /v1/chat/completions (qwen/qwen3.8-27b)</option>
+              <option value="/v1/chat/completions#compound">POST /v1/chat/completions (groq/compound-mini)</option>
               <option value="/v1/embeddings">POST /v1/embeddings (keyline-embed-v2)</option>
             </select>
           </div>
@@ -1942,6 +2058,42 @@
       </div>
     </div>
 
+    <!-- Delete API Key Confirmation Modal -->
+    <div id="modalDeleteKey" class="modal-backdrop">
+      <div class="modal" style="max-width: 480px;">
+        <div class="modal-header">
+          <h3 class="modal-title" style="color: var(--danger-red); display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            Delete API Key
+          </h3>
+          <button class="modal-close" data-close="modalDeleteKey">&times;</button>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <p style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 12px; line-height: 1.5;">
+            Are you sure you want to permanently delete <strong id="txtDeleteKeyName">this API key</strong>?
+          </p>
+          <div style="background: #FFF5EE; border: 1px solid var(--border-warm); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px;">
+            <div style="font-size: 0.74rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Key Identifier:</div>
+            <code class="mono" id="txtDeleteKeyPrefix" style="font-size: 0.84rem; color: var(--primary-orange); font-weight: 700;">keyline_live_...</code>
+          </div>
+          <div style="background-color: var(--danger-bg); border: 1px solid #FCA5A5; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.82rem; color: var(--danger-red); line-height: 1.5;">
+            <strong>Warning:</strong> Any application or service configured with this API key will immediately be rejected by the Keyline gateway with <code>401 Unauthorized</code>. This action cannot be undone.
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modalDeleteKey">Cancel</button>
+          <button type="button" id="btnConfirmDeleteKey" class="btn btn-primary" style="background: var(--danger-red); border-color: var(--danger-red);">
+            Permanently Delete Key
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toastNotification" class="toast">
       <span id="toastMessage">Notification</span>
@@ -1970,6 +2122,7 @@
         getAuth,
         signInWithPopup,
         GoogleAuthProvider,
+        GithubAuthProvider,
         signOut,
         onAuthStateChanged,
         reauthenticateWithPopup
@@ -2096,13 +2249,16 @@
           userNavSection.style.display = 'flex';
 
           // Update user navbar UI
-          const displayName = user.displayName || user.email?.split('@')[0] || 'Developer';
+          const displayName = user.displayName || user.reloadUserInfo?.screenName || user.providerData?.[0]?.displayName || 'Developer';
+          const userEmail = user.email || user.providerData?.[0]?.email || 'GitHub User';
+
           document.getElementById('navUserName').textContent = displayName;
-          document.getElementById('navUserEmail').textContent = user.email || 'No email';
+          document.getElementById('navUserEmail').textContent = userEmail;
           
           const avatarEl = document.getElementById('navUserAvatar');
-          if (user.photoURL) {
-            avatarEl.innerHTML = `<img src="${user.photoURL}" alt="${displayName}" referrerpolicy="no-referrer" />`;
+          const photoURL = user.photoURL || user.providerData?.[0]?.photoURL;
+          if (photoURL) {
+            avatarEl.innerHTML = `<img src="${photoURL}" alt="${displayName}" referrerpolicy="no-referrer" />`;
           } else {
             avatarEl.textContent = displayName.charAt(0).toUpperCase();
           }
@@ -2130,18 +2286,40 @@
         const userDocRef = doc(db, 'users', user.uid);
         try {
           const snap = await getDoc(userDocRef);
+          const userEmail = user.email || user.providerData?.[0]?.email || 'GitHub User';
+          const userDisplayName = user.displayName || user.reloadUserInfo?.screenName || user.providerData?.[0]?.displayName || 'Developer';
+          const userPhotoURL = user.photoURL || user.providerData?.[0]?.photoURL || '';
+
           if (!snap.exists()) {
-            // New user defaults to 1,000 free tokens
+            // New user defaults to 1,000 free tokens, tier: "free"
             await setDoc(userDocRef, {
               uid: user.uid,
-              email: user.email || '',
-              displayName: user.displayName || user.email?.split('@')[0] || 'Developer',
-              photoURL: user.photoURL || '',
+              email: userEmail,
+              displayName: userDisplayName,
+              photoURL: userPhotoURL,
               credits: 1000,
+              tier: 'free',
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp()
             });
             showToast('Welcome to Keyline! 1,000 token credits granted.');
+          } else {
+            // Update profile fields if they were missing or set to placeholder previously
+            const data = snap.data();
+            const updates = {};
+            if ((!data.email || data.email === 'No email') && userEmail && userEmail !== 'GitHub User') {
+              updates.email = userEmail;
+            }
+            if ((!data.displayName || data.displayName === 'Developer') && userDisplayName && userDisplayName !== 'Developer') {
+              updates.displayName = userDisplayName;
+            }
+            if (!data.photoURL && userPhotoURL) {
+              updates.photoURL = userPhotoURL;
+            }
+            if (Object.keys(updates).length > 0) {
+              updates.updatedAt = serverTimestamp();
+              await updateDoc(userDocRef, updates);
+            }
           }
         } catch (error) {
           handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
@@ -2267,18 +2445,16 @@
               <span style="font-size: 0.82rem; color: var(--text-secondary);">${formattedDate}</span>
             </td>
             <td>
-              <span class="status-pill ${isRevoked ? 'muted' : 'success'}">
+              <span class="status-pill ${isRevoked ? 'danger' : 'success'}" id="badgeKey_${item.id}">
                 ${isRevoked ? 'Revoked' : '<span class="pulse-dot"></span> Active'}
               </span>
             </td>
             <td style="text-align: right;">
               <div style="display: inline-flex; gap: 6px;">
-                ${!isRevoked ? `
-                  <button class="btn btn-secondary btn-sm btn-revoke-key" data-id="${item.id}" title="Revoke this key">
-                    Revoke
-                  </button>
-                ` : ''}
-                <button class="btn btn-outline-danger btn-sm btn-delete-key" data-id="${item.id}" title="Permanently delete key record">
+                <button class="btn ${isRevoked ? 'btn-outline-success' : 'btn-secondary'} btn-sm btn-revoke-key" id="btnToggle_${item.id}" data-id="${item.id}" data-status="${item.status}" title="${isRevoked ? 'Activate this API key' : 'Revoke this API key'}">
+                  ${isRevoked ? 'Activate' : 'Revoke'}
+                </button>
+                <button class="btn btn-outline-danger btn-sm btn-delete-key" id="btnDelete_${item.id}" data-id="${item.id}" title="Permanently delete key record">
                   Delete
                 </button>
               </div>
@@ -2318,18 +2494,14 @@
         tableBody.querySelectorAll('.btn-revoke-key').forEach(btn => {
           btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
-            if (confirm('Are you sure you want to revoke this API key? Applications using it will immediately be rejected.')) {
-              revokeApiKey(id);
-            }
+            toggleApiKeyStatus(id, btn);
           });
         });
 
         tableBody.querySelectorAll('.btn-delete-key').forEach(btn => {
           btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
-            if (confirm('Permanently delete this key record from Firestore?')) {
-              deleteApiKey(id);
-            }
+            promptDeleteApiKey(id, btn);
           });
         });
       }
@@ -2383,7 +2555,8 @@
 
       // Quickstart Integration Snippet State & Methods
       let currentSelectedLanguage = 'curl'; // 'curl' | 'python' | 'javascript'
-      let currentSelectedModel = 'llama-3.3-70b-versatile'; // 'llama-3.3-70b-versatile' | 'gemma2-9b-it'
+      let currentSelectedModel = 'openai/gpt-oss-20b';
+      let currentKeyMode = 'direct'; // 'direct' | 'secure'
 
       function getActiveUserApiKey() {
         const activeKey = activeKeysList.find(k => k.status === 'active' && k.key);
@@ -2398,10 +2571,17 @@
 
         const indicatorEl = document.getElementById('codeKeyIndicator');
         if (indicatorEl) {
-          if (key !== 'YOUR_KEYLINE_API_KEY') {
-            indicatorEl.innerHTML = `<span class="pulse-dot"></span> <span style="color:#A8E6CF;">Injected:</span> <code class="mono" style="color: #FFB380;">${key.slice(0, 16)}••••${key.slice(-4)}</code>`;
+          if (currentKeyMode === 'direct') {
+            if (key !== 'YOUR_KEYLINE_API_KEY') {
+              indicatorEl.innerHTML = `<span class="pulse-dot"></span> <span style="color:#A8E6CF;">Direct Injected:</span> <code class="mono" style="color: #FFB380;">${key.slice(0, 16)}••••${key.slice(-4)}</code>`;
+            } else {
+              indicatorEl.innerHTML = `<span style="color: #FF944D;">⚠ No active key (placeholder used)</span>`;
+            }
           } else {
-            indicatorEl.innerHTML = `<span style="color: #FF944D;">⚠ No active key (placeholder used)</span>`;
+            indicatorEl.innerHTML = `<span style="color: #A8E6CF; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              Secure Mode:
+            </span> <code class="mono" style="color: #FFB380;">KEYLINE_API_KEY (.env)</code>`;
           }
         }
 
@@ -2410,8 +2590,10 @@
 
         let codeText = '';
 
-        if (currentSelectedLanguage === 'curl') {
-          codeText = `curl -X POST ${endpoint} \\
+        if (currentKeyMode === 'direct') {
+          // Direct Key Mode (Quick Test)
+          if (currentSelectedLanguage === 'curl') {
+            codeText = `curl -X POST ${endpoint} \\
   -H "Authorization: Bearer ${key}" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -2422,8 +2604,8 @@
     ],
     "temperature": 0.7
   }'`;
-        } else if (currentSelectedLanguage === 'python') {
-          codeText = `from openai import OpenAI
+          } else if (currentSelectedLanguage === 'python') {
+            codeText = `from openai import OpenAI
 
 # Keyline is 100% OpenAI SDK compatible
 client = OpenAI(
@@ -2441,8 +2623,8 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)`;
-        } else if (currentSelectedLanguage === 'javascript') {
-          codeText = `import OpenAI from "openai";
+          } else if (currentSelectedLanguage === 'javascript') {
+            codeText = `import OpenAI from "openai";
 
 // Keyline is 100% OpenAI SDK compatible
 const client = new OpenAI({
@@ -2460,6 +2642,63 @@ const response = await client.chat.completions.create({
 });
 
 console.log(response.choices[0].message.content);`;
+          }
+        } else {
+          // Secure (.env / Secrets) Mode
+          if (currentSelectedLanguage === 'curl') {
+            codeText = `export KEYLINE_API_KEY="your_api_key_here"
+
+curl -X POST ${endpoint} \\
+  -H "Authorization: Bearer $KEYLINE_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "${model}",
+    "messages": [
+      {"role": "system", "content": "You are a helpful AI assistant."},
+      {"role": "user", "content": "Explain quantum computing in two sentences."}
+    ],
+    "temperature": 0.7
+  }'`;
+          } else if (currentSelectedLanguage === 'python') {
+            codeText = `import os
+from openai import OpenAI
+
+# Keyline is 100% OpenAI SDK compatible
+client = OpenAI(
+    api_key=os.environ.get("KEYLINE_API_KEY"),
+    base_url="${baseUrl}"
+)
+
+response = client.chat.completions.create(
+    model="${model}",
+    messages=[
+        {"role": "system", "content": "You are a helpful AI assistant."},
+        {"role": "user", "content": "Explain quantum computing in two sentences."}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`;
+          } else if (currentSelectedLanguage === 'javascript') {
+            codeText = `import OpenAI from "openai";
+
+// Keyline is 100% OpenAI SDK compatible
+const client = new OpenAI({
+  apiKey: process.env.KEYLINE_API_KEY,
+  baseURL: "${baseUrl}"
+});
+
+const response = await client.chat.completions.create({
+  model: "${model}",
+  messages: [
+    { role: "system", content: "You are a helpful AI assistant." },
+    { role: "user", content: "Explain quantum computing in two sentences." }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`;
+          }
         }
 
         snippetEl.textContent = codeText;
@@ -2522,44 +2761,123 @@ console.log(response.choices[0].message.content);`;
         }
       }
 
-      // Revoke API Key in Firestore (Both subcollection & top-level lookup)
-      async function revokeApiKey(keyId) {
-        if (!currentUser || !db) return;
-        try {
-          const keyObj = activeKeysList.find(k => k.id === keyId);
-          const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
-          await updateDoc(keyDocRef, {
-            status: 'revoked',
-            updatedAt: serverTimestamp()
-          });
+      // =========================================================================
+      // 🔑 API KEY MANAGEMENT: REVOKE / ACTIVATE & PERMANENT DELETE
+      // =========================================================================
+      let pendingDeleteKeyId = null;
 
+      // Toggle API Key Status in Firestore (Revoke or Activate)
+      async function toggleApiKeyStatus(keyId, btn) {
+        if (!currentUser || !db) return;
+        const keyObj = activeKeysList.find(k => k.id === keyId);
+        if (!keyObj) return;
+
+        const isCurrentlyRevoked = keyObj.status === 'revoked';
+        const targetStatus = isCurrentlyRevoked ? 'active' : 'revoked';
+
+        const originalBtnHtml = btn ? btn.innerHTML : '';
+        const originalBtnClass = btn ? btn.className : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.2)"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor"></path></svg> ${isCurrentlyRevoked ? 'Activating...' : 'Revoking...'}`;
+        }
+
+        try {
+          const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
+          const updatePayload = {
+            status: targetStatus,
+            updatedAt: serverTimestamp()
+          };
+          if (targetStatus === 'revoked') {
+            updatePayload.revokedAt = serverTimestamp();
+          }
+
+          // 1. Update document in user subcollection
+          await updateDoc(keyDocRef, updatePayload);
+
+          // 2. Also sync top-level api_keys/{key} lookup document for gateway authentication
           if (keyObj && keyObj.key) {
             try {
-              await updateDoc(doc(db, 'api_keys', keyObj.key), {
-                status: 'revoked',
-                updatedAt: serverTimestamp()
-              });
+              await updateDoc(doc(db, 'api_keys', keyObj.key), updatePayload);
             } catch (err) {
-              console.warn('Could not revoke top-level api_key record:', err);
+              console.warn('Could not sync top-level api_key record:', err);
             }
           }
 
+          // Update local state immediately for instant feedback
+          keyObj.status = targetStatus;
+          if (targetStatus === 'revoked') {
+            keyObj.revokedAt = new Date().toISOString();
+          } else {
+            delete keyObj.revokedAt;
+          }
+
+          renderApiKeys(activeKeysList);
           updateIntegrationSnippet();
-          showToast('API Key revoked.');
+
+          if (targetStatus === 'revoked') {
+            showToast('API Key revoked. Requests using this key will be rejected by Cloudflare Worker.');
+          } else {
+            showToast('API Key activated successfully.');
+          }
         } catch (error) {
+          console.error('Error updating key status:', error);
           handleFirestoreError(error, OperationType.UPDATE, `users/${currentUser.uid}/api_keys/${keyId}`);
-          showToast('Failed to revoke key: ' + error.message, 'error');
+          showToast(`Failed to ${isCurrentlyRevoked ? 'activate' : 'revoke'} key: ` + error.message, 'error');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+            btn.className = originalBtnClass;
+          }
         }
       }
 
-      // Delete API Key from Firestore (Both subcollection & top-level lookup)
-      async function deleteApiKey(keyId) {
+      // Prompt Permanent Delete Modal
+      function promptDeleteApiKey(keyId, btn) {
         if (!currentUser || !db) return;
+        const keyObj = activeKeysList.find(k => k.id === keyId);
+        if (!keyObj) return;
+
+        pendingDeleteKeyId = keyId;
+
+        const nameEl = document.getElementById('txtDeleteKeyName');
+        const prefixEl = document.getElementById('txtDeleteKeyPrefix');
+        if (nameEl) nameEl.textContent = keyObj.name || 'API Key';
+        if (prefixEl) prefixEl.textContent = keyObj.prefix || (keyObj.key ? `${keyObj.key.slice(0, 14)}••••${keyObj.key.slice(-4)}` : keyId);
+
+        const btnConfirm = document.getElementById('btnConfirmDeleteKey');
+        if (btnConfirm) {
+          btnConfirm.disabled = false;
+          btnConfirm.innerHTML = 'Permanently Delete Key';
+        }
+
+        openModal('modalDeleteKey');
+      }
+
+      // Permanently Delete Key from Firestore
+      async function executeDeleteApiKey(keyId) {
+        if (!currentUser || !db || !keyId) return;
+        const btnConfirm = document.getElementById('btnConfirmDeleteKey');
+        if (btnConfirm) {
+          btnConfirm.disabled = true;
+          btnConfirm.innerHTML = `<svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke="#FFF"></path></svg> Deleting...`;
+        }
+
+        // Also indicate on table row button if present
+        const tableBtnDelete = document.getElementById(`btnDelete_${keyId}`);
+        if (tableBtnDelete) {
+          tableBtnDelete.disabled = true;
+          tableBtnDelete.textContent = 'Deleting...';
+        }
+
         try {
           const keyObj = activeKeysList.find(k => k.id === keyId);
           const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
+
+          // 1. Delete document from users/{uid}/api_keys/{keyId}
           await deleteDoc(keyDocRef);
 
+          // 2. Also delete top-level lookup document
           if (keyObj && keyObj.key) {
             try {
               await deleteDoc(doc(db, 'api_keys', keyObj.key));
@@ -2568,13 +2886,33 @@ console.log(response.choices[0].message.content);`;
             }
           }
 
+          // Filter out locally and re-render table & counters immediately
+          activeKeysList = activeKeysList.filter(k => k.id !== keyId);
+          renderApiKeys(activeKeysList);
           updateIntegrationSnippet();
-          showToast('API Key permanently deleted.');
+
+          closeModal('modalDeleteKey');
+          showToast('API Key permanently deleted from Firestore.');
         } catch (error) {
+          console.error('Error deleting API key:', error);
           handleFirestoreError(error, OperationType.DELETE, `users/${currentUser.uid}/api_keys/${keyId}`);
           showToast('Failed to delete key: ' + error.message, 'error');
+          if (tableBtnDelete) {
+            tableBtnDelete.disabled = false;
+            tableBtnDelete.textContent = 'Delete';
+          }
+        } finally {
+          pendingDeleteKeyId = null;
+          if (btnConfirm) {
+            btnConfirm.disabled = false;
+            btnConfirm.innerHTML = 'Permanently Delete Key';
+          }
         }
       }
+
+      // Backwards-compatible aliases
+      const revokeApiKey = toggleApiKeyStatus;
+      const deleteApiKey = executeDeleteApiKey;
 
       // Danger Zone: Delete Account Function
       async function executeDeleteAccount() {
@@ -2665,6 +3003,15 @@ console.log(response.choices[0].message.content);`;
         btnSubmit.textContent = 'Processing request...';
 
         try {
+          // Verify key status
+          const keyObj = activeKeysList.find(k => k.id === keyId);
+          if (keyObj && keyObj.status === 'revoked') {
+            showToast('Gateway 401 Unauthorized: Selected API key is revoked.', 'error');
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Send Request (200 OK)';
+            return;
+          }
+
           // 1. Check user credits first
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
@@ -2684,7 +3031,6 @@ console.log(response.choices[0].message.content);`;
           });
 
           // 3. Write usage log to subcollection
-          const keyObj = activeKeysList.find(k => k.id === keyId);
           const logData = {
             userId: currentUser.uid,
             keyId: keyId,
@@ -2724,9 +3070,11 @@ console.log(response.choices[0].message.content);`;
       // EVENT LISTENERS & DOM HOOKS
       // =========================================================================
 
-      // Google Sign In (Sole authentication method)
+      // Google & GitHub Sign In
       const btnGoogleAuth = document.getElementById('btnGoogleAuth');
       const btnGoogleAuthText = document.getElementById('btnGoogleAuthText');
+      const btnGithubAuth = document.getElementById('btnGithubAuth');
+      const btnGithubAuthText = document.getElementById('btnGithubAuthText');
       const authErrorMessage = document.getElementById('authErrorMessage');
       const authErrorText = document.getElementById('authErrorText');
       const authDomainInfoBox = document.getElementById('authDomainInfoBox');
@@ -2749,6 +3097,7 @@ console.log(response.choices[0].message.content);`;
         authErrorMessage.style.display = 'none';
         if (authDomainInfoBox) authDomainInfoBox.style.display = 'none';
         btnGoogleAuth.disabled = true;
+        if (btnGithubAuth) btnGithubAuth.disabled = true;
         btnGoogleAuthText.textContent = 'Connecting with Google...';
 
         try {
@@ -2775,9 +3124,49 @@ console.log(response.choices[0].message.content);`;
           authErrorMessage.style.display = 'block';
         } finally {
           btnGoogleAuth.disabled = false;
+          if (btnGithubAuth) btnGithubAuth.disabled = false;
           btnGoogleAuthText.textContent = 'Continue with Google';
         }
       });
+
+      if (btnGithubAuth) {
+        btnGithubAuth.addEventListener('click', async () => {
+          authErrorMessage.style.display = 'none';
+          if (authDomainInfoBox) authDomainInfoBox.style.display = 'none';
+          btnGithubAuth.disabled = true;
+          if (btnGoogleAuth) btnGoogleAuth.disabled = true;
+          btnGithubAuthText.textContent = 'Connecting with GitHub...';
+
+          try {
+            const githubProvider = new GithubAuthProvider();
+            githubProvider.addScope('user:email');
+            githubProvider.addScope('read:user');
+            await signInWithPopup(auth, githubProvider);
+          } catch (error) {
+            console.error("GitHub Auth error:", error);
+            if (authErrorText) {
+              authErrorText.textContent = error.message;
+            } else {
+              authErrorMessage.textContent = error.message;
+            }
+
+            // Always display the current window hostname so the user can easily copy it into Firebase Authorized Domains
+            const currentHostname = window.location.hostname;
+            if (displayCurrentHostname) {
+              displayCurrentHostname.textContent = currentHostname;
+            }
+            if (authDomainInfoBox) {
+              authDomainInfoBox.style.display = 'block';
+            }
+
+            authErrorMessage.style.display = 'block';
+          } finally {
+            btnGithubAuth.disabled = false;
+            if (btnGoogleAuth) btnGoogleAuth.disabled = false;
+            btnGithubAuthText.textContent = 'Sign in with GitHub';
+          }
+        });
+      }
 
       // Sign Out
       document.getElementById('btnSignOut').addEventListener('click', async () => {
@@ -2793,6 +3182,16 @@ console.log(response.choices[0].message.content);`;
           document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           currentSelectedLanguage = btn.getAttribute('data-lang');
+          updateIntegrationSnippet();
+        });
+      });
+
+      // Quickstart Key Injection Mode (Direct Key vs Secure .env)
+      document.querySelectorAll('.key-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.key-mode-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentKeyMode = btn.getAttribute('data-mode') || 'direct';
           updateIntegrationSnippet();
         });
       });
@@ -2863,6 +3262,16 @@ console.log(response.choices[0].message.content);`;
         navigator.clipboard.writeText(text);
         showToast('Secret API key copied to clipboard!');
       });
+
+      // Confirm Permanent Delete API Key Button
+      const btnConfirmDeleteKey = document.getElementById('btnConfirmDeleteKey');
+      if (btnConfirmDeleteKey) {
+        btnConfirmDeleteKey.addEventListener('click', () => {
+          if (pendingDeleteKeyId) {
+            executeDeleteApiKey(pendingDeleteKeyId);
+          }
+        });
+      }
 
       // Danger Zone: Open Delete Account Modal
       const btnOpenDeleteAccount = document.getElementById('btnOpenDeleteAccount');
