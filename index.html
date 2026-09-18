@@ -2814,10 +2814,16 @@
         });
       });
 
-      // Close modal on background click
+      // Close modal on background click (ignoring when Razorpay checkout is active)
       document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
         backdrop.addEventListener('click', (e) => {
+          if (window.isRazorpayActive) return;
           if (e.target === backdrop) backdrop.classList.remove('active');
+        });
+      });
+      document.querySelectorAll('.modal').forEach(modalEl => {
+        modalEl.addEventListener('click', (e) => {
+          e.stopPropagation();
         });
       });
 
@@ -4201,7 +4207,6 @@ console.log(response.choices[0].message.content);`;
         keyId: "rzp_test_TdQRRa5EUhBQLY",
         currency: "INR",
         name: "Keyline AI Gateway",
-        image: "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
         themeColor: "#f97316"
       };
 
@@ -4211,23 +4216,44 @@ console.log(response.choices[0].message.content);`;
       // Helper to dynamically load Razorpay checkout script if missing
       function loadRazorpayScript() {
         return new Promise((resolve) => {
-          if (window.Razorpay) {
+          if (typeof window.Razorpay === 'function') {
             resolve(true);
             return;
           }
-          const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
-          if (existing) {
-            existing.addEventListener('load', () => resolve(true));
-            existing.addEventListener('error', () => resolve(false));
-            setTimeout(() => resolve(!!window.Razorpay), 1500);
-            return;
+          let existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+          if (!existing) {
+            existing = document.createElement('script');
+            existing.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            existing.async = true;
+            document.head.appendChild(existing);
           }
-          const script = document.createElement('script');
-          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-          script.async = true;
-          script.onload = () => resolve(true);
-          script.onerror = () => resolve(false);
-          document.head.appendChild(script);
+
+          const checkReady = () => {
+            if (typeof window.Razorpay === 'function') {
+              resolve(true);
+              return true;
+            }
+            return false;
+          };
+
+          if (checkReady()) return;
+
+          existing.addEventListener('load', () => {
+            setTimeout(() => resolve(typeof window.Razorpay === 'function'), 100);
+          });
+          existing.addEventListener('error', () => resolve(false));
+
+          // Polling check for up to 5 seconds
+          let pollCount = 0;
+          const pollInterval = setInterval(() => {
+            pollCount++;
+            if (checkReady()) {
+              clearInterval(pollInterval);
+            } else if (pollCount > 50) {
+              clearInterval(pollInterval);
+              resolve(false);
+            }
+          }, 100);
         });
       }
 
@@ -4304,7 +4330,12 @@ console.log(response.choices[0].message.content);`;
       });
 
       // Handle Razorpay Checkout Payment
-      async function handleRazorpayPayment() {
+      async function handleRazorpayPayment(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
         if (!currentUser || !db) {
           showToast('Please sign in to top-up credits.', 'error');
           return;
@@ -4337,27 +4368,50 @@ console.log(response.choices[0].message.content);`;
           const currentPkg = { ...selectedPackage };
           const amountInPaise = Math.round(Number(currentPkg.amount) * 100);
 
+          window.isRazorpayActive = true;
+
           const options = {
-            key: RAZORPAY_CONFIG.keyId,
+            key: "rzp_test_TdQRRa5EUhBQLY",
             amount: amountInPaise,
-            currency: RAZORPAY_CONFIG.currency,
-            name: RAZORPAY_CONFIG.name,
-            description: `${Number(currentPkg.credits).toLocaleString()} API Credits Top-up`,
-            image: RAZORPAY_CONFIG.image,
+            currency: "INR",
+            name: "Keyline AI Gateway",
+            description: `${Number(currentPkg.credits).toLocaleString()} Credits Top-up`,
             prefill: {
-              email: currentUser?.email || "",
-              name: currentUser?.displayName || "Developer"
+              name: currentUser?.displayName || "Developer",
+              email: currentUser?.email || "user@keyline.ai",
+              contact: "9999999999" // Dummy contact helps bypass instant validation failure
             },
             theme: {
-              color: RAZORPAY_CONFIG.themeColor
+              color: "#f97316"
+            },
+            modal: {
+              backdropclose: false,
+              escape: false,
+              ondismiss: function () {
+                console.log("Modal closed");
+                window.isRazorpayActive = false;
+                if (btnPay) {
+                  btnPay.disabled = false;
+                  updateSelectedPackageDisplay();
+                }
+              }
             },
             handler: async function (response) {
-              const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
+              console.log("Payment Success:", response);
+              window.isRazorpayActive = false;
+              const paymentId = response?.razorpay_payment_id || `pay_${Date.now()}`;
               
               if (btnPayText) btnPayText.textContent = 'Allocating Credits...';
 
               try {
-                // 1. Log transaction details to Firestore under users/${currentUser.uid}/transactions
+                // 1. Update user credits in Firestore: credits += selectedPlan.credits
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userDocRef, {
+                  credits: increment(Number(currentPkg.credits)),
+                  updatedAt: serverTimestamp()
+                });
+
+                // 2. Add transaction history record
                 const txData = {
                   paymentId: paymentId,
                   amount: Number(currentPkg.amount),
@@ -4365,15 +4419,7 @@ console.log(response.choices[0].message.content);`;
                   timestamp: serverTimestamp(),
                   status: "completed"
                 };
-
                 await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), txData);
-
-                // 2. Increment user's wallet credit balance in Firestore
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                await updateDoc(userDocRef, {
-                  credits: increment(Number(currentPkg.credits)),
-                  updatedAt: serverTimestamp()
-                });
 
                 // Update confirmation details
                 const confirmPkg = document.getElementById('confirmPackageText');
@@ -4381,23 +4427,14 @@ console.log(response.choices[0].message.content);`;
                 if (confirmPkg) confirmPkg.textContent = `₹${currentPkg.amount} (${Number(currentPkg.credits).toLocaleString()} Credits)`;
                 if (confirmPaymentId) confirmPaymentId.textContent = paymentId;
 
-                // Close modal and show a clean celebration toast confirming credit balance update
+                // 3. Show success toast and close top-up modal
                 closeModal('modalAddCredits');
                 showToast(`Payment successful! +${Number(currentPkg.credits).toLocaleString()} credits added to your wallet. (Ref: ${paymentId})`, 'success');
               } catch (err) {
-                console.error('Error logging payment transaction:', err);
+                console.error("Firestore update failed:", err);
                 handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}/transactions`);
-                showToast(`Payment processed (${paymentId}), but Firestore balance sync had an issue: ${err.message}`, 'error');
+                showToast(`Payment processed (${paymentId}), but Firestore balance sync failed: ${err.message}`, 'error');
               } finally {
-                if (btnPay) {
-                  btnPay.disabled = false;
-                  updateSelectedPackageDisplay();
-                }
-              }
-            },
-            modal: {
-              ondismiss: function () {
-                console.log('Razorpay checkout window closed');
                 if (btnPay) {
                   btnPay.disabled = false;
                   updateSelectedPackageDisplay();
@@ -4406,20 +4443,31 @@ console.log(response.choices[0].message.content);`;
             }
           };
 
-          const rzpInstance = new window.Razorpay(options);
+          if (typeof window.Razorpay !== 'function') {
+            throw new Error('Razorpay SDK is not available. Please check your internet connection.');
+          }
 
-          rzpInstance.on('payment.failed', function (failureResponse) {
-            console.warn('Razorpay payment failed:', failureResponse.error);
-            const errDescription = failureResponse?.error?.description || failureResponse?.error?.reason || 'Payment could not be processed.';
-            showToast(`Payment failed: ${errDescription}`, 'error');
+          const rzp = new window.Razorpay(options);
+
+          rzp.on('payment.failed', function (response) {
+            window.isRazorpayActive = false;
+            console.error("Payment failed:", response?.error);
+            const errDescription = response?.error?.description || response?.error?.reason || "Payment could not be processed.";
+            try {
+              if (typeof window.alert === 'function') {
+                window.alert("Payment failed: " + errDescription);
+              }
+            } catch (alertErr) {}
+            showToast("Payment failed: " + errDescription, 'error');
             if (btnPay) {
               btnPay.disabled = false;
               updateSelectedPackageDisplay();
             }
           });
 
-          rzpInstance.open();
+          rzp.open();
         } catch (checkoutErr) {
+          window.isRazorpayActive = false;
           console.error('Razorpay initialization error:', checkoutErr);
           showToast(`Checkout initialization error: ${checkoutErr.message}`, 'error');
           if (btnPay) {
@@ -4431,8 +4479,12 @@ console.log(response.choices[0].message.content);`;
 
       const btnPayWithRazorpay = document.getElementById('btnPayWithRazorpay');
       if (btnPayWithRazorpay) {
-        btnPayWithRazorpay.addEventListener('click', () => {
-          handleRazorpayPayment();
+        btnPayWithRazorpay.addEventListener('click', (e) => {
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          handleRazorpayPayment(e);
         });
       }
 
