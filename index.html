@@ -265,7 +265,7 @@
       }
 
       /* Buttons */
-      .btn {
+      .btn, .btn-secondary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -280,6 +280,7 @@
         white-space: nowrap;
         text-decoration: none;
         user-select: none;
+        font-family: inherit;
       }
 
       .btn-primary {
@@ -307,6 +308,90 @@
         background-color: var(--primary-subtle);
         border-color: var(--primary-orange);
         color: var(--primary-orange);
+      }
+
+      /* Policy Modal & Public Footer */
+      .modal-policy {
+        max-width: 780px !important;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        padding: 24px !important;
+        background: #FFFFFF;
+        width: 95% !important;
+      }
+
+      .policy-tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 1.5px solid var(--border-warm);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+      }
+
+      .policy-tab-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+        font-family: inherit;
+      }
+
+      .policy-tab-btn:hover {
+        color: var(--primary-orange);
+        background: var(--primary-subtle);
+      }
+
+      .policy-tab-btn.active {
+        background: #FFF0E5;
+        color: var(--primary-orange);
+        border-color: rgba(255, 107, 0, 0.3);
+        box-shadow: 0 1px 4px rgba(255, 107, 0, 0.12);
+      }
+
+      .policy-content-pane {
+        display: none;
+        overflow-y: auto;
+        max-height: calc(88vh - 190px);
+        padding-right: 12px;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+      }
+
+      .policy-content-pane.active {
+        display: block;
+      }
+
+      .policy-section-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 18px 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .policy-section-title:first-child {
+        margin-top: 0;
+      }
+
+      .policy-open-link {
+        cursor: pointer;
+        transition: color 0.15s ease;
+      }
+
+      .policy-open-link:hover {
+        color: var(--primary-orange) !important;
+        text-decoration: underline !important;
       }
 
       .btn-outline-danger {
@@ -1704,6 +1789,20 @@
             <span id="btnGithubAuthText">Sign in with GitHub</span>
           </button>
 
+          <!-- Divider for Reviewer Access -->
+          <div class="auth-divider" style="margin: 16px 0 14px 0;">
+            <span>or evaluate preview</span>
+          </div>
+
+          <!-- Temporary Reviewer / Demo Access Button (Prompt Requirement 1) -->
+          <button id="btn-demo-access" class="btn-secondary" style="width: 100%; justify-content: center; padding: 12px 18px; font-weight: 700; font-size: 0.92rem; border: 1.5px dashed var(--primary-orange); color: var(--primary-orange); background: #FFF9F5; box-shadow: 0 2px 6px rgba(255, 107, 0, 0.08); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Explore Demo Dashboard (Reviewer Access)
+          </button>
+
           <!-- Error Alert for Google Auth with Domain Diagnostics & One-Click Copy -->
           <div id="authErrorMessage" style="display: none; padding: 14px 16px; background: #FFF5F5; border: 1.5px solid #F8B4B4; border-radius: var(--radius-sm); color: var(--danger-red); font-size: 0.84rem; margin-top: 18px; line-height: 1.5;">
             <div id="authErrorText" style="font-weight: 600; margin-bottom: 10px;"></div>
@@ -1724,7 +1823,21 @@
             </div>
           </div>
 
-          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-warm); text-align: center; font-size: 0.78rem; color: var(--text-muted);">
+          <!-- Public Policy Links on Login Screen (Prompt Requirement 3) -->
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-warm); text-align: center; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6;">
+            <span>By continuing or evaluating, you agree to our</span>
+            <div style="margin-top: 5px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <a href="#terms" class="policy-open-link" data-policy="terms" style="color: var(--primary-orange); font-weight: 600; text-decoration: underline;">Terms of Service</a>
+              <span style="color: var(--border-warm);">•</span>
+              <a href="#privacy" class="policy-open-link" data-policy="privacy" style="color: var(--primary-orange); font-weight: 600; text-decoration: underline;">Privacy Policy</a>
+              <span style="color: var(--border-warm);">•</span>
+              <a href="#refund" class="policy-open-link" data-policy="refund" style="color: var(--primary-orange); font-weight: 600; text-decoration: underline;">Refund Policy</a>
+              <span style="color: var(--border-warm);">•</span>
+              <a href="#contact" class="policy-open-link" data-policy="contact" style="color: var(--text-secondary); font-weight: 600; text-decoration: underline;">Contact Us</a>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; text-align: center; font-size: 0.76rem; color: var(--text-muted);">
             Connected to Cloud Firestore (<span class="mono" style="color: var(--primary-orange);">keyline-ai</span>)
           </div>
         </div>
@@ -2325,6 +2438,32 @@
     </main>
 
     <!-- =========================================================================
+         GLOBAL SITE FOOTER (Publicly Accessible without Login)
+         ========================================================================= -->
+    <footer id="globalSiteFooter" style="background: var(--surface-white); border-top: 1px solid var(--border-warm); padding: 32px 20px; margin-top: 48px; text-align: center;">
+      <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; color: var(--text-primary);">Keyline<span style="color: var(--primary-orange);">.ai</span></span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">— Production AI Gateway & Unified Credit Wallet</span>
+        </div>
+        
+        <div class="footer-policy-links" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; font-size: 0.85rem; font-weight: 600;">
+          <a href="#terms" class="policy-open-link" data-policy="terms" style="color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
+          <span style="color: var(--border-warm);">•</span>
+          <a href="#privacy" class="policy-open-link" data-policy="privacy" style="color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
+          <span style="color: var(--border-warm);">•</span>
+          <a href="#refund" class="policy-open-link" data-policy="refund" style="color: var(--text-secondary); text-decoration: none;">Refund Policy</a>
+          <span style="color: var(--border-warm);">•</span>
+          <a href="#contact" class="policy-open-link" data-policy="contact" style="color: var(--text-secondary); text-decoration: none;">Contact Us</a>
+        </div>
+
+        <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.5;">
+          &copy; 2026 Keyline AI Technologies Private Limited. All rights reserved. Payments secured via Razorpay.
+        </div>
+      </div>
+    </footer>
+
+    <!-- =========================================================================
          MODALS
          ========================================================================= -->
 
@@ -2731,6 +2870,123 @@
       </div>
     </div>
 
+    <!-- =========================================================================
+         PUBLIC POLICY & LEGAL MODAL (Terms, Privacy, Refund, Contact)
+         Accessible directly without authentication
+         ========================================================================= -->
+    <div id="modalPolicy" class="modal-backdrop">
+      <div class="modal modal-policy">
+        <div class="modal-header" style="margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: #FFF0E5; color: var(--primary-orange); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="modal-title" id="policyModalTitle" style="font-size: 1.15rem; margin-bottom: 2px;">Keyline Policies & Terms</h3>
+              <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">Legal compliance, security, pricing transparency, and customer support documentation</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close="modalPolicy">&times;</button>
+        </div>
+
+        <!-- Policy Tabs -->
+        <div class="policy-tabs">
+          <button type="button" class="policy-tab-btn active" data-tab="terms">Terms of Service</button>
+          <button type="button" class="policy-tab-btn" data-tab="privacy">Privacy Policy</button>
+          <button type="button" class="policy-tab-btn" data-tab="refund">Refund Policy</button>
+          <button type="button" class="policy-tab-btn" data-tab="contact">Contact Us</button>
+        </div>
+
+        <!-- Tab 1: Terms of Service -->
+        <div id="panePolicyTerms" class="policy-content-pane active">
+          <div class="policy-section-title">1. Introduction & Acceptance</div>
+          <p>Welcome to Keyline AI Gateway ("Keyline", "we", "us", or "our"). By accessing, creating an account, evaluating via Reviewer Access, or routing API requests through our gateway, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, please refrain from using our services.</p>
+
+          <div class="policy-section-title">2. Gateway Services & Unified Billing</div>
+          <p>Keyline operates as a high-performance proxy and ledger gateway connecting developers to leading large language models (including Gemini, Qwen, DeepSeek, and OpenAI-compatible models). Access to services is governed by token balances purchased or granted in your account wallet. Exact token rates and model multipliers apply as specified in our pricing tiers.</p>
+
+          <div class="policy-section-title">3. Account & API Key Security</div>
+          <p>You are solely responsible for maintaining the confidentiality of your API keys and credentials. Any requests authenticated with your secret keys will be billed to your credit balance. In the event of an unauthorized compromise, you may immediately revoke or regenerate keys via the Keyline dashboard.</p>
+
+          <div class="policy-section-title">4. Acceptable Use Policy</div>
+          <p>You agree not to use Keyline for unlawful activities, hate speech generation, malware synthesis, unauthorized scraping, or intentional denial-of-service attacks on upstream model providers. Keyline reserves the right to suspend or terminate accounts that violate upstream acceptable use guidelines.</p>
+
+          <div class="policy-section-title">5. Service Availability & Rate Limits</div>
+          <p>While we target 99.9% uptime, gateway availability depends on Cloudflare edge routing and upstream provider response times. Keyline provides real-time latency monitoring and standard HTTP status codes (such as 429 for rate exhaustion or 402 for insufficient credits).</p>
+        </div>
+
+        <!-- Tab 2: Privacy Policy -->
+        <div id="panePolicyPrivacy" class="policy-content-pane">
+          <div class="policy-section-title">1. Information We Collect</div>
+          <p>We collect only the minimum required information to provide the gateway service: your authenticated identity (Google or GitHub email and display name), wallet transaction receipts, and request metadata (timestamps, token usage breakdown, model identifier, and response status codes).</p>
+
+          <div class="policy-section-title">2. Zero-Retention of Prompt & Generation Payloads</div>
+          <p>Keyline operates as a zero-data retention pass-through gateway. We <strong>do not</strong> store, inspect, log, or train on the actual text prompts or model completion contents processed through our API endpoints. Requests are streamed directly between your application and upstream LLM providers via encrypted HTTPS/TLS 1.3 connections.</p>
+
+          <div class="policy-section-title">3. Data Storage & Infrastructure</div>
+          <p>All user authentication records, wallet ledger balances, and API keys are stored in Google Cloud Firestore with enterprise-grade encryption at rest and in transit. Telemetry logs are strictly scoped to the authenticated user's private document partition.</p>
+
+          <div class="policy-section-title">4. User Rights & Account Deletion</div>
+          <p>You retain full ownership of your data. You may permanently delete your account, wipe all stored API keys, and purge historical telemetry records at any time using the self-service "Danger Zone" in your dashboard.</p>
+        </div>
+
+        <!-- Tab 3: Refund Policy -->
+        <div id="panePolicyRefund" class="policy-content-pane">
+          <div class="policy-section-title">1. Wallet Credits & Payments</div>
+          <p>Keyline AI operates on a pre-paid credit wallet model. Payments are securely processed in Indian Rupees (INR) via Razorpay, supporting UPI, NetBanking, Debit/Credit Cards, and Wallets with instant digital settlement.</p>
+
+          <div class="policy-section-title">2. 7-Day Refund Guarantee</div>
+          <p>We offer a hassle-free 7-day refund policy for wallet top-ups. If you are unsatisfied with the service or made an accidental top-up, you may request a full refund within <strong>7 calendar days</strong> of the transaction date, provided that less than 5% of the purchased credits have been consumed.</p>
+
+          <div class="policy-section-title">3. Refund Processing Timeline</div>
+          <p>Approved refunds are credited directly back to the original payment method (e.g., source bank account or UPI handle) via Razorpay within <strong>5 to 7 business days</strong>. Processing fees may be deducted where mandated by banking partners.</p>
+
+          <div class="policy-section-title">4. How to Request a Refund</div>
+          <p>To request a refund, please send an email to <a href="mailto:billing@keyline.ai" style="color: var(--primary-orange); font-weight: 700;">billing@keyline.ai</a> with your registered account email and Razorpay Payment ID. Our support team reviews all requests within 24 business hours.</p>
+        </div>
+
+        <!-- Tab 4: Contact Us -->
+        <div id="panePolicyContact" class="policy-content-pane">
+          <div class="policy-section-title">Customer Support & Grievances</div>
+          <p>Have questions regarding API integration, enterprise volume discounts, or billing inquiries? Our technical support engineering team is here to assist you.</p>
+
+          <div style="background: #FFF9F5; border: 1px solid var(--border-warm); border-radius: var(--radius-sm); padding: 16px; margin: 16px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div>
+              <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">General Support</div>
+              <a href="mailto:support@keyline.ai" style="font-size: 0.95rem; font-weight: 700; color: var(--primary-orange); text-decoration: none;">support@keyline.ai</a>
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">Technical inquiries & API troubleshooting</div>
+            </div>
+
+            <div>
+              <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">Billing & Refunds</div>
+              <a href="mailto:billing@keyline.ai" style="font-size: 0.95rem; font-weight: 700; color: var(--primary-orange); text-decoration: none;">billing@keyline.ai</a>
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">Razorpay transactions & credit top-ups</div>
+            </div>
+
+            <div>
+              <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">Turnaround Time</div>
+              <div style="font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">Within 24 business hours</div>
+              <div style="font-size: 0.74rem; color: var(--text-muted);">Monday – Friday (9:00 AM – 6:00 PM IST)</div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+            <strong>Registered Office:</strong> Keyline AI Technologies Private Limited, Outer Ring Road, Bellandur, Bengaluru, Karnataka 560103, India.
+          </div>
+        </div>
+
+        <div class="modal-actions" style="margin-top: 18px; border-top: 1px solid var(--border-warm); padding-top: 14px;">
+          <button type="button" class="btn btn-primary" data-close="modalPolicy" style="padding: 8px 20px;">Close Policy Window</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toastNotification" class="toast">
       <span id="toastMessage">Notification</span>
@@ -2893,6 +3149,7 @@
         const userNavSection = document.getElementById('userNavSection');
 
         if (user) {
+          localStorage.removeItem('keyline_demo_mode');
           currentUser = user;
           authSection.style.display = 'none';
           dashboardSection.style.display = 'block';
@@ -2918,6 +3175,15 @@
           // Subscribe to real-time collections
           subscribeToUserData(user.uid);
         } else {
+          // If demo reviewer mode is active, do not overwrite unless explicit logout
+          if (currentUser && currentUser.isDemo) {
+            return;
+          }
+          if (localStorage.getItem('keyline_demo_mode') === 'true') {
+            activateDemoReviewerSession();
+            return;
+          }
+
           currentUser = null;
           // Unsubscribe listeners
           if (unsubscribeUserDoc) unsubscribeUserDoc();
@@ -2935,7 +3201,7 @@
 
       // Initialize User Document with Lifetime Email Tracking System
       async function initUserFirestoreDoc(user) {
-        if (!db) return;
+        if (!db || !user || user.isDemo) return;
         const userDocRef = doc(db, 'users', user.uid);
         try {
           const snap = await getDoc(userDocRef);
@@ -3072,7 +3338,7 @@
           updateCreditProgressUI(newBalance);
         }
 
-        if (currentUser && db) {
+        if (currentUser && !currentUser.isDemo && db) {
           const userDocRef = doc(db, 'users', currentUser.uid);
           updateDoc(userDocRef, {
             credits: newBalance,
@@ -3105,7 +3371,7 @@
         }
 
         // Real-time Firestore sync
-        if (currentUser && db) {
+        if (currentUser && !currentUser.isDemo && db) {
           const userDocRef = doc(db, 'users', currentUser.uid);
           updateDoc(userDocRef, {
             credits: newBalance,
@@ -3158,7 +3424,7 @@
       }
 
       function subscribeToUserData(uid) {
-        if (!db) return;
+        if (!db || (currentUser && currentUser.isDemo)) return;
 
         // 1. Credits & Profile Doc Listener
         const userDocRef = doc(db, 'users', uid);
@@ -3542,10 +3808,12 @@ console.log(response.choices[0].message.content);`;
 
       // Generate New API Key Function (Cryptographically unique + Dual-Write to Firestore)
       async function generateNewApiKey(name) {
-        if (!currentUser || !db) return;
+        if (!currentUser) return;
         const btnSubmit = document.getElementById('btnSubmitGenerateKey');
-        btnSubmit.disabled = true;
-        btnSubmit.textContent = 'Generating...';
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'Generating...';
+        }
 
         try {
           // Guaranteed unique, non-repeating key using crypto.randomUUID() and crypto.getRandomValues()
@@ -3555,6 +3823,28 @@ console.log(response.choices[0].message.content);`;
           const entropyHex = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
           const fullKey = `keyline_live_${uuidPart}_${entropyHex}`;
           const prefix = `keyline_live_${uuidPart.slice(0, 6)}••••${entropyHex.slice(-4)}`;
+
+          if (currentUser.isDemo) {
+            const demoKeyObj = {
+              id: 'demo_key_' + Date.now(),
+              userId: currentUser.uid,
+              name: name.trim() || 'Reviewer Key',
+              key: fullKey,
+              prefix: prefix,
+              status: 'active',
+              createdAt: new Date().toISOString()
+            };
+            activeKeysList.unshift(demoKeyObj);
+            renderApiKeys(activeKeysList);
+            updateIntegrationSnippet();
+            closeModal('modalGenerateKey');
+            document.getElementById('displayNewKey').textContent = fullKey;
+            openModal('modalKeyCreated');
+            showToast('API Key generated successfully for Reviewer session.');
+            return;
+          }
+
+          if (!db) return;
 
           // 1. Commit into users/{uid}/api_keys/{keyDocRef.id}
           const keyDocRef = doc(collection(db, 'users', currentUser.uid, 'api_keys'));
@@ -3604,7 +3894,7 @@ console.log(response.choices[0].message.content);`;
 
       // Toggle API Key Status in Firestore (Revoke or Activate)
       async function toggleApiKeyStatus(keyId, btn) {
-        if (!currentUser || !db) return;
+        if (!currentUser) return;
         const keyObj = activeKeysList.find(k => k.id === keyId);
         if (!keyObj) return;
 
@@ -3619,6 +3909,21 @@ console.log(response.choices[0].message.content);`;
         }
 
         try {
+          if (currentUser.isDemo) {
+            keyObj.status = targetStatus;
+            if (targetStatus === 'revoked') {
+              keyObj.revokedAt = new Date().toISOString();
+            } else {
+              delete keyObj.revokedAt;
+            }
+            renderApiKeys(activeKeysList);
+            updateIntegrationSnippet();
+            showToast(`API Key ${targetStatus === 'revoked' ? 'revoked' : 'activated'} successfully.`);
+            return;
+          }
+
+          if (!db) return;
+
           const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
           const updatePayload = {
             status: targetStatus,
@@ -3692,7 +3997,7 @@ console.log(response.choices[0].message.content);`;
 
       // Permanently Delete Key from Firestore
       async function executeDeleteApiKey(keyId) {
-        if (!currentUser || !db || !keyId) return;
+        if (!currentUser || !keyId) return;
         const btnConfirm = document.getElementById('btnConfirmDeleteKey');
         if (btnConfirm) {
           btnConfirm.disabled = true;
@@ -3707,6 +4012,17 @@ console.log(response.choices[0].message.content);`;
         }
 
         try {
+          if (currentUser.isDemo) {
+            activeKeysList = activeKeysList.filter(k => k.id !== keyId);
+            renderApiKeys(activeKeysList);
+            updateIntegrationSnippet();
+            closeModal('modalDeleteKey');
+            showToast('API Key permanently deleted.');
+            return;
+          }
+
+          if (!db) return;
+
           const keyObj = activeKeysList.find(k => k.id === keyId);
           const keyDocRef = doc(db, 'users', currentUser.uid, 'api_keys', keyId);
 
@@ -4011,6 +4327,15 @@ console.log(response.choices[0].message.content);`;
             timestamp: new Date().toISOString()
           };
 
+          if (currentUser.isDemo) {
+            window.demoUsageLogs = window.demoUsageLogs || [];
+            window.demoUsageLogs.unshift(logData);
+            renderUsageLogs(window.demoUsageLogs);
+            closeModal('modalTestRequest');
+            showToast(`Request 200 OK: ${totalUsedTokens.toLocaleString()} tokens deducted. Remaining: ${updatedCredits.toLocaleString()} credits.`);
+            return;
+          }
+
           await addDoc(collection(db, 'users', currentUser.uid, 'usage_logs'), logData);
 
           closeModal('modalTestRequest');
@@ -4139,8 +4464,159 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
+      // Temporary Reviewer / Demo Access Handler (Prompt Requirements 1 & 2)
+      function activateDemoReviewerSession() {
+        const demoUser = {
+          displayName: "Guest Reviewer",
+          email: "reviewer@keyline.ai",
+          uid: "demo-reviewer-123",
+          photoURL: null,
+          isAnonymous: true,
+          isDemo: true
+        };
+        currentUser = demoUser;
+        localStorage.setItem('keyline_demo_mode', 'true');
+
+        // Sample starting balance of 5,000 credits for review and evaluation
+        const currentCredits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
+        saveUserCredits(currentCredits);
+
+        const authSection = document.getElementById('authSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const userNavSection = document.getElementById('userNavSection');
+
+        if (authSection) authSection.style.display = 'none';
+        if (dashboardSection) dashboardSection.style.display = 'block';
+        if (userNavSection) userNavSection.style.display = 'flex';
+
+        // Update nav user profile UI
+        const navNameEl = document.getElementById('navUserName');
+        const navEmailEl = document.getElementById('navUserEmail');
+        const avatarEl = document.getElementById('navUserAvatar');
+
+        if (navNameEl) navNameEl.textContent = demoUser.displayName;
+        if (navEmailEl) navEmailEl.textContent = demoUser.email;
+        if (avatarEl) avatarEl.textContent = 'R';
+
+        // Pre-populate sample working API key for instant simulation if empty
+        if (!activeKeysList || activeKeysList.length === 0) {
+          activeKeysList = [
+            {
+              id: 'key_demo_rev_01',
+              name: 'Reviewer Test Key (Production)',
+              key: 'keyline_live_rev_8f93bc104a9e4d678',
+              prefix: 'keyline_live_rev_8f93••••',
+              status: 'active',
+              createdAt: new Date().toISOString()
+            }
+          ];
+        }
+        renderApiKeys(activeKeysList);
+        updateIntegrationSnippet();
+
+        // Sample usage telemetry for demo
+        if (!window.demoUsageLogs || window.demoUsageLogs.length === 0) {
+          window.demoUsageLogs = [
+            {
+              id: 'log_rev_001',
+              endpoint: '/v1/chat/completions',
+              model: 'openai/gpt-oss-20b',
+              promptTokens: 120,
+              completionTokens: 48,
+              reasoningTokens: 0,
+              totalTokens: 168,
+              totalUsedTokens: 168,
+              creditsDeducted: 168,
+              status: 200,
+              keyPrefix: 'keyline_live_rev_8f93••••',
+              timestamp: new Date().toISOString()
+            },
+            {
+              id: 'log_rev_002',
+              endpoint: '/v1/chat/completions',
+              model: 'qwen/qwen3-32b',
+              promptTokens: 250,
+              completionTokens: 180,
+              reasoningTokens: 120,
+              totalTokens: 550,
+              totalUsedTokens: 550,
+              creditsDeducted: 550,
+              status: 200,
+              keyPrefix: 'keyline_live_rev_8f93••••',
+              timestamp: new Date(Date.now() - 3600000).toISOString()
+            }
+          ];
+        }
+        renderUsageLogs(window.demoUsageLogs);
+
+        showToast('Welcome Guest Reviewer! Demo dashboard activated with sample credits.');
+      }
+      window.activateDemoReviewerSession = activateDemoReviewerSession;
+
+      const btnDemoAccess = document.getElementById('btn-demo-access');
+      if (btnDemoAccess) {
+        btnDemoAccess.addEventListener('click', (e) => {
+          e.preventDefault();
+          activateDemoReviewerSession();
+        });
+      }
+
+      // Public Policy Modal and Link Handlers (Prompt Requirement 3)
+      function openPolicyModal(tabName = 'terms') {
+        // Switch active tab button
+        document.querySelectorAll('.policy-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+        });
+
+        // Switch active content pane
+        const paneMap = {
+          terms: 'panePolicyTerms',
+          privacy: 'panePolicyPrivacy',
+          refund: 'panePolicyRefund',
+          contact: 'panePolicyContact'
+        };
+
+        document.querySelectorAll('.policy-content-pane').forEach(pane => {
+          pane.classList.remove('active');
+        });
+
+        const targetPaneId = paneMap[tabName] || 'panePolicyTerms';
+        const targetPane = document.getElementById(targetPaneId);
+        if (targetPane) {
+          targetPane.classList.add('active');
+          targetPane.scrollTop = 0;
+        }
+
+        openModal('modalPolicy');
+      }
+      window.openPolicyModal = openPolicyModal;
+
+      // Attach click handlers to all policy open links (both on login card and in footer)
+      document.querySelectorAll('.policy-open-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const policyKey = link.getAttribute('data-policy') || 'terms';
+          openPolicyModal(policyKey);
+        });
+      });
+
+      // Attach tab switching inside the Policy Modal
+      document.querySelectorAll('.policy-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabKey = btn.getAttribute('data-tab') || 'terms';
+          openPolicyModal(tabKey);
+        });
+      });
+
       // Sign Out
       document.getElementById('btnSignOut').addEventListener('click', async () => {
+        localStorage.removeItem('keyline_demo_mode');
+        if (currentUser && currentUser.isDemo) {
+          currentUser = null;
+          await handleAuthStateChanged(null);
+          showToast('Signed out of demo session.');
+          return;
+        }
         if (auth) {
           await signOut(auth);
           showToast('Signed out successfully.');
@@ -4626,6 +5102,22 @@ console.log(response.choices[0].message.content);`;
           async function handleSuccessPayment(paymentId, credits, amount) {
             paymentId = paymentId || `pay_${Date.now()}`;
             if (btnPayText) btnPayText.textContent = 'Allocating Credits...';
+
+            if (currentUser?.isDemo) {
+              const currentBal = getCurrentCredits();
+              const newBal = currentBal + Number(credits);
+              saveUserCredits(newBal);
+
+              const confirmPkg = document.getElementById('confirmPackageText');
+              const confirmPaymentId = document.getElementById('confirmPaymentIdText');
+              if (confirmPkg) confirmPkg.textContent = `₹${amount} (${Number(credits).toLocaleString()} Credits)`;
+              if (confirmPaymentId) confirmPaymentId.textContent = paymentId;
+
+              closeModal('modalAddCredits');
+              showToast(`Demo top-up simulated! +${Number(credits).toLocaleString()} credits added to your wallet. (Ref: ${paymentId})`, 'success');
+              resetPayButton();
+              return;
+            }
 
             try {
               // 1. Update user credits in Firestore: credits += selectedPlan.credits
