@@ -1,8 +1,10 @@
 /**
  * Cloudflare Worker / Pages routing for PWA static assets
- * Ensures /sw.js and /manifest.json are served with proper Content-Type headers:
+ * Ensures /sw.js, /manifest.json, /icon-192.png, and /icon-512.png are served
+ * with proper Content-Type headers:
  *   - sw.js -> application/javascript
  *   - manifest.json -> application/manifest+json
+ *   - icon-192.png / icon-512.png -> image/png (with immutable cache)
  */
 
 export default {
@@ -72,7 +74,34 @@ self.addEventListener('fetch', (e) => {
       }
     }
 
-    // 3. Fallback to Cloudflare static asset pipeline or origin fetch
+    // 3. Exact Keyline PNG Icon routing for PWABuilder
+    if (url.pathname === '/icon-192.png' || url.pathname === '/icon-512.png') {
+      if (env && env.ASSETS) {
+        const res = await env.ASSETS.fetch(request);
+        if (res.status === 200) {
+          return new Response(res.body, {
+            status: 200,
+            headers: {
+              ...Object.fromEntries(res.headers),
+              'Content-Type': 'image/png',
+              'Cache-Control': 'public, max-age=31536000, immutable',
+            },
+          });
+        }
+      }
+
+      // Fallback: Fetch original Keyline logo from source
+      const fallbackImg = await fetch('https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg');
+      return new Response(fallbackImg.body, {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      });
+    }
+
+    // 4. Fallback to Cloudflare static asset pipeline or origin fetch
     if (env && env.ASSETS) {
       return env.ASSETS.fetch(request);
     }

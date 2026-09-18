@@ -26,6 +26,16 @@ function pwaHeadersPlugin(): Plugin {
       };
       originalSetHeader('Content-Type', 'application/manifest+json; charset=utf-8');
       originalSetHeader('Access-Control-Allow-Origin', '*');
+    } else if (rawUrl === '/icon-192.png' || rawUrl === '/icon-512.png') {
+      const originalSetHeader = res.setHeader.bind(res);
+      res.setHeader = function (name: string, value: any) {
+        if (name && name.toLowerCase() === 'content-type') {
+          return originalSetHeader('Content-Type', 'image/png');
+        }
+        return originalSetHeader(name, value);
+      };
+      originalSetHeader('Content-Type', 'image/png');
+      originalSetHeader('Cache-Control', 'public, max-age=31536000, immutable');
     }
     next();
   };
