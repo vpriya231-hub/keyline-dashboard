@@ -4372,14 +4372,13 @@ console.log(response.choices[0].message.content);`;
 
           const options = {
             key: "rzp_test_TdQRRa5EUhBQLY",
-            amount: amountInPaise,
+            amount: Math.round(Number(currentPkg.amount) * 100),
             currency: "INR",
-            name: "Keyline AI Gateway",
-            description: `${Number(currentPkg.credits).toLocaleString()} Credits Top-up`,
+            name: "Keyline AI",
+            description: `${currentPkg.credits} API Credits`,
             prefill: {
               name: currentUser?.displayName || "Developer",
-              email: currentUser?.email || "user@keyline.ai",
-              contact: "9999999999" // Dummy contact helps bypass instant validation failure
+              email: currentUser?.email || "vpriya231@gmail.com"
             },
             theme: {
               color: "#f97316"
@@ -4388,7 +4387,7 @@ console.log(response.choices[0].message.content);`;
               backdropclose: false,
               escape: false,
               ondismiss: function () {
-                console.log("Modal closed");
+                console.log("Payment checkout closed");
                 window.isRazorpayActive = false;
                 if (btnPay) {
                   btnPay.disabled = false;
@@ -4397,51 +4396,54 @@ console.log(response.choices[0].message.content);`;
               }
             },
             handler: async function (response) {
-              console.log("Payment Success:", response);
+              console.log("Payment successful:", response);
               window.isRazorpayActive = false;
-              const paymentId = response?.razorpay_payment_id || `pay_${Date.now()}`;
-              
-              if (btnPayText) btnPayText.textContent = 'Allocating Credits...';
-
-              try {
-                // 1. Update user credits in Firestore: credits += selectedPlan.credits
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                await updateDoc(userDocRef, {
-                  credits: increment(Number(currentPkg.credits)),
-                  updatedAt: serverTimestamp()
-                });
-
-                // 2. Add transaction history record
-                const txData = {
-                  paymentId: paymentId,
-                  amount: Number(currentPkg.amount),
-                  credits: Number(currentPkg.credits),
-                  timestamp: serverTimestamp(),
-                  status: "completed"
-                };
-                await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), txData);
-
-                // Update confirmation details
-                const confirmPkg = document.getElementById('confirmPackageText');
-                const confirmPaymentId = document.getElementById('confirmPaymentIdText');
-                if (confirmPkg) confirmPkg.textContent = `₹${currentPkg.amount} (${Number(currentPkg.credits).toLocaleString()} Credits)`;
-                if (confirmPaymentId) confirmPaymentId.textContent = paymentId;
-
-                // 3. Show success toast and close top-up modal
-                closeModal('modalAddCredits');
-                showToast(`Payment successful! +${Number(currentPkg.credits).toLocaleString()} credits added to your wallet. (Ref: ${paymentId})`, 'success');
-              } catch (err) {
-                console.error("Firestore update failed:", err);
-                handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}/transactions`);
-                showToast(`Payment processed (${paymentId}), but Firestore balance sync failed: ${err.message}`, 'error');
-              } finally {
-                if (btnPay) {
-                  btnPay.disabled = false;
-                  updateSelectedPackageDisplay();
-                }
-              }
+              await handleSuccessPayment(response?.razorpay_payment_id, currentPkg.credits, currentPkg.amount);
             }
           };
+
+          async function handleSuccessPayment(paymentId, credits, amount) {
+            paymentId = paymentId || `pay_${Date.now()}`;
+            if (btnPayText) btnPayText.textContent = 'Allocating Credits...';
+
+            try {
+              // 1. Update user credits in Firestore: credits += selectedPlan.credits
+              const userDocRef = doc(db, 'users', currentUser.uid);
+              await updateDoc(userDocRef, {
+                credits: increment(Number(credits)),
+                updatedAt: serverTimestamp()
+              });
+
+              // 2. Add transaction history record
+              const txData = {
+                paymentId: paymentId,
+                amount: Number(amount),
+                credits: Number(credits),
+                timestamp: serverTimestamp(),
+                status: "completed"
+              };
+              await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), txData);
+
+              // Update confirmation details
+              const confirmPkg = document.getElementById('confirmPackageText');
+              const confirmPaymentId = document.getElementById('confirmPaymentIdText');
+              if (confirmPkg) confirmPkg.textContent = `₹${amount} (${Number(credits).toLocaleString()} Credits)`;
+              if (confirmPaymentId) confirmPaymentId.textContent = paymentId;
+
+              // 3. Show success toast and close top-up modal
+              closeModal('modalAddCredits');
+              showToast(`Payment successful! +${Number(credits).toLocaleString()} credits added to your wallet. (Ref: ${paymentId})`, 'success');
+            } catch (err) {
+              console.error("Firestore update failed:", err);
+              handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}/transactions`);
+              showToast(`Payment processed (${paymentId}), but Firestore balance sync failed: ${err.message}`, 'error');
+            } finally {
+              if (btnPay) {
+                btnPay.disabled = false;
+                updateSelectedPackageDisplay();
+              }
+            }
+          }
 
           if (typeof window.Razorpay !== 'function') {
             throw new Error('Razorpay SDK is not available. Please check your internet connection.');
@@ -4451,14 +4453,17 @@ console.log(response.choices[0].message.content);`;
 
           rzp.on('payment.failed', function (response) {
             window.isRazorpayActive = false;
-            console.error("Payment failed:", response?.error);
+            console.error("Payment failed details:", {
+              description: response?.error?.description,
+              reason: response?.error?.reason,
+              code: response?.error?.code,
+              source: response?.error?.source,
+              step: response?.error?.step,
+              metadata: response?.error?.metadata,
+              raw: response?.error
+            });
             const errDescription = response?.error?.description || response?.error?.reason || "Payment could not be processed.";
-            try {
-              if (typeof window.alert === 'function') {
-                window.alert("Payment failed: " + errDescription);
-              }
-            } catch (alertErr) {}
-            showToast("Payment failed: " + errDescription, 'error');
+            showToast("Payment notice: " + errDescription, 'error');
             if (btnPay) {
               btnPay.disabled = false;
               updateSelectedPackageDisplay();
