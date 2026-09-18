@@ -46,6 +46,23 @@
       },
       "required": ["id", "userId", "endpoint", "tokensUsed", "status"]
     },
+    "TopupRequest": {
+      "title": "TopupRequest",
+      "description": "User dynamic UPI payment top-up request with UTR number for credit verification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string", "format": "email" },
+        "amount": { "type": "number" },
+        "credits": { "type": "number" },
+        "utrNumber": { "type": "string" },
+        "screenshotUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "amount", "credits", "utrNumber", "status"]
+    },
     "PaymentRequest": {
       "title": "PaymentRequest",
       "description": "User UPI payment request with 12-digit UTR for credit top-up verification",
@@ -61,12 +78,40 @@
         "timestamp": { "type": "string" }
       },
       "required": ["uid", "userEmail", "packageAmount", "creditsToAdd", "utrNumber", "status"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Payment transaction record from Razorpay Standard Web Checkout",
+      "type": "object",
+      "properties": {
+        "paymentId": { "type": "string" },
+        "amount": { "type": "number" },
+        "credits": { "type": "number" },
+        "status": { "type": "string", "enum": ["completed", "failed", "pending"] },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["paymentId", "amount", "credits", "status"]
+    },
+    "ClaimedTrial": {
+      "title": "ClaimedTrial",
+      "description": "Permanent lifetime tracking record of free tier claim by email address",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "initialUid": { "type": "string" },
+        "claimedAt": { "type": "string" }
+      },
+      "required": ["initialUid"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
       "description": "Stores user credits and profile data"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Stores Razorpay payment transaction records for credit purchases"
     },
     "/users/{userId}/api_keys/{keyId}": {
       "schema": "ApiKey",
@@ -80,9 +125,17 @@
       "schema": "ApiKey",
       "description": "Fast lookup index for API gateway token authorization"
     },
+    "/topup_requests/{requestId}": {
+      "schema": "TopupRequest",
+      "description": "Stores user submitted dynamic UPI payment top-up requests with UTR numbers"
+    },
     "/payment_requests/{requestId}": {
       "schema": "PaymentRequest",
       "description": "Stores submitted UPI payment top-up requests with UTR numbers"
+    },
+    "/claimed_trials/{email}": {
+      "schema": "ClaimedTrial",
+      "description": "Permanent lifetime tracking of email addresses that have claimed the 1,000 free credits tier"
     }
   }
 }

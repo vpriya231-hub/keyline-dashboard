@@ -1,0 +1,80 @@
+{
+  "id": "/",
+  "name": "Keyline AI Gateway",
+  "short_name": "Keyline",
+  "description": "High-performance AI API gateway with live telemetry, token tracking, and unified OpenAI-compatible routing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0d0f17",
+  "theme_color": "#f97316",
+  "categories": ["developer tools", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "API Keys",
+      "short_name": "Keys",
+      "description": "Manage API keys and authentication credentials",
+      "url": "/#apiKeysCard",
+      "icons": [
+        {
+          "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+          "sizes": "192x192",
+          "type": "image/jpeg"
+        }
+      ]
+    },
+    {
+      "name": "Live Telemetry",
+      "short_name": "Logs",
+      "description": "View live request streaming logs and token consumption",
+      "url": "/#telemetrySection",
+      "icons": [
+        {
+          "src": "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+          "sizes": "192x192",
+          "type": "image/jpeg"
+        }
+      ]
+    }
+  ]
+}

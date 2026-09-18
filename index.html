@@ -3,17 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Keyline - AI API Platform Dashboard</title>
-    <meta name="description" content="Production-ready API platform dashboard for Keyline featuring real-time Firebase Auth and Firestore integration, API key management, credits wallet, and request history." />
-    <meta property="og:title" content="Keyline - AI API Platform Dashboard" />
-    <meta property="og:description" content="Production-ready API platform dashboard for Keyline featuring real-time Firebase Auth and Firestore integration." />
+    <title>Keyline AI Gateway</title>
+    <meta name="description" content="High-performance AI API gateway with live telemetry, token tracking, and unified OpenAI-compatible routing." />
+    <meta property="og:title" content="Keyline AI Gateway" />
+    <meta property="og:description" content="High-performance AI API gateway with live telemetry, token tracking, and unified OpenAI-compatible routing." />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Keyline AI Gateway" />
+    <meta name="twitter:description" content="High-performance AI API gateway with live telemetry, token tracking, and unified OpenAI-compatible routing." />
+    <meta name="twitter:image" content="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
+
+    <!-- Progressive Web App (PWA) Configuration & PWABuilder / Microsoft Store Compliance -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#f97316" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Keyline" />
+    <meta name="application-name" content="Keyline AI Gateway" />
+    <meta name="msapplication-TileColor" content="#0d0f17" />
+    <meta name="msapplication-TileImage" content="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
+    <link rel="icon" type="image/jpeg" href="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
+    <link rel="apple-touch-icon" href="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
 
     <!-- Google Fonts for crisp typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Razorpay Standard Web Checkout Integration -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
       /* =========================================================================
@@ -468,15 +488,15 @@
         to { transform: rotate(360deg); }
       }
 
-      /* Top-up Tiers & UPI Modal */
+      /* Top-up Tiers & Razorpay Checkout Modal */
       .tier-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        margin: 18px 0;
+        margin: 14px 0;
       }
 
-      @media (max-width: 600px) {
+      @media (max-width: 640px) {
         .tier-grid {
           grid-template-columns: 1fr;
         }
@@ -485,7 +505,7 @@
       .tier-card {
         border: 2px solid var(--border-warm);
         border-radius: var(--radius-md);
-        padding: 16px 14px;
+        padding: 14px 10px;
         background: var(--surface-white);
         cursor: pointer;
         position: relative;
@@ -494,6 +514,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        min-height: 112px;
       }
 
       .tier-card:hover {
@@ -949,6 +970,252 @@
       .code-string { color: #A8E6CF; }
       .code-comment { color: #8F7F76; }
 
+      /* Integration Guide & Security Best Practices */
+      .guide-card {
+        background-color: #1A120D;
+        border-radius: var(--radius-md);
+        padding: 22px 24px;
+        color: #F8F1EC;
+        margin-top: 22px;
+        border: 1px solid rgba(255, 107, 0, 0.22);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
+      }
+
+      .guide-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .guide-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #FFF;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: -0.01em;
+      }
+
+      .guide-subtitle {
+        font-size: 0.78rem;
+        color: #C2B6AF;
+        margin-top: 2px;
+      }
+
+      .guide-stepper-nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 3px;
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .guide-step-nav-btn {
+        background: transparent;
+        border: none;
+        color: #C2B6AF;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+      }
+
+      .guide-step-nav-btn:hover {
+        color: #FFF;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .guide-step-nav-btn.active {
+        background: var(--primary-orange);
+        color: #FFF;
+        box-shadow: 0 2px 6px rgba(255, 107, 0, 0.4);
+      }
+
+      .guide-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .guide-accordion-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+      }
+
+      .guide-accordion-item.active {
+        border-color: rgba(255, 107, 0, 0.35);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .guide-accordion-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 16px;
+        background: transparent;
+        border: none;
+        color: #F8F1EC;
+        cursor: pointer;
+        text-align: left;
+        font-family: inherit;
+        transition: background 0.15s ease;
+      }
+
+      .guide-accordion-header:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .guide-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .guide-step-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(255, 107, 0, 0.2);
+        color: #FFB380;
+        font-size: 0.72rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .guide-accordion-item.active .guide-step-badge {
+        background: var(--primary-orange);
+        color: #FFF;
+      }
+
+      .guide-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .guide-header-title {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #FFF;
+      }
+
+      .guide-header-desc {
+        font-size: 0.75rem;
+        color: #BDB1A8;
+        margin-top: 1px;
+      }
+
+      .guide-header-chevron {
+        color: #A89C94;
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+      }
+
+      .guide-accordion-item.active .guide-header-chevron {
+        transform: rotate(180deg);
+        color: #FFB380;
+      }
+
+      .guide-accordion-content {
+        display: none;
+        padding: 4px 16px 16px 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: #E6DFDA;
+      }
+
+      .guide-accordion-item.active .guide-accordion-content {
+        display: block;
+      }
+
+      .guide-code-box {
+        margin: 10px 0;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-sm);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        color: #E6DFDA;
+        overflow-x: auto;
+      }
+
+      .guide-ref-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+        margin: 12px 0 10px 0;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .guide-ref-table th {
+        background: rgba(255, 255, 255, 0.06);
+        color: #FFB380;
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .guide-ref-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #E6DFDA;
+        font-size: 0.78rem;
+      }
+
+      .guide-ref-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .guide-callout-box {
+        margin-top: 18px;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+        border: 1px solid rgba(255, 179, 128, 0.28);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 0.8rem;
+        line-height: 1.55;
+        color: #F0EAE5;
+      }
+
+      .guide-callout-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: #FFB380;
+      }
+
       .danger-zone-card {
         border: 1px solid #FECACA !important;
         background: #FFFDFD !important;
@@ -1280,6 +1547,16 @@
             <span>Production Live</span>
           </span>
 
+          <!-- Desktop PWA Install Action Button (shown on beforeinstallprompt or desktop install capability) -->
+          <button id="btnHeaderInstallApp" class="btn btn-secondary btn-sm" style="display: none; align-items: center; gap: 6px; border-color: var(--primary-orange); color: var(--primary-orange); background: #FFF5EE; font-weight: 700; padding: 5px 12px; box-shadow: 0 1px 4px rgba(255, 107, 0, 0.12);" title="Install Keyline AI Gateway Desktop App">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Install App</span>
+          </button>
+
           <!-- User Widget (Rendered dynamically when logged in) -->
           <div id="userNavSection" style="display: none;">
             <div class="user-widget">
@@ -1368,6 +1645,62 @@
 
       <!-- Authenticated Dashboard View -->
       <section id="dashboardSection" style="display: none;">
+        <!-- Lifetime Free Trial Utilized Welcome Banner -->
+        <div id="bannerTrialUtilized" style="display: none; margin-bottom: 20px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: var(--radius-md); padding: 14px 18px; color: #92400E; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: flex-start; gap: 12px; max-width: 800px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #78350F; margin-bottom: 3px;">
+                  Welcome back! Your previous free trial has already been utilized. Please top up your wallet to generate requests.
+                </div>
+                <div style="font-size: 0.82rem; color: #92400E; line-height: 1.45;">
+                  To protect API resources, the 1,000 free token tier is limited to one claim per lifetime email. Because this email previously claimed the trial, your starting balance is 0 credits.
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button type="button" id="btnBannerTopup" class="btn btn-primary btn-sm" style="background: #D97706; border-color: #D97706; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);">
+                Top-up Wallet
+              </button>
+              <button type="button" class="modal-close" style="color: #92400E; font-size: 1.25rem; line-height: 1; padding: 4px;" title="Dismiss" onclick="document.getElementById('bannerTrialUtilized').style.display='none';">&times;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop PWA Install Banner (Shown when app is installable) -->
+        <div id="pwaInstallBanner" style="display: none; margin-bottom: 20px; background: linear-gradient(135deg, #1A120D 0%, #2A1C14 100%); border: 1.5px solid rgba(255, 107, 0, 0.4); border-radius: var(--radius-md); padding: 14px 18px; color: #FFFFFF; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 14px; max-width: 820px;">
+              <img src="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" alt="Keyline PWA Icon" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1.5px solid rgba(255, 107, 0, 0.5); flex-shrink: 0;" />
+              <div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+                  Install Keyline AI Gateway Desktop App
+                  <span style="background: rgba(255, 107, 0, 0.25); color: #FF944D; border: 1px solid rgba(255, 107, 0, 0.45); font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 9999px;">PWA Ready</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #D6C7BD; line-height: 1.45; margin-top: 2px;">
+                  Run Keyline as a standalone desktop app with dedicated window controls, instant launch from your dock or taskbar, and live telemetry.
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button type="button" id="btnBannerInstallApp" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 7px 16px; box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4); display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Install App
+              </button>
+              <button type="button" class="modal-close" style="color: #A39388; font-size: 1.25rem; line-height: 1; padding: 4px;" title="Dismiss" onclick="document.getElementById('pwaInstallBanner').style.display='none';">&times;</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Top Metrics Cards -->
         <div class="stat-grid">
           <!-- Token Credits Wallet (Prominent Card) -->
@@ -1392,7 +1725,10 @@
               <!-- Main Balance Display -->
               <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
                 <span class="stat-value" id="valCredits" style="color: var(--primary-orange); font-size: 2.2rem;">1,000</span>
-                <span style="font-size: 1.05rem; font-weight: 700; color: var(--text-secondary);">Credits available</span>
+                <span id="lblWalletCreditsScale" style="font-size: 1.05rem; font-weight: 700; color: var(--text-secondary);">Credits (~1M Tokens)</span>
+              </div>
+              <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.45;">
+                Credits deduct dynamically based on actual input, output, and thinking token consumption.
               </div>
 
               <!-- Real-time Quota Progress Bar -->
@@ -1417,17 +1753,12 @@
                 Add Credits / Top-up
               </button>
 
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <button id="btnSyncFirestoreCredits" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits from Firestore" style="display: inline-flex; align-items: center; gap: 4px;">
-                  <svg id="iconSyncRefresh" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                  </svg>
-                  <span>Sync</span>
-                </button>
-                <button id="btnClaimFreeCredits" class="btn btn-secondary btn-sm" title="Add +500 test credits directly to Firestore user document" style="font-size: 0.72rem; padding: 5px 8px;">
-                  +500 Test
-                </button>
-              </div>
+              <button id="btnSyncFirestoreCredits" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits from Firestore" style="display: inline-flex; align-items: center; gap: 4px;">
+                <svg id="iconSyncRefresh" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+                <span>Sync</span>
+              </button>
             </div>
           </div>
 
@@ -1625,6 +1956,227 @@
               </div>
             </div>
           </div>
+
+          <!-- Beginner-Friendly Integration Guide & Security Best Practices -->
+          <div class="guide-card" id="integrationGuideCard">
+            <div class="guide-header">
+              <div>
+                <div class="guide-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-orange);">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                  </svg>
+                  How to Integrate Keyline Gateway
+                </div>
+                <p class="guide-subtitle">A beginner-friendly 3-step walk-through for testing, security, and SDK integration.</p>
+              </div>
+
+              <!-- Quick Step Switcher Pills -->
+              <div class="guide-stepper-nav">
+                <button type="button" class="guide-step-nav-btn active" data-step="1">
+                  <span>1. Quick Testing</span>
+                </button>
+                <button type="button" class="guide-step-nav-btn" data-step="2">
+                  <span>2. Production Security</span>
+                </button>
+                <button type="button" class="guide-step-nav-btn" data-step="3">
+                  <span>3. Endpoints &amp; Models</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3-Step Accordion -->
+            <div class="guide-accordion">
+              <!-- Step 1: Quick Testing (Direct Key) -->
+              <div class="guide-accordion-item active" id="guideStep1" data-step-item="1">
+                <button type="button" class="guide-accordion-header" data-toggle-step="1">
+                  <div class="guide-header-left">
+                    <span class="guide-step-badge">1</span>
+                    <div class="guide-header-text">
+                      <div class="guide-header-title">Step 1: Quick Testing (Direct Key)</div>
+                      <div class="guide-header-desc">Test API calls immediately in Postman, cURL, or local scripts without any setup.</div>
+                    </div>
+                  </div>
+                  <svg class="guide-header-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="guide-accordion-content">
+                  <p style="margin-bottom: 10px;">
+                    Beginners or testers can directly copy the code with their live key embedded to test API calls instantly in <strong>Postman</strong>, <strong>cURL</strong>, or local scripts without any setup or configuration:
+                  </p>
+                  <div class="guide-code-box">
+                    <span class="code-comment"># Direct Key execution example (instant test):</span><br/>
+                    curl -X POST https://keyline.v0408688.workers.dev/v1/chat/completions \<br/>
+                    &nbsp;&nbsp;-H <span class="code-string">"Authorization: Bearer keyline_live_YOUR_ACTUAL_KEY"</span> \<br/>
+                    &nbsp;&nbsp;-H <span class="code-string">"Content-Type: application/json"</span> \<br/>
+                    &nbsp;&nbsp;-d <span class="code-string">'{<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;"model": "openai/gpt-oss-20b",<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;"messages": [{"role": "user", "content": "Hello Keyline!"}]<br/>
+                    &nbsp;&nbsp;}'</span>
+                  </div>
+                  <div style="font-size: 0.76rem; color: #C2B6AF; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF944D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Toggle to <strong>"Direct Key (Quick Test)"</strong> in the code snippet above to auto-inject your active key.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Production Security (Environment Variables) -->
+              <div class="guide-accordion-item" id="guideStep2" data-step-item="2">
+                <button type="button" class="guide-accordion-header" data-toggle-step="2">
+                  <div class="guide-header-left">
+                    <span class="guide-step-badge">2</span>
+                    <div class="guide-header-text">
+                      <div class="guide-header-title">Step 2: Production Security (Environment Variables)</div>
+                      <div class="guide-header-desc">Protect your credentials from leakages in git repos, production apps, and mobile clients.</div>
+                    </div>
+                  </div>
+                  <svg class="guide-header-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="guide-accordion-content">
+                  <p style="margin-bottom: 10px;">
+                    For production apps, public GitHub repos, or Android/client-side apps, <strong>never hardcode your key</strong> directly in source files. Instead, set it as an environment variable or system secret using either of the supported keys:
+                  </p>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 10px 0;">
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: var(--radius-sm);">
+                      <div style="font-size: 0.72rem; text-transform: uppercase; color: #FFB380; font-weight: 700; margin-bottom: 4px;">Primary Gateway Variable</div>
+                      <code class="mono" style="color: #A8E6CF; font-size: 0.8rem; font-weight: 700;">KEYLINE_API_KEY="your_api_key_here"</code>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: var(--radius-sm);">
+                      <div style="font-size: 0.72rem; text-transform: uppercase; color: #FFB380; font-weight: 700; margin-bottom: 4px;">Alternative Supported Alias</div>
+                      <code class="mono" style="color: #A8E6CF; font-size: 0.8rem; font-weight: 700;">V_ASTRA_API_KEY="your_api_key_here"</code>
+                    </div>
+                  </div>
+                  <div class="guide-code-box">
+                    <span class="code-comment"># In your .env file (ensure .env is included in .gitignore!):</span><br/>
+                    KEYLINE_API_KEY="keyline_live_xxxxxxxxxxxxxxxx"<br/>
+                    <span class="code-comment"># Or universal engine alias:</span><br/>
+                    V_ASTRA_API_KEY="keyline_live_xxxxxxxxxxxxxxxx"
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px;">
+                    <div style="font-size: 0.76rem; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+                      <strong style="color: #FFB380;">Python:</strong> <code class="mono" style="color: #A8E6CF;">os.environ.get("KEYLINE_API_KEY")</code>
+                    </div>
+                    <div style="font-size: 0.76rem; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+                      <strong style="color: #FFB380;">Node.js:</strong> <code class="mono" style="color: #A8E6CF;">process.env.KEYLINE_API_KEY</code>
+                    </div>
+                    <div style="font-size: 0.76rem; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+                      <strong style="color: #FFB380;">Android:</strong> <code class="mono" style="color: #A8E6CF;">local.properties &rarr; BuildConfig</code>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3: Supported Endpoints & Models -->
+              <div class="guide-accordion-item" id="guideStep3" data-step-item="3">
+                <button type="button" class="guide-accordion-header" data-toggle-step="3">
+                  <div class="guide-header-left">
+                    <span class="guide-step-badge">3</span>
+                    <div class="guide-header-text">
+                      <div class="guide-header-title">Step 3: Supported Endpoints &amp; Models</div>
+                      <div class="guide-header-desc">Base gateway URL and OpenAI-compatible SDK usage with live models.</div>
+                    </div>
+                  </div>
+                  <svg class="guide-header-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="guide-accordion-content">
+                  <p style="margin-bottom: 8px;">
+                    Keyline Gateway is 100% OpenAI-compatible. Any SDK or HTTP client can connect seamlessly by configuring <code class="mono" style="color: #FFB380;">baseURL</code> and your key:
+                  </p>
+                  
+                  <div style="margin: 10px 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                      <div style="font-size: 0.72rem; text-transform: uppercase; color: #C2B6AF; font-weight: 700;">Base Gateway URL:</div>
+                      <code class="mono" id="txtBaseGatewayUrl" style="color: #A8E6CF; font-size: 0.82rem; font-weight: 700;">https://keyline.v0408688.workers.dev/v1/chat/completions</code>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnCopyGatewayUrl" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #FFF;">
+                      Copy URL
+                    </button>
+                  </div>
+
+                  <table class="guide-ref-table">
+                    <thead>
+                      <tr>
+                        <th>Model ID</th>
+                        <th>Architecture</th>
+                        <th>Billing Rate Multiplier</th>
+                        <th>Recommended Use</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">openai/gpt-oss-20b</code></td>
+                        <td>Ultra-fast reasoning (Flagship)</td>
+                        <td><span class="status-pill success" style="font-size: 0.72rem; padding: 2px 7px;">Fast: 1 credit / 10k tok</span></td>
+                        <td>High-throughput applications &amp; bots</td>
+                      </tr>
+                      <tr>
+                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">openai/gpt-oss-120b</code></td>
+                        <td>Deep logic &amp; advanced reasoning</td>
+                        <td><span class="status-pill warning" style="font-size: 0.72rem; padding: 2px 7px; background: rgba(255, 107, 0, 0.15); color: #FF944D; border: 1px solid rgba(255, 107, 0, 0.3);">Reasoning: 1 credit / 2k tok</span></td>
+                        <td>Complex reasoning &amp; multi-step logic</td>
+                      </tr>
+                      <tr>
+                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">qwen/qwen3.8-27b</code></td>
+                        <td>Code generation &amp; Multimodal</td>
+                        <td><span class="status-pill warning" style="font-size: 0.72rem; padding: 2px 7px; background: rgba(255, 107, 0, 0.15); color: #FF944D; border: 1px solid rgba(255, 107, 0, 0.3);">High-Tier: 1 credit / 2k tok</span></td>
+                        <td>Full-stack programming &amp; refactoring</td>
+                      </tr>
+                      <tr>
+                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">groq/compound-mini</code></td>
+                        <td>Lightweight agentic execution</td>
+                        <td><span class="status-pill success" style="font-size: 0.72rem; padding: 2px 7px;">Fast: 1 credit / 10k tok</span></td>
+                        <td>Agent loops, fast function tools</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <!-- Dynamic Billing Formula Guide -->
+                  <div style="margin: 12px 0 10px 0; padding: 11px 13px; background: rgba(255, 107, 0, 0.07); border: 1px solid rgba(255, 107, 0, 0.22); border-radius: var(--radius-sm); font-size: 0.77rem;">
+                    <div style="font-weight: 700; color: #FFB380; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                      </svg>
+                      <span>Dynamic Token-Based Billing Formula:</span>
+                    </div>
+                    <code class="mono" style="color: #A8E6CF; display: block; font-size: 0.76rem; background: rgba(0,0,0,0.35); padding: 5px 8px; border-radius: 3px; margin: 4px 0;">credits_deducted = (prompt_tokens * input_multiplier) + (completion_tokens * output_multiplier) + (reasoning_tokens * reasoning_multiplier)</code>
+                    <div style="color: #D6CCC5; font-size: 0.74rem; margin-top: 5px; line-height: 1.45;">
+                      • <strong>Fast Models</strong> (e.g. <code class="mono">gpt-oss-20b</code>): <strong>1 credit per 10,000 tokens</strong> (<span class="mono">0.0001 cr/token</span>)<br/>
+                      • <strong>Reasoning / High-tier Models</strong> (e.g. <code class="mono">gpt-oss-120b</code>): <strong>1 credit per 2,000 tokens</strong> (<span class="mono">0.0005 cr/token</span>)
+                    </div>
+                  </div>
+
+                  <div class="guide-code-box" style="margin-top: 10px;">
+                    <span class="code-comment">// Standard OpenAI SDK Usage:</span><br/>
+                    <span class="code-keyword">import</span> OpenAI <span class="code-keyword">from</span> <span class="code-string">"openai"</span>;<br/><br/>
+                    <span class="code-keyword">const</span> client = <span class="code-keyword">new</span> OpenAI({<br/>
+                    &nbsp;&nbsp;apiKey: process.env.KEYLINE_API_KEY || process.env.V_ASTRA_API_KEY,<br/>
+                    &nbsp;&nbsp;baseURL: <span class="code-string">"https://keyline.v0408688.workers.dev/v1"</span><br/>
+                    });
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pro Tip Info Callout Box (Item 3 in request) -->
+            <div class="guide-callout-box">
+              <svg class="guide-callout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <div>
+                <strong style="color: #FFB380;">Pro Tip:</strong> If you're building with <strong>Python</strong>, <strong>Node.js</strong>, or <strong>Android Studio (Kotlin)</strong>, store your key inside <code class="mono" style="color: #A8E6CF; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">.env</code> or <code class="mono" style="color: #A8E6CF; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">local.properties</code> and read it securely via <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">KEYLINE_API_KEY</code> or <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">V_ASTRA_API_KEY</code>.
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Usage Logs Table Section -->
@@ -1655,7 +2207,7 @@
                   <th>Timestamp</th>
                   <th>Endpoint</th>
                   <th>Model</th>
-                  <th>Tokens Used</th>
+                  <th>Tokens / Deduction</th>
                   <th>HTTP Status</th>
                   <th>Key ID</th>
                 </tr>
@@ -1773,9 +2325,9 @@
       </div>
     </div>
 
-    <!-- Add Credits (Top-up Credits UPI Modal) -->
+    <!-- Add Credits (Top-up Credits Razorpay Checkout Modal) -->
     <div id="modalAddCredits" class="modal-backdrop">
-      <div class="modal" style="max-width: 560px;">
+      <div class="modal" style="max-width: 580px;">
         <div class="modal-header">
           <div>
             <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
@@ -1787,7 +2339,7 @@
               Top-up Credits
             </h3>
             <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
-              Pay via any UPI App (GPay, PhonePe, Paytm, BHIM) and submit your 12-digit UTR.
+              Instant checkout powered by Razorpay. UPI, Cards, NetBanking, and Wallets accepted.
             </p>
           </div>
           <button class="modal-close" data-close="modalAddCredits">&times;</button>
@@ -1795,139 +2347,102 @@
 
         <!-- Top-up Form Container -->
         <div id="topupFormContainer">
-          <!-- 1. Select Package -->
-          <div style="margin-bottom: 18px;">
-            <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 10px;">
-              1. Select Credit Package:
+          <!-- Select Package -->
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary);">
+                Select Credit Package:
+              </div>
+              <span style="font-size: 0.72rem; color: var(--primary-orange); font-weight: 600;">Instant Activation</span>
             </div>
+            
             <div class="tier-grid">
-              <!-- Tier 1: ₹49 -->
-              <div class="tier-card" data-tier-id="starter" data-package-amount="49" data-credits="5000">
+              <!-- Tier 1: ₹49 -> 2,500 Credits -->
+              <div class="tier-card" data-tier-id="starter" data-package-amount="49" data-credits="2500">
                 <div>
                   <div class="tier-title">Starter</div>
-                  <div class="tier-credits">5,000</div>
+                  <div class="tier-credits">2,500</div>
                   <div class="tier-subtext">Credits</div>
                 </div>
                 <div>
                   <div class="tier-price">₹49</div>
-                  <div class="tier-subtext">₹0.0098 / token</div>
+                  <div class="tier-subtext">₹0.0196 / credit</div>
                 </div>
               </div>
 
-              <!-- Tier 2: ₹99 (Popular) -->
-              <div class="tier-card selected" data-tier-id="growth" data-package-amount="99" data-credits="15000">
-                <span class="tier-badge">Popular • 3x Credits</span>
+              <!-- Tier 2: ₹99 -> 6,000 Credits (Popular) -->
+              <div class="tier-card selected" data-tier-id="growth" data-package-amount="99" data-credits="6000">
+                <span class="tier-badge">Popular</span>
                 <div>
                   <div class="tier-title">Growth</div>
-                  <div class="tier-credits">15,000</div>
+                  <div class="tier-credits">6,000</div>
                   <div class="tier-subtext">Credits</div>
                 </div>
                 <div>
                   <div class="tier-price">₹99</div>
-                  <div class="tier-subtext">₹0.0066 / token</div>
+                  <div class="tier-subtext">₹0.0165 / credit</div>
                 </div>
               </div>
 
-              <!-- Tier 3: ₹199 (Best Value) -->
-              <div class="tier-card" data-tier-id="scale" data-package-amount="199" data-credits="40000">
+              <!-- Tier 3: ₹249 -> 20,000 Credits (Best Value) -->
+              <div class="tier-card" data-tier-id="scale" data-package-amount="249" data-credits="20000">
                 <span class="tier-badge" style="background: #2E7D32;">Best Value</span>
                 <div>
-                  <div class="tier-title">Scale</div>
-                  <div class="tier-credits">40,000</div>
+                  <div class="tier-title">Scale Pro</div>
+                  <div class="tier-credits">20,000</div>
                   <div class="tier-subtext">Credits</div>
                 </div>
                 <div>
-                  <div class="tier-price">₹199</div>
-                  <div class="tier-subtext">₹0.0049 / token</div>
+                  <div class="tier-price">₹249</div>
+                  <div class="tier-subtext">₹0.0124 / credit</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 2. Dynamic UPI QR Code & UPI ID Section -->
-          <div style="margin-bottom: 18px;">
-            <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 10px;">
-              2. Scan UPI QR Code to Pay:
-            </div>
-            <div style="background: #FAF7F4; border: 1.5px solid var(--border-warm); border-radius: var(--radius-sm); padding: 16px; text-align: center;">
-              
-              <!-- Selected Package Amount Indicator -->
-              <div style="display: inline-flex; align-items: center; gap: 6px; background: #FFF0E6; border: 1px solid rgba(255,107,0,0.35); padding: 5px 14px; border-radius: var(--radius-full); margin-bottom: 12px;">
-                <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">Amount to Pay:</span>
-                <span id="displaySelectedAmount" style="font-size: 1.05rem; font-weight: 800; color: var(--primary-orange);">₹99</span>
-                <span id="displaySelectedCredits" style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary);">(15,000 Credits)</span>
+          <!-- Order Summary Card -->
+          <div style="background: #FAF7F4; border: 1.5px solid var(--border-warm); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed var(--border-warm); padding-bottom: 10px;">
+              <div>
+                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">Selected Plan</div>
+                <div id="checkoutSelectedTierTitle" style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary);">Growth Plan (₹99)</div>
               </div>
-
-              <!-- Dynamic QR Code Display -->
-              <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-                <div style="background: #FFFFFF; padding: 12px; border-radius: 8px; border: 1.5px solid var(--border-warm); box-shadow: 0 4px 12px rgba(0,0,0,0.06); width: 174px; height: 174px; display: flex; align-items: center; justify-content: center;">
-                  <img id="upiQrCodeImg" 
-                       src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=upi%3A%2F%2Fpay%3Fpa%3Dkeyline.ai%40upi%26pn%3DKeylineAI%26am%3D99%26cu%3DINR" 
-                       alt="Scan UPI QR Code to Pay" 
-                       width="150" 
-                       height="150" 
-                       style="display: block; border-radius: 4px; object-fit: contain;" />
-                </div>
-              </div>
-
-              <div style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 12px;">
-                Scan with <strong>Google Pay, PhonePe, Paytm, BHIM</strong> or any UPI banking app.
-              </div>
-
-              <!-- UPI ID with Copy Button -->
-              <div style="max-width: 380px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid var(--border-warm); border-radius: var(--radius-sm); padding: 8px 12px;">
-                <div style="text-align: left;">
-                  <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);">UPI ID (VPA)</div>
-                  <div id="textUpiId" class="mono" style="font-size: 0.92rem; font-weight: 800; color: var(--primary-orange);">keyline.ai@upi</div>
-                </div>
-                <button type="button" id="btnCopyUpiId" class="btn btn-secondary btn-sm" style="font-size: 0.76rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 5px; font-weight: 700;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                  </svg>
-                  <span id="btnCopyUpiIdText">Copy UPI ID</span>
-                </button>
+              <div style="text-align: right;">
+                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">Credits Added</div>
+                <div id="checkoutSelectedCredits" class="mono" style="font-size: 1.1rem; font-weight: 800; color: var(--primary-orange);">6,000 Credits</div>
               </div>
             </div>
-          </div>
 
-          <!-- 3. 12-digit UTR Input Field -->
-          <div style="margin-bottom: 18px;">
-            <div class="form-group" style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label class="form-label" for="inputUtrNumber" style="margin-bottom: 0; font-weight: 700;">
-                  Enter 12-digit UPI UTR / Transaction ID <span style="color: var(--danger-red);">*</span>
-                </label>
-                <span id="utrCharCounter" class="mono" style="font-size: 0.74rem; color: var(--text-secondary); font-weight: 600;">0 / 12 digits</span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Total Payable:</span>
+                <span id="checkoutPayableAmount" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-left: 6px;">₹99</span>
               </div>
-              <input type="text" 
-                     id="inputUtrNumber" 
-                     class="form-input" 
-                     placeholder="e.g. 428190348201" 
-                     maxlength="12" 
-                     inputmode="numeric" 
-                     autocomplete="off" 
-                     style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; letter-spacing: 0.08em;" />
-              <p class="form-helper" style="margin-top: 5px; font-size: 0.74rem;">
-                Check your payment confirmation screen or bank SMS for the 12-digit numeric reference number.
-              </p>
-              <div id="utrValidationMsg" style="display: none; font-size: 0.76rem; color: var(--danger-red); margin-top: 6px; font-weight: 600; padding: 6px 10px; background: #FFF5F5; border-radius: 4px; border: 1px solid #FCA5A5;"></div>
+              <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; color: #0E9F6E; font-weight: 700; background: #DEF7EC; padding: 4px 10px; border-radius: var(--radius-full);">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>Razorpay Secured</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px; font-size: 0.74rem; color: var(--text-secondary); line-height: 1.4;">
+              Supports <strong>UPI</strong> (Google Pay, PhonePe, Paytm, BHIM), <strong>Debit / Credit Cards</strong>, <strong>NetBanking</strong>, and <strong>Wallets</strong> with instant settlement.
             </div>
           </div>
 
           <!-- Modal Actions -->
-          <div class="modal-actions" style="margin-top: 0;">
+          <div class="modal-actions" style="margin-top: 14px;">
             <button type="button" class="btn btn-secondary" data-close="modalAddCredits">Cancel</button>
-            <button type="button" id="btnSubmitPaymentRequest" class="btn btn-primary" style="font-weight: 700; box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35); display: inline-flex; align-items: center; gap: 6px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
+            <button type="button" id="btnPayWithRazorpay" class="btn btn-primary" style="font-weight: 700; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35); display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
               </svg>
-              <span>Submit Payment</span>
+              <span id="btnPayWithRazorpayText">Pay with Razorpay (₹99)</span>
             </button>
           </div>
         </div>
 
-        <!-- 4. Clean Confirmation Message View (Shown after successful submission) -->
+        <!-- Clean Confirmation Message View (Shown after successful Razorpay checkout) -->
         <div id="topupConfirmationContainer" style="display: none; padding: 16px 8px 8px 8px; text-align: center;">
           <div style="width: 56px; height: 56px; border-radius: 50%; background: #DEF7EC; color: #0E9F6E; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(14,159,110,0.18);">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1936,32 +2451,32 @@
           </div>
 
           <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">
-            Payment Submitted!
+            Payment Verified & Credits Added!
           </h3>
 
-          <p style="font-size: 0.9rem; color: #0E9F6E; font-weight: 700; line-height: 1.5; max-width: 440px; margin: 0 auto 18px auto; background: #F3FAF7; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid #BCF0DA;">
-            Payment submitted! Your credits will be updated once the transaction is verified.
+          <p style="font-size: 0.9rem; color: #0E9F6E; font-weight: 700; line-height: 1.5; max-width: 460px; margin: 0 auto 18px auto; background: #F3FAF7; padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid #BCF0DA;">
+            Your credits have been added directly to your Firestore wallet and are ready for immediate API requests.
           </p>
 
           <div style="background: #FFFDFB; border: 1px solid var(--border-warm); border-radius: var(--radius-sm); padding: 14px 18px; text-align: left; max-width: 440px; margin: 0 auto 20px auto; font-size: 0.84rem; line-height: 1.7;">
             <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-warm); padding-bottom: 6px; margin-bottom: 6px;">
-              <span style="color: var(--text-secondary);">Credit Package:</span>
-              <strong id="confirmPackageText" style="color: var(--text-primary);">₹99 (15,000 Credits)</strong>
+              <span style="color: var(--text-secondary);">Top-up Package:</span>
+              <strong id="confirmPackageText" style="color: var(--text-primary);">₹99 (6,000 Credits)</strong>
             </div>
             <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-warm); padding-bottom: 6px; margin-bottom: 6px;">
-              <span style="color: var(--text-secondary);">Submitted UTR:</span>
-              <code id="confirmUtrText" class="mono" style="color: var(--primary-orange); font-weight: 800;">-</code>
+              <span style="color: var(--text-secondary);">Razorpay Payment ID:</span>
+              <code id="confirmPaymentIdText" class="mono" style="color: var(--primary-orange); font-weight: 800;">pay_...</code>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: var(--text-secondary);">Request Status:</span>
-              <span class="status-pill" style="background: #FEF08A; color: #854D0E; font-weight: 700; font-size: 0.74rem; padding: 3px 9px;">
-                <span class="pulse-dot" style="background: #CA8A04;"></span> Pending Verification
+              <span style="color: var(--text-secondary);">Status:</span>
+              <span class="status-pill success">
+                <span class="pulse-dot" style="background: #0E9F6E;"></span> Completed & Synced
               </span>
             </div>
           </div>
 
           <div style="display: flex; gap: 10px; justify-content: center;">
-            <button type="button" class="btn btn-secondary" id="btnSubmitAnotherTopup">Submit Another Payment</button>
+            <button type="button" class="btn btn-secondary" id="btnSubmitAnotherTopup">Top-up More Credits</button>
             <button type="button" class="btn btn-primary" data-close="modalAddCredits">Done</button>
           </div>
         </div>
@@ -1971,14 +2486,14 @@
 
     <!-- Simulate API Test Request Modal -->
     <div id="modalTestRequest" class="modal-backdrop">
-      <div class="modal">
+      <div class="modal" style="max-width: 540px;">
         <div class="modal-header">
           <h3 class="modal-title">Simulate Real API Request</h3>
           <button class="modal-close" data-close="modalTestRequest">&times;</button>
         </div>
         <form id="formTestRequest">
-          <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 16px;">
-            This will deduct tokens from your Firestore credits balance and write a real record to <code class="mono">users/{uid}/usage_logs</code>.
+          <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 14px;">
+            Simulate a gateway request with real token usage metrics. Credits are dynamically deducted from your balance based on model rate multipliers and logged to <code class="mono">users/{uid}/usage_logs</code>.
           </p>
 
           <div class="form-group">
@@ -1991,18 +2506,57 @@
           <div class="form-group">
             <label class="form-label" for="selectTestEndpoint">API Endpoint &amp; Model</label>
             <select id="selectTestEndpoint" class="form-select">
-              <option value="/v1/chat/completions">POST /v1/chat/completions (openai/gpt-oss-20b)</option>
-              <option value="/v1/chat/completions#120b">POST /v1/chat/completions (openai/gpt-oss-120b)</option>
-              <option value="/v1/chat/completions#qwen">POST /v1/chat/completions (qwen/qwen3.8-27b)</option>
-              <option value="/v1/chat/completions#compound">POST /v1/chat/completions (groq/compound-mini)</option>
-              <option value="/v1/embeddings">POST /v1/embeddings (keyline-embed-v2)</option>
+              <option value="/v1/chat/completions" data-model="openai/gpt-oss-20b" selected>POST /v1/chat/completions (openai/gpt-oss-20b • Fast)</option>
+              <option value="/v1/chat/completions#120b" data-model="openai/gpt-oss-120b">POST /v1/chat/completions (openai/gpt-oss-120b • Reasoning)</option>
+              <option value="/v1/chat/completions#qwen" data-model="qwen/qwen3.8-27b">POST /v1/chat/completions (qwen/qwen3.8-27b • High-Tier)</option>
+              <option value="/v1/chat/completions#compound" data-model="groq/compound-mini">POST /v1/chat/completions (groq/compound-mini • Fast)</option>
+              <option value="/v1/embeddings" data-model="keyline-embed-v2">POST /v1/embeddings (keyline-embed-v2 • Fast)</option>
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="inputTokensToUse">Tokens to Consume</label>
-            <input type="number" id="inputTokensToUse" class="form-input" value="25" min="5" max="500" required />
-            <p class="form-helper">Tokens will be deducted from your real-time wallet credits.</p>
+          <!-- Upstream Usage Breakdown: Prompt, Completion, Reasoning Tokens -->
+          <div style="background: rgba(255, 107, 0, 0.04); border: 1px solid rgba(255, 107, 0, 0.16); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;">
+            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--primary-orange); letter-spacing: 0.04em; margin-bottom: 8px;">
+              Upstream API Response Usage (Tokens)
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="inputPromptTokens" style="font-size: 0.78rem;">Prompt Tokens</label>
+                <input type="number" id="inputPromptTokens" class="form-input" value="1200" min="0" max="1000000" style="padding: 7px 10px; font-size: 0.85rem;" required />
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="inputCompletionTokens" style="font-size: 0.78rem;">Completion Tokens</label>
+                <input type="number" id="inputCompletionTokens" class="form-input" value="450" min="0" max="1000000" style="padding: 7px 10px; font-size: 0.85rem;" required />
+              </div>
+              <div class="form-group" style="margin-bottom: 0;" id="groupReasoningTokens">
+                <label class="form-label" for="inputReasoningTokens" style="font-size: 0.78rem;">Reasoning / Thinking</label>
+                <input type="number" id="inputReasoningTokens" class="form-input" value="0" min="0" max="1000000" style="padding: 7px 10px; font-size: 0.85rem;" />
+              </div>
+            </div>
+
+            <!-- Dynamic Credit Calculation Preview -->
+            <div style="margin-top: 12px; padding: 10px 12px; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-sm); border: 1px solid rgba(255, 107, 0, 0.15); font-size: 0.8rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span style="color: var(--text-secondary);">Model Rate Tier:</span>
+                <span id="previewModelRateTier" style="font-weight: 700; color: var(--primary-orange);">Fast (1 credit / 10,000 tokens)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span style="color: var(--text-secondary);">Total Tokens:</span>
+                <span id="previewTotalTokens" class="mono" style="font-weight: 700; color: var(--text-primary);">1,650</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px dashed rgba(255, 107, 0, 0.2);">
+                <span style="font-weight: 700; color: var(--text-primary);">Calculated Credit Deduction:</span>
+                <span id="previewCreditsDeducted" class="mono" style="font-weight: 800; color: var(--primary-orange); font-size: 0.96rem;">0.1650 Credits</span>
+              </div>
+              <div id="previewFormulaText" class="mono" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; word-break: break-all; line-height: 1.4;">
+                Formula: (1200 × 0.0001) + (450 × 0.0001) + (0 × 0.0001) = 0.1650 credits
+              </div>
+            </div>
+            
+            <p class="form-helper" style="margin-top: 8px; margin-bottom: 0; font-size: 0.75rem; color: var(--text-secondary);">
+              Credits deduct dynamically based on actual input, output, and thinking token consumption.
+            </p>
           </div>
 
           <div class="modal-actions">
@@ -2032,12 +2586,25 @@
             Are you sure you want to delete your Keyline account (<strong id="txtDeleteAccountEmail">your account</strong>)?
           </p>
 
+          <!-- Lifetime Free Trial Policy Warning (Requirement 3) -->
+          <div style="background-color: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.84rem; color: #92400E; line-height: 1.5; margin-bottom: 14px; display: flex; gap: 10px; align-items: flex-start;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div>
+              <strong style="color: #78350F;">Warning:</strong> Deleting your account will not reset your free trial credits. If you re-register with this email, your starting balance will be 0.
+            </div>
+          </div>
+
           <div style="background-color: var(--danger-bg); border: 1px solid #FCA5A5; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.82rem; color: var(--danger-red); line-height: 1.5; margin-bottom: 16px;">
             <strong>Irreversible Action:</strong>
             <ul style="margin-left: 18px; margin-top: 6px;">
               <li>All active API keys will immediately be deleted from Firestore and reject incoming traffic.</li>
               <li>Your remaining token credits and request telemetry history will be wiped.</li>
               <li>Your Firebase Authentication credentials will be permanently terminated.</li>
+              <li>Your email's lifetime free trial status remains permanently recorded.</li>
             </ul>
           </div>
 
@@ -2274,40 +2841,107 @@
           if (unsubscribeApiKeys) unsubscribeApiKeys();
           if (unsubscribeLogs) unsubscribeLogs();
 
+          const banner = document.getElementById('bannerTrialUtilized');
+          if (banner) banner.style.display = 'none';
+
           authSection.style.display = 'flex';
           dashboardSection.style.display = 'none';
           userNavSection.style.display = 'none';
         }
       }
 
-      // Initialize User Document with 1,000 Free Credits on first sign in
+      // Initialize User Document with Lifetime Email Tracking System
       async function initUserFirestoreDoc(user) {
         if (!db) return;
         const userDocRef = doc(db, 'users', user.uid);
         try {
           const snap = await getDoc(userDocRef);
-          const userEmail = user.email || user.providerData?.[0]?.email || 'GitHub User';
+          const rawEmail = user.email || user.providerData?.[0]?.email || '';
+          const userEmail = rawEmail || 'Developer';
           const userDisplayName = user.displayName || user.reloadUserInfo?.screenName || user.providerData?.[0]?.displayName || 'Developer';
           const userPhotoURL = user.photoURL || user.providerData?.[0]?.photoURL || '';
 
+          // Normalize email for lifetime claimed_trials tracking doc
+          const canonicalEmail = rawEmail.toLowerCase().trim();
+          const trialDocId = canonicalEmail ? canonicalEmail.replace(/[\/\s]/g, '_') : ('uid_' + user.uid);
+          const trialDocRef = doc(db, 'claimed_trials', trialDocId);
+          const banner = document.getElementById('bannerTrialUtilized');
+
           if (!snap.exists()) {
-            // New user defaults to 1,000 free tokens, tier: "free"
-            await setDoc(userDocRef, {
-              uid: user.uid,
-              email: userEmail,
-              displayName: userDisplayName,
-              photoURL: userPhotoURL,
-              credits: 1000,
-              tier: 'free',
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp()
-            });
-            showToast('Welcome to Keyline! 1,000 token credits granted.');
+            // New user or re-registered user after deletion: Check lifetime tracking
+            let alreadyClaimed = false;
+            try {
+              const trialSnap = await getDoc(trialDocRef);
+              if (trialSnap.exists()) {
+                alreadyClaimed = true;
+              }
+            } catch (trialCheckErr) {
+              console.warn('Lifetime claimed_trials check:', trialCheckErr);
+            }
+
+            if (!alreadyClaimed) {
+              // Document does NOT exist: First-time sign up!
+              // 1. Grant 1,000 free credits
+              await setDoc(userDocRef, {
+                uid: user.uid,
+                email: userEmail,
+                displayName: userDisplayName,
+                photoURL: userPhotoURL,
+                credits: 1000,
+                tier: 'free',
+                trialClaimed: true,
+                trialReused: false,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+              });
+
+              // 2. Create permanent lifetime record in claimed_trials/${user.email}
+              try {
+                await setDoc(trialDocRef, {
+                  email: canonicalEmail || userEmail,
+                  initialUid: user.uid,
+                  claimedAt: serverTimestamp()
+                });
+              } catch (trialSaveErr) {
+                console.warn('Could not record claimed_trials:', trialSaveErr);
+              }
+
+              if (banner) banner.style.display = 'none';
+              showToast('Welcome to Keyline! 1,000 token credits granted.');
+            } else {
+              // Document ALREADY exists (user already claimed free tier in the past):
+              // Grant 0 free credits (balance: 0)
+              await setDoc(userDocRef, {
+                uid: user.uid,
+                email: userEmail,
+                displayName: userDisplayName,
+                photoURL: userPhotoURL,
+                credits: 0,
+                tier: 'free',
+                trialClaimed: true,
+                trialReused: true,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+              });
+
+              // Show welcome banner
+              if (banner) banner.style.display = 'block';
+              showToast('Welcome back! Your previous free trial has already been utilized. Please top up your wallet to generate requests.', 'warning');
+            }
           } else {
-            // Update profile fields if they were missing or set to placeholder previously
+            // User doc already exists: Check if trial was previously utilized with 0 balance
             const data = snap.data();
+            if (banner) {
+              if (data.trialReused && (data.credits || 0) <= 0) {
+                banner.style.display = 'block';
+              } else {
+                banner.style.display = 'none';
+              }
+            }
+
+            // Update profile fields if they were missing or set to placeholder previously
             const updates = {};
-            if ((!data.email || data.email === 'No email') && userEmail && userEmail !== 'GitHub User') {
+            if ((!data.email || data.email === 'No email') && userEmail && userEmail !== 'GitHub User' && userEmail !== 'Developer') {
               updates.email = userEmail;
             }
             if ((!data.displayName || data.displayName === 'Developer') && userDisplayName && userDisplayName !== 'Developer') {
@@ -2329,14 +2963,39 @@
 
       // Real-time Subscriptions (Users doc, API Keys subcollection, Usage logs subcollection)
       function updateCreditProgressUI(credits) {
+        const numericCredits = Number(credits) || 0;
         const valCreditsEl = document.getElementById('valCredits');
-        if (valCreditsEl) valCreditsEl.textContent = Number(credits).toLocaleString();
-        const quotaBase = Math.max(1000, credits);
-        const pct = Math.min(100, Math.max(0, Math.round((credits / quotaBase) * 100)));
+        if (valCreditsEl) {
+          valCreditsEl.textContent = Number.isInteger(numericCredits)
+            ? numericCredits.toLocaleString()
+            : numericCredits.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+        }
+
+        const lblWalletCreditsScale = document.getElementById('lblWalletCreditsScale');
+        if (lblWalletCreditsScale) {
+          // Standard benchmark: 1,000 Credits represents ~1M standard tokens
+          const approxTokens = Math.round(numericCredits * 1000);
+          let tokenStr = '~1M Tokens';
+          if (approxTokens >= 1000000) {
+            const m = approxTokens / 1000000;
+            tokenStr = `~${m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)}M Tokens`;
+          } else if (approxTokens >= 1000) {
+            tokenStr = `~${Math.round(approxTokens / 1000)}k Tokens`;
+          } else {
+            tokenStr = `~${approxTokens} Tokens`;
+          }
+          lblWalletCreditsScale.textContent = `Credits (${tokenStr})`;
+        }
+
+        const quotaBase = Math.max(1000, numericCredits);
+        const pct = Math.min(100, Math.max(0, Math.round((numericCredits / quotaBase) * 100)));
         const barEl = document.getElementById('creditProgressBar');
         const labelEl = document.getElementById('creditProgressLabel');
         if (barEl) barEl.style.width = `${pct}%`;
-        if (labelEl) labelEl.textContent = `${Number(credits).toLocaleString()} / ${Number(quotaBase).toLocaleString()} (${pct}%)`;
+        if (labelEl) {
+          const displayVal = Number.isInteger(numericCredits) ? numericCredits.toLocaleString() : numericCredits.toFixed(2);
+          labelEl.textContent = `${displayVal} / ${Number(quotaBase).toLocaleString()} (${pct}%)`;
+        }
       }
 
       function subscribeToUserData(uid) {
@@ -2538,15 +3197,22 @@
             }
           }
 
+          const creditsDisplay = (log.creditsDeducted !== undefined && log.creditsDeducted !== null)
+            ? `<div style="display: flex; flex-direction: column; gap: 2px;">
+                 <span style="font-weight: 700; color: var(--primary-orange);">${Number(log.creditsDeducted).toFixed(4)} cr</span>
+                 <span class="mono" style="font-size: 0.72rem; color: var(--text-secondary);">${Number(log.totalTokens || log.tokensUsed || 0).toLocaleString()} tok</span>
+               </div>`
+            : `<span style="font-weight: 700; color: var(--text-primary);">${Number(log.tokensUsed || 0).toLocaleString()} credits</span>`;
+
           tr.innerHTML = `
             <td style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap;">${formattedTime}</td>
             <td><code class="mono" style="font-size: 0.82rem; color: var(--primary-orange);">${escapeHtml(log.endpoint || '/v1/chat/completions')}</code></td>
-            <td><span style="font-size: 0.84rem; font-weight: 600;">${escapeHtml(log.model || 'keyline-core-v1')}</span></td>
-            <td><span style="font-weight: 700; color: var(--text-primary);">${Number(log.tokensUsed || 0).toLocaleString()} credits</span></td>
+            <td><span style="font-size: 0.84rem; font-weight: 600;">${escapeHtml(log.model || 'openai/gpt-oss-20b')}</span></td>
+            <td>${creditsDisplay}</td>
             <td>
               <span class="status-pill success">${log.status || 200} OK</span>
             </td>
-            <td><code class="mono" style="font-size: 0.74rem; color: var(--text-secondary);">${escapeHtml(log.keyPrefix || log.keyId?.slice(0, 10) || '--')}</code></td>
+            <td><code class="mono" style="font-size: 0.74rem; color: var(--text-secondary);">${escapeHtml(log.keyPrefix || (log.keyId ? log.keyId.slice(0, 10) : '--'))}</code></td>
           `;
 
           tableBody.appendChild(tr);
@@ -2962,6 +3628,13 @@ console.log(response.choices[0].message.content);`;
             }
           }
 
+          // 5. CRITICAL LIFETIME TRACKING POLICY:
+          // DO NOT delete claimed_trials/${user.email}. This entry permanently records that
+          // this email address has consumed their one-time free tier, preventing credit abuse
+          // if they ever re-register in the future.
+          const banner = document.getElementById('bannerTrialUtilized');
+          if (banner) banner.style.display = 'none';
+
           closeModal('modalDeleteAccount');
           showToast('Your account, API keys, and records have been permanently deleted.');
         } catch (error) {
@@ -2972,72 +3645,180 @@ console.log(response.choices[0].message.content);`;
         }
       }
 
-      // Claim Free Test Credits
-      async function claimTestCredits() {
-        if (!currentUser || !db) return;
-        const btn = document.getElementById('btnClaimFreeCredits');
-        btn.disabled = true;
-        btn.textContent = 'Adding...';
-
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          await updateDoc(userDocRef, {
-            credits: increment(500),
-            updatedAt: serverTimestamp()
-          });
-          showToast('Added 500 token credits to your wallet!');
-        } catch (error) {
-          handleFirestoreError(error, OperationType.UPDATE, `users/${currentUser.uid}`);
-          showToast('Failed to add credits: ' + error.message, 'error');
-        } finally {
-          btn.disabled = false;
-          btn.textContent = '+500 Test Credits';
+      // ==========================================
+      // DYNAMIC TOKEN-BASED BILLING ENGINE
+      // ==========================================
+      // Rate Multipliers:
+      // - Fast models (e.g. gpt-oss-20b, compound-mini): 1 credit per 10,000 tokens (0.0001 cr/token)
+      // - Reasoning / High-tier models (e.g. gpt-oss-120b, qwen3.8-27b): 1 credit per 2,000 tokens (0.0005 cr/token)
+      const MODEL_RATE_MULTIPLIERS = {
+        'openai/gpt-oss-20b': {
+          category: 'fast',
+          displayName: 'Fast Model (1 credit / 10,000 tokens)',
+          inputMultiplier: 1 / 10000,    // 0.0001
+          outputMultiplier: 1 / 10000,   // 0.0001
+          reasoningMultiplier: 1 / 10000, // 0.0001
+          tokensPerCredit: 10000
+        },
+        'groq/compound-mini': {
+          category: 'fast',
+          displayName: 'Fast Model (1 credit / 10,000 tokens)',
+          inputMultiplier: 1 / 10000,
+          outputMultiplier: 1 / 10000,
+          reasoningMultiplier: 1 / 10000,
+          tokensPerCredit: 10000
+        },
+        'keyline-embed-v2': {
+          category: 'fast',
+          displayName: 'Fast Embeddings (1 credit / 10,000 tokens)',
+          inputMultiplier: 1 / 10000,
+          outputMultiplier: 1 / 10000,
+          reasoningMultiplier: 1 / 10000,
+          tokensPerCredit: 10000
+        },
+        'openai/gpt-oss-120b': {
+          category: 'reasoning',
+          displayName: 'Reasoning Model (1 credit / 2,000 tokens)',
+          inputMultiplier: 1 / 2000,     // 0.0005
+          outputMultiplier: 1 / 2000,    // 0.0005
+          reasoningMultiplier: 1 / 2000, // 0.0005
+          tokensPerCredit: 2000
+        },
+        'qwen/qwen3.8-27b': {
+          category: 'reasoning',
+          displayName: 'High-Tier Model (1 credit / 2,000 tokens)',
+          inputMultiplier: 1 / 2000,
+          outputMultiplier: 1 / 2000,
+          reasoningMultiplier: 1 / 2000,
+          tokensPerCredit: 2000
         }
+      };
+
+      function getModelRateMultipliers(modelName) {
+        if (!modelName) return MODEL_RATE_MULTIPLIERS['openai/gpt-oss-20b'];
+        const clean = String(modelName).toLowerCase();
+        if (MODEL_RATE_MULTIPLIERS[modelName]) return MODEL_RATE_MULTIPLIERS[modelName];
+        if (MODEL_RATE_MULTIPLIERS[clean]) return MODEL_RATE_MULTIPLIERS[clean];
+
+        if (clean.includes('120b') || clean.includes('reasoning') || clean.includes('qwen') || clean.includes('r1') || clean.includes('o1') || clean.includes('claude') || clean.includes('gpt-4')) {
+          return {
+            category: 'reasoning',
+            displayName: 'Reasoning / High-tier (1 credit / 2,000 tokens)',
+            inputMultiplier: 1 / 2000,
+            outputMultiplier: 1 / 2000,
+            reasoningMultiplier: 1 / 2000,
+            tokensPerCredit: 2000
+          };
+        }
+
+        return {
+          category: 'fast',
+          displayName: 'Fast Model (1 credit / 10,000 tokens)',
+          inputMultiplier: 1 / 10000,
+          outputMultiplier: 1 / 10000,
+          reasoningMultiplier: 1 / 10000,
+          tokensPerCredit: 10000
+        };
       }
 
-      // Simulate Real API Request (Decrements credits, writes usage_log in Firestore)
-      async function simulateApiRequest(keyId, endpoint, tokensToUse) {
+      /**
+       * Dynamic Credit Calculation based on upstream API response `usage`:
+       * Formula: credits_deducted = (prompt_tokens * input_multiplier) + (completion_tokens * output_multiplier) + (reasoning_tokens * reasoning_multiplier)
+       */
+      function calculateCreditDeduction(modelName, usage) {
+        const rates = getModelRateMultipliers(modelName);
+        const promptTokens = Math.max(0, Number(usage?.prompt_tokens || usage?.promptTokens || 0));
+        const completionTokens = Math.max(0, Number(usage?.completion_tokens || usage?.completionTokens || 0));
+        const reasoningTokens = Math.max(0, Number(
+          usage?.reasoning_tokens || 
+          usage?.reasoningTokens || 
+          usage?.completion_tokens_details?.reasoning_tokens || 
+          0
+        ));
+        const totalTokens = Math.max(0, Number(usage?.total_tokens || usage?.totalTokens || (promptTokens + completionTokens + reasoningTokens)));
+
+        // Formula: credits_deducted = (prompt_tokens * input_multiplier) + (completion_tokens * output_multiplier) + (reasoning_tokens * reasoning_multiplier)
+        const rawCredits = (promptTokens * rates.inputMultiplier) + 
+                           (completionTokens * rates.outputMultiplier) + 
+                           (reasoningTokens * rates.reasoningMultiplier);
+
+        // Keep 4 decimal places precision (e.g. 0.0500 cr) or minimum micro-charge
+        const creditsDeducted = Math.max(0.0001, Math.round(rawCredits * 10000) / 10000);
+        const formulaStr = `(${promptTokens} × ${rates.inputMultiplier}) + (${completionTokens} × ${rates.outputMultiplier}) + (${reasoningTokens} × ${rates.reasoningMultiplier}) = ${creditsDeducted.toFixed(4)} credits`;
+
+        return {
+          model: modelName,
+          category: rates.category,
+          rates,
+          promptTokens,
+          completionTokens,
+          reasoningTokens,
+          totalTokens,
+          creditsDeducted,
+          formulaStr
+        };
+      }
+
+      // Simulate Real API Request (Decrements credits dynamically, writes usage_log in Firestore)
+      async function simulateApiRequest(keyId, endpoint, modelName, usage) {
         if (!currentUser || !db) return;
         const btnSubmit = document.getElementById('btnSubmitTestRequest');
-        btnSubmit.disabled = true;
-        btnSubmit.textContent = 'Processing request...';
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'Processing request...';
+        }
 
         try {
           // Verify key status
           const keyObj = activeKeysList.find(k => k.id === keyId);
           if (keyObj && keyObj.status === 'revoked') {
             showToast('Gateway 401 Unauthorized: Selected API key is revoked.', 'error');
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Send Request (200 OK)';
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.textContent = 'Send Request (200 OK)';
+            }
             return;
           }
+
+          const model = modelName || 'openai/gpt-oss-20b';
+          const calculation = calculateCreditDeduction(model, usage);
+          const creditsToDeduct = calculation.creditsDeducted;
 
           // 1. Check user credits first
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
           const currentCredits = userSnap.exists() ? (userSnap.data().credits || 0) : 0;
 
-          if (currentCredits < tokensToUse) {
-            showToast(`Insufficient credits (${currentCredits} available, needed ${tokensToUse}). Click "+500 Test Credits" to top up!`, 'error');
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Send Request (200 OK)';
+          if (currentCredits < creditsToDeduct) {
+            showToast(`Insufficient balance: ${Number(currentCredits).toFixed(2)} credits available, needed ${creditsToDeduct.toFixed(4)} credits for ${calculation.totalTokens.toLocaleString()} tokens.`, 'error');
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.textContent = 'Send Request (200 OK)';
+            }
             return;
           }
 
-          // 2. Decrement credits in user doc
+          // 2. Decrement credits in user doc dynamically based on calculated credits
           await updateDoc(userDocRef, {
-            credits: increment(-tokensToUse),
+            credits: increment(-creditsToDeduct),
             updatedAt: serverTimestamp()
           });
 
-          // 3. Write usage log to subcollection
+          // 3. Write usage log to subcollection with token breakdown & deduction
           const logData = {
             userId: currentUser.uid,
             keyId: keyId,
             keyPrefix: keyObj ? keyObj.prefix : 'keyline_live_••••',
             endpoint: endpoint,
-            model: endpoint.includes('embeddings') ? 'keyline-embed-v2' : currentSelectedModel,
-            tokensUsed: Number(tokensToUse),
+            model: model,
+            promptTokens: calculation.promptTokens,
+            completionTokens: calculation.completionTokens,
+            reasoningTokens: calculation.reasoningTokens,
+            totalTokens: calculation.totalTokens,
+            tokensUsed: calculation.totalTokens, // backward-compatibility
+            creditsDeducted: creditsToDeduct,
+            rateCategory: calculation.category,
+            formula: calculation.formulaStr,
             status: 200,
             timestamp: new Date().toISOString()
           };
@@ -3045,13 +3826,15 @@ console.log(response.choices[0].message.content);`;
           await addDoc(collection(db, 'users', currentUser.uid, 'usage_logs'), logData);
 
           closeModal('modalTestRequest');
-          showToast(`Request 200 OK: Consumed ${tokensToUse} tokens. Telemetry logged in Firestore.`);
+          showToast(`Request 200 OK: ${calculation.totalTokens.toLocaleString()} tokens billed. Deducted ${creditsToDeduct.toFixed(4)} credits (${calculation.rates.displayName}).`);
         } catch (error) {
           handleFirestoreError(error, OperationType.WRITE, `users/${currentUser.uid}/usage_logs`);
           showToast('API request failed: ' + error.message, 'error');
         } finally {
-          btnSubmit.disabled = false;
-          btnSubmit.textContent = 'Send Request (200 OK)';
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Send Request (200 OK)';
+          }
         }
       }
 
@@ -3238,6 +4021,54 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
+      // Integration Guide: Stepper Nav Buttons
+      document.querySelectorAll('.guide-step-nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stepNum = btn.getAttribute('data-step');
+          document.querySelectorAll('.guide-step-nav-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          // Open the corresponding accordion step item
+          document.querySelectorAll('.guide-accordion-item').forEach(item => {
+            const isMatch = item.getAttribute('data-step-item') === stepNum;
+            item.classList.toggle('active', isMatch);
+          });
+        });
+      });
+
+      // Integration Guide: Accordion Headers Toggle
+      document.querySelectorAll('[data-toggle-step]').forEach(headerBtn => {
+        headerBtn.addEventListener('click', () => {
+          const stepNum = headerBtn.getAttribute('data-toggle-step');
+          const targetItem = document.querySelector(`.guide-accordion-item[data-step-item="${stepNum}"]`);
+          if (targetItem) {
+            const isCurrentlyActive = targetItem.classList.contains('active');
+            targetItem.classList.toggle('active', !isCurrentlyActive);
+
+            // Sync top pill if opened
+            if (!isCurrentlyActive) {
+              document.querySelectorAll('.guide-step-nav-btn').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-step') === stepNum);
+              });
+            }
+          }
+        });
+      });
+
+      // Integration Guide: Copy Gateway Base URL
+      const btnCopyGatewayUrl = document.getElementById('btnCopyGatewayUrl');
+      if (btnCopyGatewayUrl) {
+        btnCopyGatewayUrl.addEventListener('click', () => {
+          const url = 'https://keyline.v0408688.workers.dev/v1/chat/completions';
+          navigator.clipboard.writeText(url);
+          btnCopyGatewayUrl.textContent = 'Copied!';
+          showToast('Gateway Base URL copied to clipboard!');
+          setTimeout(() => {
+            btnCopyGatewayUrl.textContent = 'Copy URL';
+          }, 2000);
+        });
+      }
+
       // Open Key Generator Modal
       document.getElementById('btnOpenGenerateKey').addEventListener('click', () => {
         document.getElementById('inputKeyName').value = `Live Key #${activeKeysList.length + 1}`;
@@ -3333,23 +4164,63 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      // Add Credits Top-Up Modal State & Event Listeners
-      let selectedPackage = { id: 'growth', amount: 99, credits: 15000 };
+      // =========================================================================
+      // RAZORPAY STANDARD WEB CHECKOUT & TOP-UP INTEGRATION
+      // =========================================================================
+      const RAZORPAY_CONFIG = {
+        keyId: "rzp_test_TdQRRa5EUhBQLY",
+        currency: "INR",
+        name: "Keyline AI Gateway",
+        image: "https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg",
+        themeColor: "#f97316"
+      };
 
-      function updateTopupQrCode(amount, credits) {
-        const upiUri = `upi://pay?pa=keyline.ai@upi&pn=KeylineAI&am=${amount}&cu=INR`;
-        const qrImg = document.getElementById('upiQrCodeImg');
-        if (qrImg) {
-          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiUri)}`;
-        }
-        const displayAmount = document.getElementById('displaySelectedAmount');
-        if (displayAmount) {
-          displayAmount.textContent = `₹${amount}`;
-        }
-        const displayCredits = document.getElementById('displaySelectedCredits');
-        if (displayCredits) {
-          displayCredits.textContent = `(${Number(credits).toLocaleString()} Credits)`;
-        }
+      // Tiers: Starter (₹49, 2,500 Credits), Growth (₹99, 6,000 Credits), Scale Pro (₹249, 20,000 Credits)
+      let selectedPackage = { id: 'growth', amount: 99, credits: 6000 };
+
+      // Helper to dynamically load Razorpay checkout script if missing
+      function loadRazorpayScript() {
+        return new Promise((resolve) => {
+          if (window.Razorpay) {
+            resolve(true);
+            return;
+          }
+          const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+          if (existing) {
+            existing.addEventListener('load', () => resolve(true));
+            existing.addEventListener('error', () => resolve(false));
+            setTimeout(() => resolve(!!window.Razorpay), 1500);
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.async = true;
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.head.appendChild(script);
+        });
+      }
+
+      function updateSelectedPackageDisplay() {
+        const displayTitle = document.getElementById('checkoutSelectedTierTitle');
+        const displayCredits = document.getElementById('checkoutSelectedCredits');
+        const displayAmount = document.getElementById('checkoutPayableAmount');
+        const btnPay = document.getElementById('btnPayWithRazorpay');
+        const btnPayText = document.getElementById('btnPayWithRazorpayText');
+
+        const names = {
+          starter: 'Starter Plan',
+          growth: 'Growth Plan',
+          scale: 'Scale Pro Plan'
+        };
+
+        const name = names[selectedPackage.id] || 'Selected Plan';
+
+        if (displayTitle) displayTitle.textContent = `${name} (₹${selectedPackage.amount})`;
+        if (displayCredits) displayCredits.textContent = `${Number(selectedPackage.credits).toLocaleString()} Credits`;
+        if (displayAmount) displayAmount.textContent = `₹${selectedPackage.amount}`;
+        if (btnPayText) btnPayText.textContent = `Pay with Razorpay (₹${selectedPackage.amount})`;
+        if (btnPay) btnPay.disabled = false;
       }
 
       function resetTopupModal() {
@@ -3358,28 +4229,18 @@ console.log(response.choices[0].message.content);`;
         if (formCont) formCont.style.display = 'block';
         if (confirmCont) confirmCont.style.display = 'none';
 
-        const inputUtr = document.getElementById('inputUtrNumber');
-        if (inputUtr) inputUtr.value = '';
-        const counter = document.getElementById('utrCharCounter');
-        if (counter) counter.textContent = '0 / 12 digits';
-        const valMsg = document.getElementById('utrValidationMsg');
-        if (valMsg) {
-          valMsg.textContent = '';
-          valMsg.style.display = 'none';
-        }
+        // Reset package selection to default Growth (₹99 -> 6,000)
+        document.querySelectorAll('#modalAddCredits .tier-card').forEach(c => c.classList.remove('selected'));
+        const defaultCard = document.querySelector('#modalAddCredits .tier-card[data-tier-id="growth"]');
+        if (defaultCard) defaultCard.classList.add('selected');
 
-        const btnSubmit = document.getElementById('btnSubmitPaymentRequest');
-        if (btnSubmit) {
-          btnSubmit.disabled = false;
-          btnSubmit.innerHTML = `
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Submit Payment</span>
-          `;
-        }
+        selectedPackage = { id: 'growth', amount: 99, credits: 6000 };
+        updateSelectedPackageDisplay();
 
-        updateTopupQrCode(selectedPackage.amount, selectedPackage.credits);
+        const btnPay = document.getElementById('btnPayWithRazorpay');
+        if (btnPay) {
+          btnPay.disabled = false;
+        }
       }
 
       const btnOpenAddCredits = document.getElementById('btnOpenAddCredits');
@@ -3390,117 +4251,158 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      // Package Card Selection
+      const btnBannerTopup = document.getElementById('btnBannerTopup');
+      if (btnBannerTopup) {
+        btnBannerTopup.addEventListener('click', () => {
+          resetTopupModal();
+          openModal('modalAddCredits');
+        });
+      }
+
+      // Package Card Selection (₹49, ₹99, ₹249)
       document.querySelectorAll('#modalAddCredits .tier-card').forEach(card => {
         card.addEventListener('click', () => {
           document.querySelectorAll('#modalAddCredits .tier-card').forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
+          
           const id = card.getAttribute('data-tier-id') || 'growth';
-          const amount = parseInt(card.getAttribute('data-package-amount'), 10);
-          const credits = parseInt(card.getAttribute('data-credits'), 10);
+          const amount = parseInt(card.getAttribute('data-package-amount'), 10) || 99;
+          const credits = parseInt(card.getAttribute('data-credits'), 10) || 6000;
           selectedPackage = { id, amount, credits };
-          updateTopupQrCode(amount, credits);
+          updateSelectedPackageDisplay();
         });
       });
 
-      // Copy UPI ID Button
-      const btnCopyUpiId = document.getElementById('btnCopyUpiId');
-      if (btnCopyUpiId) {
-        btnCopyUpiId.addEventListener('click', () => {
-          navigator.clipboard.writeText('keyline.ai@upi');
-          const textSpan = document.getElementById('btnCopyUpiIdText');
-          if (textSpan) textSpan.textContent = 'Copied!';
-          showToast('UPI ID "keyline.ai@upi" copied to clipboard!');
-          setTimeout(() => {
-            if (textSpan) textSpan.textContent = 'Copy UPI ID';
-          }, 2000);
-        });
-      }
+      // Handle Razorpay Checkout Payment
+      async function handleRazorpayPayment() {
+        if (!currentUser || !db) {
+          showToast('Please sign in to top-up credits.', 'error');
+          return;
+        }
 
-      // 12-digit UTR Input Validation
-      const inputUtr = document.getElementById('inputUtrNumber');
-      if (inputUtr) {
-        inputUtr.addEventListener('input', (e) => {
-          const cleaned = e.target.value.replace(/\D/g, '').slice(0, 12);
-          e.target.value = cleaned;
-          const counter = document.getElementById('utrCharCounter');
-          if (counter) counter.textContent = `${cleaned.length} / 12 digits`;
-          const valMsg = document.getElementById('utrValidationMsg');
-          if (valMsg) valMsg.style.display = 'none';
-        });
-      }
+        if (!selectedPackage || !selectedPackage.amount || !selectedPackage.credits) {
+          showToast('Please select a top-up credit package.', 'error');
+          return;
+        }
 
-      // Submit Payment Request to Firestore
-      const btnSubmitPayment = document.getElementById('btnSubmitPaymentRequest');
-      if (btnSubmitPayment) {
-        btnSubmitPayment.addEventListener('click', async () => {
-          if (!currentUser || !db) {
-            showToast('Please sign in to submit a payment request.', 'error');
-            return;
-          }
+        const btnPay = document.getElementById('btnPayWithRazorpay');
+        const btnPayText = document.getElementById('btnPayWithRazorpayText');
 
-          const utrInput = document.getElementById('inputUtrNumber');
-          const valMsg = document.getElementById('utrValidationMsg');
-          const utrVal = utrInput ? utrInput.value.trim() : '';
+        if (btnPay) {
+          btnPay.disabled = true;
+          if (btnPayText) btnPayText.textContent = 'Connecting Gateway...';
+        }
 
-          // Validate exactly 12 numeric digits
-          if (!/^\d{12}$/.test(utrVal)) {
-            if (valMsg) {
-              valMsg.textContent = 'Please enter a valid 12-digit numeric UPI UTR / Transaction ID.';
-              valMsg.style.display = 'block';
+        try {
+          const isLoaded = await loadRazorpayScript();
+          if (!isLoaded || typeof window.Razorpay === 'undefined') {
+            showToast('Unable to load Razorpay checkout. Please check your network connection.', 'error');
+            if (btnPay) {
+              btnPay.disabled = false;
+              updateSelectedPackageDisplay();
             }
-            if (utrInput) utrInput.focus();
-            showToast('Please enter a valid 12-digit UPI UTR number.', 'error');
             return;
           }
 
-          btnSubmitPayment.disabled = true;
-          btnSubmitPayment.innerHTML = `
-            <svg class="spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)"></circle>
-              <path d="M12 2a10 10 0 0 1 10 10" stroke="#FFF"></path>
-            </svg>
-            <span>Submitting Payment...</span>
-          `;
+          const currentPkg = { ...selectedPackage };
+          const amountInPaise = Math.round(Number(currentPkg.amount) * 100);
 
-          try {
-            // Save document to Firestore under payment_requests collection
-            await addDoc(collection(db, 'payment_requests'), {
-              uid: currentUser.uid,
-              userEmail: currentUser.email || '',
-              packageAmount: Number(selectedPackage.amount),
-              creditsToAdd: Number(selectedPackage.credits),
-              utrNumber: utrVal,
-              status: 'pending',
-              timestamp: serverTimestamp()
-            });
+          const options = {
+            key: RAZORPAY_CONFIG.keyId,
+            amount: amountInPaise,
+            currency: RAZORPAY_CONFIG.currency,
+            name: RAZORPAY_CONFIG.name,
+            description: `${Number(currentPkg.credits).toLocaleString()} API Credits Top-up`,
+            image: RAZORPAY_CONFIG.image,
+            prefill: {
+              email: currentUser?.email || "",
+              name: currentUser?.displayName || "Developer"
+            },
+            theme: {
+              color: RAZORPAY_CONFIG.themeColor
+            },
+            handler: async function (response) {
+              const paymentId = response.razorpay_payment_id || `pay_${Date.now()}`;
+              
+              if (btnPayText) btnPayText.textContent = 'Allocating Credits...';
 
-            // Display clean confirmation message state
-            const formCont = document.getElementById('topupFormContainer');
-            const confirmCont = document.getElementById('topupConfirmationContainer');
-            const confirmPkg = document.getElementById('confirmPackageText');
-            const confirmUtr = document.getElementById('confirmUtrText');
+              try {
+                // 1. Log transaction details to Firestore under users/${currentUser.uid}/transactions
+                const txData = {
+                  paymentId: paymentId,
+                  amount: Number(currentPkg.amount),
+                  credits: Number(currentPkg.credits),
+                  timestamp: serverTimestamp(),
+                  status: "completed"
+                };
 
-            if (confirmPkg) confirmPkg.textContent = `₹${selectedPackage.amount} (${Number(selectedPackage.credits).toLocaleString()} Credits)`;
-            if (confirmUtr) confirmUtr.textContent = utrVal;
+                await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), txData);
 
-            if (formCont) formCont.style.display = 'none';
-            if (confirmCont) confirmCont.style.display = 'block';
+                // 2. Increment user's wallet credit balance in Firestore
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userDocRef, {
+                  credits: increment(Number(currentPkg.credits)),
+                  updatedAt: serverTimestamp()
+                });
 
-            showToast('Payment submitted! Your credits will be updated once the transaction is verified.');
-          } catch (error) {
-            console.error('Payment request submission error:', error);
-            handleFirestoreError(error, OperationType.CREATE, 'payment_requests');
-            showToast('Failed to submit payment: ' + error.message, 'error');
-          } finally {
-            btnSubmitPayment.disabled = false;
-            btnSubmitPayment.innerHTML = `
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Submit Payment</span>
-            `;
+                // Update confirmation details
+                const confirmPkg = document.getElementById('confirmPackageText');
+                const confirmPaymentId = document.getElementById('confirmPaymentIdText');
+                if (confirmPkg) confirmPkg.textContent = `₹${currentPkg.amount} (${Number(currentPkg.credits).toLocaleString()} Credits)`;
+                if (confirmPaymentId) confirmPaymentId.textContent = paymentId;
+
+                // Close modal and show a clean celebration toast confirming credit balance update
+                closeModal('modalAddCredits');
+                showToast(`Payment successful! +${Number(currentPkg.credits).toLocaleString()} credits added to your wallet. (Ref: ${paymentId})`, 'success');
+              } catch (err) {
+                console.error('Error logging payment transaction:', err);
+                handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}/transactions`);
+                showToast(`Payment processed (${paymentId}), but Firestore balance sync had an issue: ${err.message}`, 'error');
+              } finally {
+                if (btnPay) {
+                  btnPay.disabled = false;
+                  updateSelectedPackageDisplay();
+                }
+              }
+            },
+            modal: {
+              ondismiss: function () {
+                console.log('Razorpay checkout window closed');
+                if (btnPay) {
+                  btnPay.disabled = false;
+                  updateSelectedPackageDisplay();
+                }
+              }
+            }
+          };
+
+          const rzpInstance = new window.Razorpay(options);
+
+          rzpInstance.on('payment.failed', function (failureResponse) {
+            console.warn('Razorpay payment failed:', failureResponse.error);
+            const errDescription = failureResponse?.error?.description || failureResponse?.error?.reason || 'Payment could not be processed.';
+            showToast(`Payment failed: ${errDescription}`, 'error');
+            if (btnPay) {
+              btnPay.disabled = false;
+              updateSelectedPackageDisplay();
+            }
+          });
+
+          rzpInstance.open();
+        } catch (checkoutErr) {
+          console.error('Razorpay initialization error:', checkoutErr);
+          showToast(`Checkout initialization error: ${checkoutErr.message}`, 'error');
+          if (btnPay) {
+            btnPay.disabled = false;
+            updateSelectedPackageDisplay();
           }
+        }
+      }
+
+      const btnPayWithRazorpay = document.getElementById('btnPayWithRazorpay');
+      if (btnPayWithRazorpay) {
+        btnPayWithRazorpay.addEventListener('click', () => {
+          handleRazorpayPayment();
         });
       }
 
@@ -3512,8 +4414,72 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      // Top up credits
-      document.getElementById('btnClaimFreeCredits').addEventListener('click', claimTestCredits);
+      // Dynamic Test Request Preview Calculation
+      function updateTestRequestPreview() {
+        const selectEndpoint = document.getElementById('selectTestEndpoint');
+        if (!selectEndpoint) return;
+        const selectedOpt = selectEndpoint.options[selectEndpoint.selectedIndex];
+        const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || selectedOpt.value) : 'openai/gpt-oss-20b';
+        
+        const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
+        const completionTokens = Math.max(0, parseInt(document.getElementById('inputCompletionTokens')?.value, 10) || 0);
+        const reasoningTokens = Math.max(0, parseInt(document.getElementById('inputReasoningTokens')?.value, 10) || 0);
+        
+        const usage = {
+          prompt_tokens: promptTokens,
+          completion_tokens: completionTokens,
+          reasoning_tokens: reasoningTokens,
+          total_tokens: promptTokens + completionTokens + reasoningTokens,
+          completion_tokens_details: {
+            reasoning_tokens: reasoningTokens
+          }
+        };
+
+        const calc = calculateCreditDeduction(modelName, usage);
+        
+        const tierEl = document.getElementById('previewModelRateTier');
+        const totalEl = document.getElementById('previewTotalTokens');
+        const creditsEl = document.getElementById('previewCreditsDeducted');
+        const formulaEl = document.getElementById('previewFormulaText');
+
+        if (tierEl) {
+          tierEl.textContent = calc.rates.displayName;
+        }
+        if (totalEl) {
+          totalEl.textContent = calc.totalTokens.toLocaleString();
+        }
+        if (creditsEl) {
+          creditsEl.textContent = `${calc.creditsDeducted.toFixed(4)} Credits`;
+        }
+        if (formulaEl) {
+          formulaEl.textContent = `Formula: (${calc.promptTokens} × ${calc.rates.inputMultiplier}) + (${calc.completionTokens} × ${calc.rates.outputMultiplier}) + (${calc.reasoningTokens} × ${calc.rates.reasoningMultiplier}) = ${calc.creditsDeducted.toFixed(4)} credits`;
+        }
+      }
+
+      // Event listeners for real-time calculation preview
+      ['inputPromptTokens', 'inputCompletionTokens', 'inputReasoningTokens'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updateTestRequestPreview);
+        }
+      });
+
+      const selectTestEndpointEl = document.getElementById('selectTestEndpoint');
+      if (selectTestEndpointEl) {
+        selectTestEndpointEl.addEventListener('change', () => {
+          const selectedOpt = selectTestEndpointEl.options[selectTestEndpointEl.selectedIndex];
+          const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || selectedOpt.value) : '';
+          const reasoningInput = document.getElementById('inputReasoningTokens');
+          if (reasoningInput) {
+            if (modelName.includes('120b') || modelName.includes('qwen') || modelName.includes('reasoning')) {
+              if (parseInt(reasoningInput.value, 10) === 0) {
+                reasoningInput.value = 350;
+              }
+            }
+          }
+          updateTestRequestPreview();
+        });
+      }
 
       // Open Test Request Modal
       function setupTestRequestModal() {
@@ -3533,19 +4499,104 @@ console.log(response.choices[0].message.content);`;
           select.appendChild(opt);
         });
 
+        updateTestRequestPreview();
         openModal('modalTestRequest');
       }
 
       document.getElementById('btnOpenTestRequest').addEventListener('click', setupTestRequestModal);
       document.getElementById('btnEmptyTestRequest').addEventListener('click', setupTestRequestModal);
 
-      // Submit Test Request
+      // Submit Test Request with Dynamic Token Breakdown & Billing
       document.getElementById('formTestRequest').addEventListener('submit', (e) => {
         e.preventDefault();
         const keyId = document.getElementById('selectTestKey').value;
-        const endpoint = document.getElementById('selectTestEndpoint').value;
-        const tokens = parseInt(document.getElementById('inputTokensToUse').value, 10) || 25;
-        simulateApiRequest(keyId, endpoint, tokens);
+        const selectEndpoint = document.getElementById('selectTestEndpoint');
+        const selectedOpt = selectEndpoint.options[selectEndpoint.selectedIndex];
+        const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || 'openai/gpt-oss-20b') : 'openai/gpt-oss-20b';
+        const endpoint = selectedOpt ? selectedOpt.value.split('#')[0] : '/v1/chat/completions';
+
+        const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
+        const completionTokens = Math.max(0, parseInt(document.getElementById('inputCompletionTokens')?.value, 10) || 0);
+        const reasoningTokens = Math.max(0, parseInt(document.getElementById('inputReasoningTokens')?.value, 10) || 0);
+
+        const usage = {
+          prompt_tokens: promptTokens,
+          completion_tokens: completionTokens,
+          reasoning_tokens: reasoningTokens,
+          total_tokens: promptTokens + completionTokens + reasoningTokens,
+          completion_tokens_details: {
+            reasoning_tokens: reasoningTokens
+          }
+        };
+
+        simulateApiRequest(keyId, endpoint, modelName, usage);
+      });
+
+      // Progressive Web App (PWA) & Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then((registration) => {
+              console.log('[PWA] ServiceWorker successfully registered with scope:', registration.scope);
+            })
+            .catch((error) => {
+              console.warn('[PWA] ServiceWorker registration failed:', error);
+            });
+        });
+      }
+
+      // Desktop PWA Installation Management (beforeinstallprompt & appinstalled)
+      let deferredInstallPrompt = null;
+      const btnHeaderInstallApp = document.getElementById('btnHeaderInstallApp');
+      const btnBannerInstallApp = document.getElementById('btnBannerInstallApp');
+      const pwaInstallBanner = document.getElementById('pwaInstallBanner');
+
+      // Detect if app is already running in standalone display mode
+      const isRunningStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                                  window.navigator.standalone === true ||
+                                  document.referrer.includes('android-app://');
+
+      if (!isRunningStandalone) {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          // Prevent standard mini-infobar on mobile
+          e.preventDefault();
+          deferredInstallPrompt = e;
+
+          // Reveal sleek install button in header and dashboard banner
+          if (btnHeaderInstallApp) btnHeaderInstallApp.style.display = 'inline-flex';
+          if (pwaInstallBanner) pwaInstallBanner.style.display = 'block';
+        });
+
+        async function handlePwaInstall() {
+          if (!deferredInstallPrompt) {
+            showToast('To install Keyline, please use your browser\'s address bar or menu "Install App" option.', 'info');
+            return;
+          }
+
+          deferredInstallPrompt.prompt();
+          const { outcome } = await deferredInstallPrompt.userChoice;
+          if (outcome === 'accepted') {
+            showToast('Installing Keyline AI Gateway desktop app...', 'success');
+          }
+          deferredInstallPrompt = null;
+          if (btnHeaderInstallApp) btnHeaderInstallApp.style.display = 'none';
+          if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
+        }
+
+        if (btnHeaderInstallApp) {
+          btnHeaderInstallApp.addEventListener('click', handlePwaInstall);
+        }
+        if (btnBannerInstallApp) {
+          btnBannerInstallApp.addEventListener('click', handlePwaInstall);
+        }
+      }
+
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        if (btnHeaderInstallApp) btnHeaderInstallApp.style.display = 'none';
+        if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
+        showToast('Keyline AI Gateway was installed successfully!', 'success');
+        console.log('[PWA] Keyline AI Gateway was installed.');
       });
 
       // Boot application

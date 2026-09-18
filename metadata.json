@@ -1,6 +1,6 @@
 {
   "name": "Keyline",
-  "description": "Production-ready AI API platform dashboard with real-time Firebase Auth, API key management, credits wallet, and live Firestore data.",
+  "description": "High-performance AI API gateway with live telemetry, token tracking, and unified OpenAI-compatible routing.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

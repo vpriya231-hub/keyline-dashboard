@@ -60,6 +60,18 @@ service cloud.firestore {
         allow update: if false; // Usage logs are immutable during regular audits
         allow delete: if isOwner(userId); // Allowed during account deletion cleanup
       }
+
+      // Transactions subcollection (Razorpay Checkout logs)
+      match /transactions/{txId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+                      && request.resource.data.paymentId is string
+                      && request.resource.data.amount is number
+                      && request.resource.data.credits is number
+                      && request.resource.data.status in ['completed', 'failed', 'pending'];
+        allow update: if false; // Immutable payment ledger
+        allow delete: if isOwner(userId); // Allowed during account deletion cleanup
+      }
     }
 
     // Top-level API Keys (for high-speed gateway routing & lookup)
@@ -75,17 +87,37 @@ service cloud.firestore {
                     && resource.data.uid == request.auth.uid;
     }
 
-    // Payment Requests collection (for UPI top-up verification)
+    // Top-up Requests collection (for dynamic UPI top-up verification)
+    match /topup_requests/{requestId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.amount is number
+                    && request.resource.data.amount > 0
+                    && request.resource.data.credits is number
+                    && request.resource.data.credits > 0
+                    && request.resource.data.utrNumber is string
+                    && request.resource.data.status == 'pending';
+      allow update, delete: if false;
+    }
+
+    // Payment Requests collection (legacy compatibility for UPI top-up verification)
     match /payment_requests/{requestId} {
       allow read: if isSignedIn() && (resource == null || resource.data.uid == request.auth.uid);
       allow create: if isSignedIn()
-                    && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.packageAmount is number
-                    && request.resource.data.packageAmount > 0
-                    && request.resource.data.creditsToAdd is number
-                    && request.resource.data.creditsToAdd > 0
-                    && request.resource.data.utrNumber is string
-                    && request.resource.data.status == 'pending';
+                    && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Claimed Trials collection (Permanent lifetime tracking of free tier claim per email)
+    match /claimed_trials/{email} {
+      // Any authenticated user can check if their email has already claimed the free tier
+      allow get: if isSignedIn();
+      allow list: if false; // Blanket listing forbidden
+      // Can only create if signed in and the record matches their authenticated uid
+      allow create: if isSignedIn()
+                    && request.resource.data.initialUid == request.auth.uid;
+      // Strictly immutable: permanent lifetime record that cannot be deleted or reset even upon account deletion
       allow update, delete: if false;
     }
   }
