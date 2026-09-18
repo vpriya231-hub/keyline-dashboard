@@ -1636,7 +1636,16 @@
           </span>
 
           <!-- User Widget (Rendered dynamically when logged in) -->
-          <div id="userNavSection" style="display: none;">
+          <div id="userNavSection" style="display: none; align-items: center; gap: 8px;">
+            <div class="user-credits-badge" id="navCreditBadge" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255, 107, 0, 0.08); border: 1px solid rgba(255, 107, 0, 0.25); border-radius: var(--radius-pill); cursor: pointer;" title="Available Token Balance (Click to Top-Up)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary-orange)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"></circle>
+                <line x1="12" y1="2" x2="12" y2="4"></line>
+                <line x1="12" y1="20" x2="12" y2="22"></line>
+              </svg>
+              <span style="font-size: 0.74rem; font-weight: 600; color: var(--text-secondary);">Balance:</span>
+              <span id="credit-count" class="credit-balance mono" data-credit-balance style="font-size: 0.82rem; font-weight: 800; color: var(--primary-orange);">1,000</span>
+            </div>
             <div class="user-widget">
               <div class="user-avatar" id="navUserAvatar">K</div>
               <div class="user-info">
@@ -1773,7 +1782,7 @@
 
               <!-- Main Balance Display -->
               <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
-                <span class="stat-value" id="valCredits" style="color: var(--primary-orange); font-size: 2.2rem;">1,000</span>
+                <span class="stat-value credit-balance" id="valCredits" data-credit-balance style="color: var(--primary-orange); font-size: 2.2rem;">1,000</span>
                 <span id="lblWalletCreditsScale" style="font-size: 1.05rem; font-weight: 700; color: var(--text-secondary);">Credits (~1M Tokens)</span>
               </div>
               <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.45;">
@@ -2563,10 +2572,21 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <label class="form-label" for="inputTestPrompt" style="margin-bottom: 0;">Test Prompt / Query (Optional)</label>
+              <span style="font-size: 0.72rem; color: var(--text-secondary);">Auto-calculates token breakdown</span>
+            </div>
+            <textarea id="inputTestPrompt" class="form-input" rows="2" style="font-family: inherit; font-size: 0.85rem; resize: vertical;" placeholder="e.g. Compare quantum algorithms step-by-step with deep reasoning..."></textarea>
+          </div>
+
           <!-- Upstream Usage Breakdown: Prompt, Completion, Reasoning Tokens -->
           <div style="background: rgba(255, 107, 0, 0.04); border: 1px solid rgba(255, 107, 0, 0.16); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;">
-            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--primary-orange); letter-spacing: 0.04em; margin-bottom: 8px;">
-              Upstream API Response Usage (Tokens)
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--primary-orange); letter-spacing: 0.04em;">
+                Upstream Token Usage Breakdown
+              </div>
+              <span class="status-pill" style="font-size: 0.7rem; padding: 2px 7px; background: rgba(255, 107, 0, 0.1); color: var(--primary-orange); border: 1px solid rgba(255, 107, 0, 0.25);">Real-Time Billed</span>
             </div>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
@@ -2587,24 +2607,25 @@
             <!-- Dynamic Credit Calculation Preview -->
             <div style="margin-top: 12px; padding: 10px 12px; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-sm); border: 1px solid rgba(255, 107, 0, 0.15); font-size: 0.8rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="color: var(--text-secondary);">Model Rate Tier:</span>
-                <span id="previewModelRateTier" style="font-weight: 700; color: var(--primary-orange);">Fast (1 credit / 10,000 tokens)</span>
+                <span style="color: var(--text-secondary);">Current Available Balance:</span>
+                <span id="previewAvailableBalance" class="mono credit-balance" data-credit-balance style="font-weight: 700; color: var(--text-primary);">1,000</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="color: var(--text-secondary);">Total Tokens:</span>
+                <span style="color: var(--text-secondary);">Total Used Tokens:</span>
                 <span id="previewTotalTokens" class="mono" style="font-weight: 700; color: var(--text-primary);">1,650</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px dashed rgba(255, 107, 0, 0.2);">
-                <span style="font-weight: 700; color: var(--text-primary);">Calculated Credit Deduction:</span>
-                <span id="previewCreditsDeducted" class="mono" style="font-weight: 800; color: var(--primary-orange); font-size: 0.96rem;">0.1650 Credits</span>
+                <span style="font-weight: 700; color: var(--text-primary);">Tokens to Deduct:</span>
+                <span id="previewCreditsDeducted" class="mono" style="font-weight: 800; color: var(--primary-orange); font-size: 0.96rem;">1,650 Tokens</span>
               </div>
-              <div id="previewFormulaText" class="mono" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; word-break: break-all; line-height: 1.4;">
-                Formula: (1200 × 0.0001) + (450 × 0.0001) + (0 × 0.0001) = 0.1650 credits
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                <span style="font-size: 0.76rem; color: var(--text-secondary);">Projected Remaining Balance:</span>
+                <span id="previewProjectedBalance" class="mono" style="font-size: 0.8rem; font-weight: 700; color: #A8E6CF;">--</span>
               </div>
             </div>
             
             <p class="form-helper" style="margin-top: 8px; margin-bottom: 0; font-size: 0.75rem; color: var(--text-secondary);">
-              Credits deduct dynamically based on actual input, output, and thinking token consumption.
+              Deducts exact prompt, output, and internal thinking tokens from user balance in real-time.
             </p>
           </div>
 
@@ -3023,15 +3044,92 @@
         }
       }
 
-      // Real-time Subscriptions (Users doc, API Keys subcollection, Usage logs subcollection)
+      // Real-time Subscriptions & Centralized Token / Credit Balance Handlers
+      function getCurrentCredits() {
+        const stored = localStorage.getItem('keyline_credits');
+        if (stored !== null && !isNaN(parseInt(stored, 10))) {
+          return parseInt(stored, 10);
+        }
+        const valEl = document.getElementById('valCredits') || document.getElementById('credit-count');
+        if (valEl) {
+          const parsed = parseInt(valEl.innerText.replace(/[^0-9.-]/g, ''), 10);
+          if (!isNaN(parsed)) return parsed;
+        }
+        return 2500;
+      }
+      window.getCurrentCredits = getCurrentCredits;
+
+      function saveUserCredits(updatedCredits) {
+        const newBalance = Math.max(0, Math.round(Number(updatedCredits) || 0));
+        localStorage.setItem('keyline_credits', newBalance.toString());
+
+        const balanceDisplays = document.querySelectorAll('.credit-balance, #credit-count, [data-credit-balance], #valCredits');
+        balanceDisplays.forEach(el => {
+          el.innerText = newBalance.toLocaleString();
+        });
+
+        if (typeof updateCreditProgressUI === 'function') {
+          updateCreditProgressUI(newBalance);
+        }
+
+        if (currentUser && db) {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          updateDoc(userDocRef, {
+            credits: newBalance,
+            updatedAt: serverTimestamp()
+          }).catch(err => console.warn('Syncing credits to Firestore:', err));
+        }
+
+        return newBalance;
+      }
+      window.saveUserCredits = saveUserCredits;
+
+      function deductTokens(tokenCount) {
+        // fallback to 50 if tokenCount is missing or 0
+        const used = (typeof tokenCount === 'number' && tokenCount > 0) ? Math.round(tokenCount) : 50;
+
+        let currentCredits = parseInt(localStorage.getItem('keyline_credits') || '2500', 10);
+        let newBalance = Math.max(0, currentCredits - used);
+
+        // Save to storage
+        localStorage.setItem('keyline_credits', newBalance.toString());
+
+        // Update all DOM elements showing balance
+        const balanceDisplays = document.querySelectorAll('.credit-balance, #credit-count, [data-credit-balance], #valCredits');
+        balanceDisplays.forEach(el => {
+          el.innerText = newBalance.toLocaleString();
+        });
+
+        if (typeof updateCreditProgressUI === 'function') {
+          updateCreditProgressUI(newBalance);
+        }
+
+        // Real-time Firestore sync
+        if (currentUser && db) {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          updateDoc(userDocRef, {
+            credits: newBalance,
+            updatedAt: serverTimestamp()
+          }).catch(err => console.warn('Syncing credits to Firestore:', err));
+        }
+
+        console.log(`Deducted ${used} tokens. Previous: ${currentCredits}, Remaining: ${newBalance}`);
+        return newBalance;
+      }
+      window.deductTokens = deductTokens;
+
       function updateCreditProgressUI(credits) {
         const numericCredits = Number(credits) || 0;
-        const valCreditsEl = document.getElementById('valCredits');
-        if (valCreditsEl) {
-          valCreditsEl.textContent = Number.isInteger(numericCredits)
-            ? numericCredits.toLocaleString()
-            : numericCredits.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
-        }
+        localStorage.setItem('keyline_credits', Math.round(numericCredits).toString());
+
+        const formatted = Number.isInteger(numericCredits)
+          ? numericCredits.toLocaleString()
+          : numericCredits.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+
+        const balanceDisplays = document.querySelectorAll('.credit-balance, #credit-count, [data-credit-balance], #valCredits');
+        balanceDisplays.forEach(el => {
+          el.innerText = formatted;
+        });
 
         const lblWalletCreditsScale = document.getElementById('lblWalletCreditsScale');
         if (lblWalletCreditsScale) {
@@ -3055,8 +3153,7 @@
         const labelEl = document.getElementById('creditProgressLabel');
         if (barEl) barEl.style.width = `${pct}%`;
         if (labelEl) {
-          const displayVal = Number.isInteger(numericCredits) ? numericCredits.toLocaleString() : numericCredits.toFixed(2);
-          labelEl.textContent = `${displayVal} / ${Number(quotaBase).toLocaleString()} (${pct}%)`;
+          labelEl.textContent = `${formatted} / ${Number(quotaBase).toLocaleString()} (${pct}%)`;
         }
       }
 
@@ -3259,12 +3356,23 @@
             }
           }
 
-          const creditsDisplay = (log.creditsDeducted !== undefined && log.creditsDeducted !== null)
-            ? `<div style="display: flex; flex-direction: column; gap: 2px;">
-                 <span style="font-weight: 700; color: var(--primary-orange);">${Number(log.creditsDeducted).toFixed(4)} cr</span>
-                 <span class="mono" style="font-size: 0.72rem; color: var(--text-secondary);">${Number(log.totalTokens || log.tokensUsed || 0).toLocaleString()} tok</span>
-               </div>`
-            : `<span style="font-weight: 700; color: var(--text-primary);">${Number(log.tokensUsed || 0).toLocaleString()} credits</span>`;
+          const totalTok = Number(log.totalUsedTokens || log.totalTokens || log.tokensUsed || 0);
+          const promptTok = Number(log.promptTokens || 0);
+          const compTok = Number(log.completionTokens || 0);
+          const reasoningTok = Number(log.reasoningTokens || 0);
+
+          const creditsDisplay = `
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="display: flex; align-items: baseline; gap: 6px;">
+                <span style="font-weight: 700; color: var(--primary-orange); font-size: 0.86rem;">${totalTok.toLocaleString()} tokens</span>
+                ${(log.creditsDeducted !== undefined && log.creditsDeducted !== null) ? `<span style="font-size: 0.72rem; color: var(--text-secondary);">(${Number(log.creditsDeducted).toLocaleString()} credits)</span>` : ''}
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.3;" title="Prompt: ${promptTok.toLocaleString()} | Completion: ${compTok.toLocaleString()}${reasoningTok > 0 ? ` | Thinking: ${reasoningTok.toLocaleString()}` : ''}">
+                <span style="color: #A8E6CF;">P: ${promptTok.toLocaleString()}</span> • 
+                <span style="color: #FFD166;">C: ${compTok.toLocaleString()}</span>
+                ${reasoningTok > 0 ? ` • <span style="color: #FF944D;">T: ${reasoningTok.toLocaleString()}</span>` : ''}
+              </div>
+            </div>`;
 
           tr.innerHTML = `
             <td style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap;">${formattedTime}</td>
@@ -3821,66 +3929,84 @@ console.log(response.choices[0].message.content);`;
         };
       }
 
-      // Simulate Real API Request (Decrements credits dynamically, writes usage_log in Firestore)
-      async function simulateApiRequest(keyId, endpoint, modelName, usage) {
+      // Simulate Real API Request (Deducts exact token count, writes usage_log in Firestore)
+      async function simulateApiRequest(keyId, endpoint, modelName, usage, promptText, responseText, response) {
         if (!currentUser || !db) return;
         const btnSubmit = document.getElementById('btnSubmitTestRequest');
+
+        // 1. Read Total Tokens from API Response (supports Gemini usageMetadata, OpenAI usage, or simulated usage)
+        const totalUsedTokens = response?.usageMetadata?.totalTokenCount 
+          || ((response?.usageMetadata?.promptTokenCount || 0) + (response?.usageMetadata?.candidatesTokenCount || 0))
+          || response?.usage?.total_tokens
+          || usage?.total_tokens
+          || ((usage?.prompt_tokens || 0) + (usage?.completion_tokens || 0) + (usage?.reasoning_tokens || 0))
+          || 1;
+
+        // 4. If user balance is less than the required minimum or 0, block request & show alert
+        const currentCredits = getCurrentCredits();
+        if (currentCredits <= 0 || currentCredits < totalUsedTokens) {
+          alert("Insufficient credits. Please top up your account.");
+          showToast(`Insufficient credits. Please top up your account. (${currentCredits.toLocaleString()} available, needed ${totalUsedTokens.toLocaleString()} tokens)`, "error");
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Send Request (200 OK)';
+          }
+          return;
+        }
+
+        // Verify key status
+        const keyObj = activeKeysList.find(k => k.id === keyId);
+        if (keyObj && keyObj.status === 'revoked') {
+          showToast('Gateway 401 Unauthorized: Selected API key is revoked.', 'error');
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Send Request (200 OK)';
+          }
+          return;
+        }
+
         if (btnSubmit) {
           btnSubmit.disabled = true;
           btnSubmit.textContent = 'Processing request...';
         }
 
         try {
-          // Verify key status
-          const keyObj = activeKeysList.find(k => k.id === keyId);
-          if (keyObj && keyObj.status === 'revoked') {
-            showToast('Gateway 401 Unauthorized: Selected API key is revoked.', 'error');
-            if (btnSubmit) {
-              btnSubmit.disabled = false;
-              btnSubmit.textContent = 'Send Request (200 OK)';
-            }
-            return;
-          }
-
           const model = modelName || 'openai/gpt-oss-20b';
-          const calculation = calculateCreditDeduction(model, usage);
-          const creditsToDeduct = calculation.creditsDeducted;
 
-          // 1. Check user credits first
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userSnap = await getDoc(userDocRef);
-          const currentCredits = userSnap.exists() ? (userSnap.data().credits || 0) : 0;
+          const promptTokens = response?.usageMetadata?.promptTokenCount 
+            || usage?.prompt_tokens 
+            || Math.ceil((promptText || '').length / 4) 
+            || Math.round(totalUsedTokens * 0.7);
 
-          if (currentCredits < creditsToDeduct) {
-            showToast(`Insufficient balance: ${Number(currentCredits).toFixed(2)} credits available, needed ${creditsToDeduct.toFixed(4)} credits for ${calculation.totalTokens.toLocaleString()} tokens.`, 'error');
-            if (btnSubmit) {
-              btnSubmit.disabled = false;
-              btnSubmit.textContent = 'Send Request (200 OK)';
-            }
-            return;
-          }
+          const completionTokens = response?.usageMetadata?.candidatesTokenCount 
+            || usage?.completion_tokens 
+            || Math.ceil((responseText || '').length / 4) 
+            || Math.round(totalUsedTokens * 0.3);
 
-          // 2. Decrement credits in user doc dynamically based on calculated credits
-          await updateDoc(userDocRef, {
-            credits: increment(-creditsToDeduct),
-            updatedAt: serverTimestamp()
-          });
+          const reasoningTokens = response?.usageMetadata?.candidatesTokenDetails?.find?.(d => d.type === 'THINKING')?.tokenCount
+            || usage?.reasoning_tokens
+            || usage?.completion_tokens_details?.reasoning_tokens
+            || 0;
 
-          // 3. Write usage log to subcollection with token breakdown & deduction
+          // 2. Deduct Exact Tokens from User Balance (includes prompt, completion, and reasoning tokens)
+          const updatedCredits = Math.max(0, currentCredits - totalUsedTokens);
+          saveUserCredits(updatedCredits);
+
+          // 3. Telemetry Sync: Write usage log with exact totalUsedTokens & breakdown
           const logData = {
             userId: currentUser.uid,
             keyId: keyId,
             keyPrefix: keyObj ? keyObj.prefix : 'keyline_live_••••',
             endpoint: endpoint,
             model: model,
-            promptTokens: calculation.promptTokens,
-            completionTokens: calculation.completionTokens,
-            reasoningTokens: calculation.reasoningTokens,
-            totalTokens: calculation.totalTokens,
-            tokensUsed: calculation.totalTokens, // backward-compatibility
-            creditsDeducted: creditsToDeduct,
-            rateCategory: calculation.category,
-            formula: calculation.formulaStr,
+            promptTokens: promptTokens,
+            completionTokens: completionTokens,
+            reasoningTokens: reasoningTokens,
+            totalTokens: totalUsedTokens,
+            totalUsedTokens: totalUsedTokens,
+            tokensUsed: totalUsedTokens,
+            creditsDeducted: totalUsedTokens,
+            remainingBalance: updatedCredits,
             status: 200,
             timestamp: new Date().toISOString()
           };
@@ -3888,7 +4014,7 @@ console.log(response.choices[0].message.content);`;
           await addDoc(collection(db, 'users', currentUser.uid, 'usage_logs'), logData);
 
           closeModal('modalTestRequest');
-          showToast(`Request 200 OK: ${calculation.totalTokens.toLocaleString()} tokens billed. Deducted ${creditsToDeduct.toFixed(4)} credits (${calculation.rates.displayName}).`);
+          showToast(`Request 200 OK: ${totalUsedTokens.toLocaleString()} tokens deducted. Remaining: ${updatedCredits.toLocaleString()} credits.`);
         } catch (error) {
           handleFirestoreError(error, OperationType.WRITE, `users/${currentUser.uid}/usage_logs`);
           showToast('API request failed: ' + error.message, 'error');
@@ -4355,8 +4481,12 @@ console.log(response.choices[0].message.content);`;
         });
       });
 
+      // State to prevent duplicate checkout launches
+      let isProcessingPayment = false;
+
       // Always reset button state on dismiss/error helper
-      const resetPayButton = () => {
+      function resetPayButton() {
+        isProcessingPayment = false;
         window.isRazorpayActive = false;
         const modalBackdrop = document.getElementById('modalAddCredits');
         if (modalBackdrop) {
@@ -4365,9 +4495,9 @@ console.log(response.choices[0].message.content);`;
         const btn = document.getElementById('btnPayWithRazorpay') || document.getElementById('btn-pay') || document.querySelector('.btn-pay-razorpay');
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = 'Pay with Razorpay';
+          btn.innerText = 'Pay with Razorpay';
         }
-      };
+      }
       window.resetPayButton = resetPayButton;
 
       // Handle Razorpay Checkout Payment
@@ -4377,13 +4507,30 @@ console.log(response.choices[0].message.content);`;
           e.stopPropagation();
         }
 
+        // Prevent multiple rapid clicks firing multiple checkouts
+        if (isProcessingPayment) {
+          console.log("Payment checkout is already processing, ignoring duplicate click");
+          return;
+        }
+
         if (!currentUser || !db) {
           showToast('Please sign in to top-up credits.', 'error');
           return;
         }
 
-        if (!selectedPackage || !selectedPackage.amount || !selectedPackage.credits) {
+        const selectedPlan = selectedPackage;
+        if (!selectedPlan || !selectedPlan.amount || !selectedPlan.credits) {
           showToast('Please select a top-up credit package.', 'error');
+          return;
+        }
+
+        // Clean Amount Conversion (Zero decimals, strict integer paise)
+        const parsedAmount = parseFloat(selectedPlan.amount);
+        const amountInPaise = Math.round(parsedAmount * 100);
+
+        if (isNaN(amountInPaise) || amountInPaise <= 0) {
+          showToast('Invalid top-up package amount. Please re-select a plan.', 'error');
+          resetPayButton();
           return;
         }
 
@@ -4406,12 +4553,15 @@ console.log(response.choices[0].message.content);`;
           return;
         }
 
-        const btnPay = document.getElementById('btnPayWithRazorpay');
+        isProcessingPayment = true;
+
+        const btnPay = document.getElementById('btnPayWithRazorpay') || document.getElementById('btn-pay') || document.querySelector('.btn-pay-razorpay');
         const btnPayText = document.getElementById('btnPayWithRazorpayText');
 
         if (btnPay) {
           btnPay.disabled = true;
           if (btnPayText) btnPayText.textContent = 'Connecting Gateway...';
+          else btnPay.innerText = 'Connecting Gateway...';
         }
 
         try {
@@ -4422,10 +4572,20 @@ console.log(response.choices[0].message.content);`;
             return;
           }
 
-          const currentPkg = { ...selectedPackage };
-          const amountInPaise = Math.round(Number(currentPkg.amount) * 100);
+          // Destroy previous instance & cleanup any orphaned razorpay containers
+          if (window.currentRzpInstance && typeof window.currentRzpInstance.close === 'function') {
+            try {
+              window.currentRzpInstance.close();
+            } catch (closeErr) {
+              console.warn('Error closing previous Razorpay instance:', closeErr);
+            }
+            window.currentRzpInstance = null;
+          }
+          document.querySelectorAll('.razorpay-container, iframe[src*="razorpay"]').forEach(el => {
+            try { el.remove(); } catch (_) {}
+          });
 
-          // Avoid Parent Modal Conflict: prevent clicks, touches, and focus behind while Razorpay is open
+          // Clean Top-up Modal UI: keep background completely still and prevent background clicks
           window.isRazorpayActive = true;
           const modalBackdrop = document.getElementById('modalAddCredits');
           if (modalBackdrop) {
@@ -4434,10 +4594,10 @@ console.log(response.choices[0].message.content);`;
 
           const options = {
             key: "rzp_test_TdQRRa5EUhBQLY",
-            amount: Math.round(Number(currentPkg.amount) * 100),
+            amount: amountInPaise,
             currency: "INR",
             name: "Keyline AI",
-            description: `${currentPkg.credits} API Credits`,
+            description: `${selectedPlan.credits} API Credits`,
             prefill: {
               name: currentUser?.displayName || "Developer",
               email: currentUser?.email || "vpriya231@gmail.com"
@@ -4450,13 +4610,16 @@ console.log(response.choices[0].message.content);`;
               escape: false,
               ondismiss: function () {
                 console.log("Payment checkout closed");
+                isProcessingPayment = false;
                 resetPayButton();
               }
             },
             handler: async function (response) {
               console.log("Payment successful:", response);
+              isProcessingPayment = false;
               window.isRazorpayActive = false;
-              await handleSuccessPayment(response?.razorpay_payment_id, currentPkg.credits, currentPkg.amount);
+              window.currentRzpInstance = null;
+              await handleSuccessPayment(response?.razorpay_payment_id, selectedPlan.credits, selectedPlan.amount);
             }
           };
 
@@ -4506,10 +4669,12 @@ console.log(response.choices[0].message.content);`;
           }
 
           const rzp = new RazorpayConstructor(options);
+          window.currentRzpInstance = rzp;
 
           rzp.on('payment.failed', function (response) {
+            isProcessingPayment = false;
             resetPayButton();
-            const errDescription = response?.error?.description || response?.error?.reason || "Payment could not be processed.";
+            const errDescription = response?.error?.description || response?.error?.reason || "Transaction declined";
             const errCode = response?.error?.code || "PAYMENT_FAILED";
             const errSource = response?.error?.source || "gateway";
             const errStep = response?.error?.step || "checkout";
@@ -4522,10 +4687,8 @@ console.log(response.choices[0].message.content);`;
               step: String(errStep)
             });
 
-            try {
-              alert("Razorpay Error: " + errDescription);
-            } catch (_) {}
-            showToast("Razorpay Error: " + errDescription, 'error');
+            alert("Payment Failed: " + (response?.error?.description || "Transaction declined"));
+            showToast("Payment Failed: " + errDescription, 'error');
           });
 
           rzp.open();
@@ -4572,39 +4735,35 @@ console.log(response.choices[0].message.content);`;
         if (!selectEndpoint) return;
         const selectedOpt = selectEndpoint.options[selectEndpoint.selectedIndex];
         const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || selectedOpt.value) : 'openai/gpt-oss-20b';
-        
+
+        const promptInput = document.getElementById('inputTestPrompt');
+        if (promptInput && promptInput.value.trim().length > 0) {
+          const estimatedPromptTokens = Math.max(1, Math.ceil(promptInput.value.length / 4));
+          const pTokenEl = document.getElementById('inputPromptTokens');
+          if (pTokenEl && !pTokenEl.dataset.userEdited) {
+            pTokenEl.value = estimatedPromptTokens;
+          }
+        }
+
         const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
         const completionTokens = Math.max(0, parseInt(document.getElementById('inputCompletionTokens')?.value, 10) || 0);
         const reasoningTokens = Math.max(0, parseInt(document.getElementById('inputReasoningTokens')?.value, 10) || 0);
         
-        const usage = {
-          prompt_tokens: promptTokens,
-          completion_tokens: completionTokens,
-          reasoning_tokens: reasoningTokens,
-          total_tokens: promptTokens + completionTokens + reasoningTokens,
-          completion_tokens_details: {
-            reasoning_tokens: reasoningTokens
-          }
-        };
+        const totalUsedTokens = promptTokens + completionTokens + reasoningTokens;
+        const currentBal = getCurrentCredits();
+        const projected = Math.max(0, currentBal - totalUsedTokens);
 
-        const calc = calculateCreditDeduction(modelName, usage);
-        
-        const tierEl = document.getElementById('previewModelRateTier');
+        const availEl = document.getElementById('previewAvailableBalance');
         const totalEl = document.getElementById('previewTotalTokens');
         const creditsEl = document.getElementById('previewCreditsDeducted');
-        const formulaEl = document.getElementById('previewFormulaText');
+        const projectedEl = document.getElementById('previewProjectedBalance');
 
-        if (tierEl) {
-          tierEl.textContent = calc.rates.displayName;
-        }
-        if (totalEl) {
-          totalEl.textContent = calc.totalTokens.toLocaleString();
-        }
-        if (creditsEl) {
-          creditsEl.textContent = `${calc.creditsDeducted.toFixed(4)} Credits`;
-        }
-        if (formulaEl) {
-          formulaEl.textContent = `Formula: (${calc.promptTokens} × ${calc.rates.inputMultiplier}) + (${calc.completionTokens} × ${calc.rates.outputMultiplier}) + (${calc.reasoningTokens} × ${calc.rates.reasoningMultiplier}) = ${calc.creditsDeducted.toFixed(4)} credits`;
+        if (availEl) availEl.textContent = currentBal.toLocaleString();
+        if (totalEl) totalEl.textContent = totalUsedTokens.toLocaleString();
+        if (creditsEl) creditsEl.textContent = `${totalUsedTokens.toLocaleString()} Tokens`;
+        if (projectedEl) {
+          projectedEl.textContent = `${projected.toLocaleString()} Credits`;
+          projectedEl.style.color = currentBal < totalUsedTokens ? '#EF4444' : '#A8E6CF';
         }
       }
 
@@ -4612,9 +4771,21 @@ console.log(response.choices[0].message.content);`;
       ['inputPromptTokens', 'inputCompletionTokens', 'inputReasoningTokens'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-          el.addEventListener('input', updateTestRequestPreview);
+          el.addEventListener('input', () => {
+            el.dataset.userEdited = 'true';
+            updateTestRequestPreview();
+          });
         }
       });
+
+      const promptInputEl = document.getElementById('inputTestPrompt');
+      if (promptInputEl) {
+        promptInputEl.addEventListener('input', () => {
+          const pTokenEl = document.getElementById('inputPromptTokens');
+          if (pTokenEl) pTokenEl.dataset.userEdited = '';
+          updateTestRequestPreview();
+        });
+      }
 
       const selectTestEndpointEl = document.getElementById('selectTestEndpoint');
       if (selectTestEndpointEl) {
@@ -4658,7 +4829,7 @@ console.log(response.choices[0].message.content);`;
       document.getElementById('btnOpenTestRequest').addEventListener('click', setupTestRequestModal);
       document.getElementById('btnEmptyTestRequest').addEventListener('click', setupTestRequestModal);
 
-      // Submit Test Request with Dynamic Token Breakdown & Billing
+      // Submit Test Request with Exact Token Breakdown & Billing
       document.getElementById('formTestRequest').addEventListener('submit', (e) => {
         e.preventDefault();
         const keyId = document.getElementById('selectTestKey').value;
@@ -4667,21 +4838,45 @@ console.log(response.choices[0].message.content);`;
         const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || 'openai/gpt-oss-20b') : 'openai/gpt-oss-20b';
         const endpoint = selectedOpt ? selectedOpt.value.split('#')[0] : '/v1/chat/completions';
 
+        const promptText = document.getElementById('inputTestPrompt')?.value || '';
         const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
         const completionTokens = Math.max(0, parseInt(document.getElementById('inputCompletionTokens')?.value, 10) || 0);
         const reasoningTokens = Math.max(0, parseInt(document.getElementById('inputReasoningTokens')?.value, 10) || 0);
+        const totalUsedTokens = promptTokens + completionTokens + reasoningTokens;
+
+        // Simulated Upstream Response object with usageMetadata & thinking tokens details
+        const simulatedApiResponse = {
+          id: 'chatcmpl-' + Math.random().toString(36).substring(2, 11),
+          object: 'chat.completion',
+          created: Math.floor(Date.now() / 1000),
+          model: modelName,
+          usageMetadata: {
+            promptTokenCount: promptTokens,
+            candidatesTokenCount: completionTokens + reasoningTokens,
+            totalTokenCount: totalUsedTokens,
+            candidatesTokenDetails: reasoningTokens > 0 ? [{ type: 'THINKING', tokenCount: reasoningTokens }] : []
+          },
+          usage: {
+            prompt_tokens: promptTokens,
+            completion_tokens: completionTokens + reasoningTokens,
+            total_tokens: totalUsedTokens,
+            completion_tokens_details: {
+              reasoning_tokens: reasoningTokens
+            }
+          }
+        };
 
         const usage = {
           prompt_tokens: promptTokens,
           completion_tokens: completionTokens,
           reasoning_tokens: reasoningTokens,
-          total_tokens: promptTokens + completionTokens + reasoningTokens,
+          total_tokens: totalUsedTokens,
           completion_tokens_details: {
             reasoning_tokens: reasoningTokens
           }
         };
 
-        simulateApiRequest(keyId, endpoint, modelName, usage);
+        simulateApiRequest(keyId, endpoint, modelName, usage, promptText, '', simulatedApiResponse);
       });
 
       // Progressive Web App (PWA) & Service Worker Registration
