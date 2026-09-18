@@ -22,10 +22,18 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Keyline" />
     <meta name="application-name" content="Keyline AI Gateway" />
-    <meta name="msapplication-TileColor" content="#0d0f17" />
+    <meta name="msapplication-TileColor" content="#090d16" />
     <meta name="msapplication-TileImage" content="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
     <link rel="icon" type="image/jpeg" href="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
     <link rel="apple-touch-icon" href="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" />
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
 
     <!-- Google Fonts for crisp typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
