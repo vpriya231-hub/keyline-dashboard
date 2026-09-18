@@ -57,6 +57,64 @@
       }
     </script>
 
+    <!-- Circular reference protection for console logging in iframe environment -->
+    <script>
+      (function() {
+        const origError = console.error.bind(console);
+        const origWarn = console.warn.bind(console);
+
+        function sanitizeValue(val, seen = new WeakSet()) {
+          if (val === null || typeof val !== 'object') {
+            return val;
+          }
+          if (seen.has(val)) {
+            return '[Circular]';
+          }
+          seen.add(val);
+          if (val instanceof Error) {
+            return {
+              name: val.name,
+              message: val.message,
+              stack: val.stack
+            };
+          }
+          if (typeof Node !== 'undefined' && val instanceof Node) {
+            return `[DOM Node: ${val.nodeName || 'Element'}]`;
+          }
+          if (Array.isArray(val)) {
+            return val.map(item => sanitizeValue(item, seen));
+          }
+          const cleanObj = {};
+          for (const key of Object.keys(val)) {
+            try {
+              cleanObj[key] = sanitizeValue(val[key], seen);
+            } catch (_) {
+              cleanObj[key] = '[Unserializable]';
+            }
+          }
+          return cleanObj;
+        }
+
+        console.error = function(...args) {
+          try {
+            const cleanArgs = args.map(arg => typeof arg === 'object' && arg !== null ? sanitizeValue(arg) : arg);
+            origError(...cleanArgs);
+          } catch (_) {
+            origError(...args.map(arg => String(arg?.message || arg)));
+          }
+        };
+
+        console.warn = function(...args) {
+          try {
+            const cleanArgs = args.map(arg => typeof arg === 'object' && arg !== null ? sanitizeValue(arg) : arg);
+            origWarn(...cleanArgs);
+          } catch (_) {
+            origWarn(...args.map(arg => String(arg?.message || arg)));
+          }
+        };
+      })();
+    </script>
+
     <!-- Google Fonts for crisp typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1577,16 +1635,6 @@
             <span>Production Live</span>
           </span>
 
-          <!-- Desktop PWA Install Action Button (shown on beforeinstallprompt or desktop install capability) -->
-          <button id="btnHeaderInstallApp" class="btn btn-secondary btn-sm" style="display: none; align-items: center; gap: 6px; border-color: var(--primary-orange); color: var(--primary-orange); background: #FFF5EE; font-weight: 700; padding: 5px 12px; box-shadow: 0 1px 4px rgba(255, 107, 0, 0.12);" title="Install Keyline AI Gateway Desktop App">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span>Install App</span>
-          </button>
-
           <!-- User Widget (Rendered dynamically when logged in) -->
           <div id="userNavSection" style="display: none;">
             <div class="user-widget">
@@ -1698,35 +1746,6 @@
                 Top-up Wallet
               </button>
               <button type="button" class="modal-close" style="color: #92400E; font-size: 1.25rem; line-height: 1; padding: 4px;" title="Dismiss" onclick="document.getElementById('bannerTrialUtilized').style.display='none';">&times;</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Desktop PWA Install Banner (Shown when app is installable) -->
-        <div id="pwaInstallBanner" style="display: none; margin-bottom: 20px; background: linear-gradient(135deg, #1A120D 0%, #2A1C14 100%); border: 1.5px solid rgba(255, 107, 0, 0.4); border-radius: var(--radius-md); padding: 14px 18px; color: #FFFFFF; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 14px; max-width: 820px;">
-              <img src="https://i.ibb.co/VY5vPST3/IMG-20260918-WA0001.jpg" alt="Keyline PWA Icon" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1.5px solid rgba(255, 107, 0, 0.5); flex-shrink: 0;" />
-              <div>
-                <div style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
-                  Install Keyline AI Gateway Desktop App
-                  <span style="background: rgba(255, 107, 0, 0.25); color: #FF944D; border: 1px solid rgba(255, 107, 0, 0.45); font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 9999px;">PWA Ready</span>
-                </div>
-                <div style="font-size: 0.82rem; color: #D6C7BD; line-height: 1.45; margin-top: 2px;">
-                  Run Keyline as a standalone desktop app with dedicated window controls, instant launch from your dock or taskbar, and live telemetry.
-                </div>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <button type="button" id="btnBannerInstallApp" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 7px 16px; box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4); display: inline-flex; align-items: center; gap: 6px;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Install App
-              </button>
-              <button type="button" class="modal-close" style="color: #A39388; font-size: 1.25rem; line-height: 1; padding: 4px;" title="Dismiss" onclick="document.getElementById('pwaInstallBanner').style.display='none';">&times;</button>
             </div>
           </div>
         </div>
@@ -2461,8 +2480,8 @@
 
           <!-- Modal Actions -->
           <div class="modal-actions" style="margin-top: 14px;">
-            <button type="button" class="btn btn-secondary" data-close="modalAddCredits">Cancel</button>
-            <button type="button" id="btnPayWithRazorpay" class="btn btn-primary" style="font-weight: 700; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35); display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;">
+            <button type="button" id="btnCancelTopupModal" class="btn btn-secondary" data-close="modalAddCredits">Cancel</button>
+            <button type="button" id="btnPayWithRazorpay" class="btn btn-primary btn-pay-razorpay" style="font-weight: 700; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35); display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                 <line x1="1" y1="10" x2="23" y2="10"></line>
@@ -2766,7 +2785,7 @@
 
       function handleFirestoreError(error, operationType, path) {
         const errInfo = {
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? error.message : String(error?.message || error || 'Unknown error'),
           authInfo: {
             userId: auth?.currentUser?.uid || null,
             email: auth?.currentUser?.email || null,
@@ -2774,14 +2793,18 @@
             isAnonymous: auth?.currentUser?.isAnonymous || null,
             tenantId: auth?.currentUser?.tenantId || null,
             providerInfo: auth?.currentUser?.providerData?.map(provider => ({
-              providerId: provider.providerId,
-              email: provider.email,
+              providerId: String(provider?.providerId || ''),
+              email: String(provider?.email || ''),
             })) || []
           },
-          operationType,
-          path
+          operationType: String(operationType || ''),
+          path: String(path || '')
         };
-        console.error('Firestore Error: ', JSON.stringify(errInfo));
+        try {
+          console.error('Firestore Error: ', JSON.stringify(errInfo));
+        } catch (_) {
+          console.error('Firestore Error: ', errInfo.error, 'Operation:', operationType, 'Path:', path);
+        }
         return errInfo;
       }
 
@@ -2805,6 +2828,9 @@
       function closeModal(id) {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
+        if (id === 'modalAddCredits' && typeof resetPayButton === 'function') {
+          resetPayButton();
+        }
       }
 
       document.querySelectorAll('[data-close]').forEach(btn => {
@@ -4329,6 +4355,21 @@ console.log(response.choices[0].message.content);`;
         });
       });
 
+      // Always reset button state on dismiss/error helper
+      const resetPayButton = () => {
+        window.isRazorpayActive = false;
+        const modalBackdrop = document.getElementById('modalAddCredits');
+        if (modalBackdrop) {
+          modalBackdrop.style.pointerEvents = 'auto';
+        }
+        const btn = document.getElementById('btnPayWithRazorpay') || document.getElementById('btn-pay') || document.querySelector('.btn-pay-razorpay');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = 'Pay with Razorpay';
+        }
+      };
+      window.resetPayButton = resetPayButton;
+
       // Handle Razorpay Checkout Payment
       async function handleRazorpayPayment(e) {
         if (e) {
@@ -4346,6 +4387,25 @@ console.log(response.choices[0].message.content);`;
           return;
         }
 
+        // Sandboxed Iframe Fallback (Very Important)
+        // Check if window is running inside an iframe (like AI Studio preview)
+        let isIframe = false;
+        try {
+          isIframe = window.self !== window.top;
+        } catch (iframeErr) {
+          isIframe = true;
+        }
+
+        if (isIframe) {
+          const warningMsg = "Payment checkout cannot run inside AI Studio iframe preview. Please open your live Cloudflare deployment URL in a full browser tab to test payments.";
+          try {
+            alert(warningMsg);
+          } catch (_) {}
+          showToast(warningMsg, 'warning');
+          resetPayButton();
+          return;
+        }
+
         const btnPay = document.getElementById('btnPayWithRazorpay');
         const btnPayText = document.getElementById('btnPayWithRazorpayText');
 
@@ -4356,19 +4416,21 @@ console.log(response.choices[0].message.content);`;
 
         try {
           const isLoaded = await loadRazorpayScript();
-          if (!isLoaded || typeof window.Razorpay === 'undefined') {
+          if (!isLoaded || (typeof window.Razorpay === 'undefined' && typeof Razorpay === 'undefined')) {
             showToast('Unable to load Razorpay checkout. Please check your network connection.', 'error');
-            if (btnPay) {
-              btnPay.disabled = false;
-              updateSelectedPackageDisplay();
-            }
+            resetPayButton();
             return;
           }
 
           const currentPkg = { ...selectedPackage };
           const amountInPaise = Math.round(Number(currentPkg.amount) * 100);
 
+          // Avoid Parent Modal Conflict: prevent clicks, touches, and focus behind while Razorpay is open
           window.isRazorpayActive = true;
+          const modalBackdrop = document.getElementById('modalAddCredits');
+          if (modalBackdrop) {
+            modalBackdrop.style.pointerEvents = 'none'; // prevent clicks behind
+          }
 
           const options = {
             key: "rzp_test_TdQRRa5EUhBQLY",
@@ -4388,11 +4450,7 @@ console.log(response.choices[0].message.content);`;
               escape: false,
               ondismiss: function () {
                 console.log("Payment checkout closed");
-                window.isRazorpayActive = false;
-                if (btnPay) {
-                  btnPay.disabled = false;
-                  updateSelectedPackageDisplay();
-                }
+                resetPayButton();
               }
             },
             handler: async function (response) {
@@ -4438,47 +4496,43 @@ console.log(response.choices[0].message.content);`;
               handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}/transactions`);
               showToast(`Payment processed (${paymentId}), but Firestore balance sync failed: ${err.message}`, 'error');
             } finally {
-              if (btnPay) {
-                btnPay.disabled = false;
-                updateSelectedPackageDisplay();
-              }
+              resetPayButton();
             }
           }
 
-          if (typeof window.Razorpay !== 'function') {
+          const RazorpayConstructor = window.Razorpay || (typeof Razorpay !== 'undefined' ? Razorpay : null);
+          if (!RazorpayConstructor) {
             throw new Error('Razorpay SDK is not available. Please check your internet connection.');
           }
 
-          const rzp = new window.Razorpay(options);
+          const rzp = new RazorpayConstructor(options);
 
           rzp.on('payment.failed', function (response) {
-            window.isRazorpayActive = false;
-            console.error("Payment failed details:", {
-              description: response?.error?.description,
-              reason: response?.error?.reason,
-              code: response?.error?.code,
-              source: response?.error?.source,
-              step: response?.error?.step,
-              metadata: response?.error?.metadata,
-              raw: response?.error
-            });
+            resetPayButton();
             const errDescription = response?.error?.description || response?.error?.reason || "Payment could not be processed.";
-            showToast("Payment notice: " + errDescription, 'error');
-            if (btnPay) {
-              btnPay.disabled = false;
-              updateSelectedPackageDisplay();
-            }
+            const errCode = response?.error?.code || "PAYMENT_FAILED";
+            const errSource = response?.error?.source || "gateway";
+            const errStep = response?.error?.step || "checkout";
+
+            console.error("Payment failed details:", {
+              description: String(errDescription),
+              reason: String(response?.error?.reason || ""),
+              code: String(errCode),
+              source: String(errSource),
+              step: String(errStep)
+            });
+
+            try {
+              alert("Razorpay Error: " + errDescription);
+            } catch (_) {}
+            showToast("Razorpay Error: " + errDescription, 'error');
           });
 
           rzp.open();
         } catch (checkoutErr) {
-          window.isRazorpayActive = false;
+          resetPayButton();
           console.error('Razorpay initialization error:', checkoutErr);
           showToast(`Checkout initialization error: ${checkoutErr.message}`, 'error');
-          if (btnPay) {
-            btnPay.disabled = false;
-            updateSelectedPackageDisplay();
-          }
         }
       }
 
@@ -4490,6 +4544,17 @@ console.log(response.choices[0].message.content);`;
             e.stopPropagation();
           }
           handleRazorpayPayment(e);
+        });
+      }
+
+      // Make the "Cancel" button on the Top-up modal always functional to close the modal and reset all states
+      const btnCancelTopupModal = document.getElementById('btnCancelTopupModal');
+      if (btnCancelTopupModal) {
+        btnCancelTopupModal.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeModal('modalAddCredits');
+          resetPayButton();
+          resetTopupModal();
         });
       }
 
@@ -4631,60 +4696,6 @@ console.log(response.choices[0].message.content);`;
             });
         });
       }
-
-      // Desktop PWA Installation Management (beforeinstallprompt & appinstalled)
-      let deferredInstallPrompt = null;
-      const btnHeaderInstallApp = document.getElementById('btnHeaderInstallApp');
-      const btnBannerInstallApp = document.getElementById('btnBannerInstallApp');
-      const pwaInstallBanner = document.getElementById('pwaInstallBanner');
-
-      // Detect if app is already running in standalone display mode
-      const isRunningStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                                  window.navigator.standalone === true ||
-                                  document.referrer.includes('android-app://');
-
-      if (!isRunningStandalone) {
-        window.addEventListener('beforeinstallprompt', (e) => {
-          // Prevent standard mini-infobar on mobile
-          e.preventDefault();
-          deferredInstallPrompt = e;
-
-          // Reveal sleek install button in header and dashboard banner
-          if (btnHeaderInstallApp) btnHeaderInstallApp.style.display = 'inline-flex';
-          if (pwaInstallBanner) pwaInstallBanner.style.display = 'block';
-        });
-
-        async function handlePwaInstall() {
-          if (!deferredInstallPrompt) {
-            showToast('To install Keyline, please use your browser\'s address bar or menu "Install App" option.', 'info');
-            return;
-          }
-
-          deferredInstallPrompt.prompt();
-          const { outcome } = await deferredInstallPrompt.userChoice;
-          if (outcome === 'accepted') {
-            showToast('Installing Keyline AI Gateway desktop app...', 'success');
-          }
-          deferredInstallPrompt = null;
-          if (btnHeaderInstallApp) btnHeaderInstallApp.style.display = 'none';
-          if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
-        }
-
-        if (btnHeaderInstallApp) {
-          btnHeaderInstallApp.addEventListener('click', handlePwaInstall);
-        }
-        if (btnBannerInstallApp) {
-          btnBannerInstallApp.addEventListener('click', handlePwaInstall);
-        }
-      }
-
-      window.addEventListener('appinstalled', () => {
-        deferredInstallPrompt = null;
-        if (btnHeaderInstallApp) btnHeaderInstallApp.style.display = 'none';
-        if (pwaInstallBanner) pwaInstallBanner.style.display = 'none';
-        showToast('Keyline AI Gateway was installed successfully!', 'success');
-        console.log('[PWA] Keyline AI Gateway was installed.');
-      });
 
       // Boot application
       setupFirebase();
