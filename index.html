@@ -32,8 +32,8 @@
     <!-- Official Razorpay Checkout Script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <!-- Content Security Policy (CSP) allowing Razorpay Checkout and API endpoints -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://*.razorpay.com https://apis.google.com https://*.firebaseio.com https://*.googleapis.com https://cdn.jsdelivr.net; connect-src 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.razorpay.com https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; frame-src 'self' https://checkout.razorpay.com https://*.razorpay.com https://api.razorpay.com https://*.firebaseapp.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;" />
+    <!-- Content Security Policy (CSP) relaxing directives to allow Firebase Auth, Google APIs, GitHub OAuth, and Razorpay -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src 'self' https: wss:; frame-src 'self' https:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:;" />
 
     <!-- Dynamic PNG Generation Canvas Utility for PWABuilder & Keyline Identity -->
     <script>
@@ -1772,7 +1772,7 @@
           </div>
 
           <!-- Google Auth Button -->
-          <button id="btnGoogleAuth" class="btn-google" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(45, 31, 22, 0.08); font-weight: 700;">
+          <button id="btnGoogleAuth" class="btn-google google-login" data-auth="google" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(45, 31, 22, 0.08); font-weight: 700;">
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1788,7 +1788,7 @@
           </div>
 
           <!-- GitHub Auth Button -->
-          <button id="btnGithubAuth" class="btn-github" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); font-weight: 700;">
+          <button id="btnGithubAuth" class="btn-github github-login" data-auth="github" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); font-weight: 700;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
             </svg>
@@ -1801,7 +1801,7 @@
           </div>
 
           <!-- Temporary Reviewer / Demo Access Button (Prompt Requirement 1) -->
-          <button id="btn-demo-access" class="btn-secondary" style="width: 100%; justify-content: center; padding: 12px 18px; font-weight: 700; font-size: 0.92rem; border: 1.5px dashed var(--primary-orange); color: var(--primary-orange); background: #FFF9F5; box-shadow: 0 2px 6px rgba(255, 107, 0, 0.08); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+          <button id="btn-demo-access" class="btn-secondary demo-login" data-auth="demo" style="width: 100%; justify-content: center; padding: 12px 18px; font-weight: 700; font-size: 0.92rem; border: 1.5px dashed var(--primary-orange); color: var(--primary-orange); background: #FFF9F5; box-shadow: 0 2px 6px rgba(255, 107, 0, 0.08); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -3003,6 +3003,114 @@
     <div id="toastNotification" class="toast">
       <span id="toastMessage">Notification</span>
     </div>
+
+    <!-- =========================================================================
+         DEDICATED AUTH & DEMO EVENT LISTENERS (Strict DOMContentLoaded Binding)
+         ========================================================================= -->
+    <script>
+      (function() {
+        // Promise coordinating early user interactions with modular Firebase load
+        window.__keylineAuthPromise = new Promise(function(resolve) {
+          window.__resolveKeylineAuth = resolve;
+        });
+
+        function bindAuthButtonListeners() {
+          try {
+            // 1. Google Login Binding (by ID, class, and data-auth attribute)
+            var googleButtons = document.querySelectorAll('#btnGoogleAuth, #google-login, .google-login, [data-auth="google"]');
+            googleButtons.forEach(function(btn) {
+              if (btn && !btn.dataset.authAttached) {
+                btn.dataset.authAttached = 'true';
+                btn.addEventListener('click', async function(e) {
+                  e.preventDefault();
+                  if (typeof window.triggerGoogleAuth === 'function') {
+                    await window.triggerGoogleAuth();
+                  } else {
+                    var textSpan = btn.querySelector('#btnGoogleAuthText') || btn;
+                    var prevText = textSpan.textContent;
+                    textSpan.textContent = 'Connecting with Google...';
+                    btn.disabled = true;
+                    try {
+                      await window.__keylineAuthPromise;
+                      if (typeof window.triggerGoogleAuth === 'function') {
+                        await window.triggerGoogleAuth();
+                      }
+                    } catch (err) {
+                      console.error("Google Auth trigger error:", err);
+                    } finally {
+                      btn.disabled = false;
+                      textSpan.textContent = prevText || 'Continue with Google';
+                    }
+                  }
+                });
+              }
+            });
+
+            // 2. GitHub Login Binding (by ID, class, and data-auth attribute)
+            var githubButtons = document.querySelectorAll('#btnGithubAuth, #github-login, .github-login, [data-auth="github"]');
+            githubButtons.forEach(function(btn) {
+              if (btn && !btn.dataset.authAttached) {
+                btn.dataset.authAttached = 'true';
+                btn.addEventListener('click', async function(e) {
+                  e.preventDefault();
+                  if (typeof window.triggerGithubAuth === 'function') {
+                    await window.triggerGithubAuth();
+                  } else {
+                    var textSpan = btn.querySelector('#btnGithubAuthText') || btn;
+                    var prevText = textSpan.textContent;
+                    textSpan.textContent = 'Connecting with GitHub...';
+                    btn.disabled = true;
+                    try {
+                      await window.__keylineAuthPromise;
+                      if (typeof window.triggerGithubAuth === 'function') {
+                        await window.triggerGithubAuth();
+                      }
+                    } catch (err) {
+                      console.error("GitHub Auth trigger error:", err);
+                    } finally {
+                      btn.disabled = false;
+                      textSpan.textContent = prevText || 'Sign in with GitHub';
+                    }
+                  }
+                });
+              }
+            });
+
+            // 3. Demo Login / Reviewer Access Binding (by ID, class, and data-auth attribute)
+            var demoButtons = document.querySelectorAll('#btn-demo-access, #demo-login, .demo-login, [data-auth="demo"]');
+            demoButtons.forEach(function(btn) {
+              if (btn && !btn.dataset.authAttached) {
+                btn.dataset.authAttached = 'true';
+                btn.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  if (typeof window.activateDemoReviewerSession === 'function') {
+                    window.activateDemoReviewerSession();
+                  } else {
+                    window.__pendingDemoActivation = true;
+                    var authSec = document.getElementById('authSection');
+                    var dashSec = document.getElementById('dashboardSection');
+                    var navSec = document.getElementById('userNavSection');
+                    if (authSec) authSec.style.display = 'none';
+                    if (dashSec) dashSec.style.display = 'block';
+                    if (navSec) navSec.style.display = 'flex';
+                  }
+                });
+              }
+            });
+          } catch (err) {
+            console.error("Error attaching auth event listeners:", err);
+          }
+        }
+
+        window.bindAuthButtonListeners = bindAuthButtonListeners;
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', bindAuthButtonListeners);
+        } else {
+          bindAuthButtonListeners();
+        }
+      })();
+    </script>
 
     <!-- =========================================================================
          ES MODULE JAVASCRIPT WITH FIREBASE JS SDK v10 (CDN)
@@ -4378,7 +4486,7 @@ console.log(response.choices[0].message.content);`;
       // EVENT LISTENERS & DOM HOOKS
       // =========================================================================
 
-      // Google & GitHub Sign In
+      // Google & GitHub Sign In Methods
       const btnGoogleAuth = document.getElementById('btnGoogleAuth');
       const btnGoogleAuthText = document.getElementById('btnGoogleAuthText');
       const btnGithubAuth = document.getElementById('btnGithubAuth');
@@ -4401,80 +4509,104 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      btnGoogleAuth.addEventListener('click', async () => {
-        authErrorMessage.style.display = 'none';
-        if (authDomainInfoBox) authDomainInfoBox.style.display = 'none';
-        btnGoogleAuth.disabled = true;
-        if (btnGithubAuth) btnGithubAuth.disabled = true;
-        btnGoogleAuthText.textContent = 'Connecting with Google...';
+      async function triggerGoogleAuth() {
+        const gBtn = document.getElementById('btnGoogleAuth') || document.querySelector('.google-login');
+        const gText = document.getElementById('btnGoogleAuthText') || gBtn;
+        const ghBtn = document.getElementById('btnGithubAuth') || document.querySelector('.github-login');
+        const errMsg = document.getElementById('authErrorMessage');
+        const errTxt = document.getElementById('authErrorText');
+        const domainBox = document.getElementById('authDomainInfoBox');
+        const hostDisplay = document.getElementById('displayCurrentHostname');
+
+        if (errMsg) errMsg.style.display = 'none';
+        if (domainBox) domainBox.style.display = 'none';
+        if (gBtn) gBtn.disabled = true;
+        if (ghBtn) ghBtn.disabled = true;
+        if (gText) gText.textContent = 'Connecting with Google...';
 
         try {
+          if (!auth) {
+            throw new Error("Authentication service is initializing. Please try again in a moment.");
+          }
           const provider = new GoogleAuthProvider();
           provider.setCustomParameters({ prompt: 'select_account' });
           await signInWithPopup(auth, provider);
         } catch (error) {
           console.error("Google Auth error:", error);
-          if (authErrorText) {
-            authErrorText.textContent = error.message;
-          } else {
-            authErrorMessage.textContent = error.message;
+          if (errTxt) {
+            errTxt.textContent = error.message;
+          } else if (errMsg) {
+            errMsg.textContent = error.message;
           }
 
-          // Always display the current window hostname so the user can easily copy it into Firebase Authorized Domains
+          // Display current hostname for Firebase Authorized Domains setup
           const currentHostname = window.location.hostname;
-          if (displayCurrentHostname) {
-            displayCurrentHostname.textContent = currentHostname;
+          if (hostDisplay) {
+            hostDisplay.textContent = currentHostname;
           }
-          if (authDomainInfoBox) {
-            authDomainInfoBox.style.display = 'block';
+          if (domainBox) {
+            domainBox.style.display = 'block';
           }
-
-          authErrorMessage.style.display = 'block';
+          if (errMsg) {
+            errMsg.style.display = 'block';
+          }
         } finally {
-          btnGoogleAuth.disabled = false;
-          if (btnGithubAuth) btnGithubAuth.disabled = false;
-          btnGoogleAuthText.textContent = 'Continue with Google';
+          if (gBtn) gBtn.disabled = false;
+          if (ghBtn) ghBtn.disabled = false;
+          if (gText) gText.textContent = 'Continue with Google';
         }
-      });
-
-      if (btnGithubAuth) {
-        btnGithubAuth.addEventListener('click', async () => {
-          authErrorMessage.style.display = 'none';
-          if (authDomainInfoBox) authDomainInfoBox.style.display = 'none';
-          btnGithubAuth.disabled = true;
-          if (btnGoogleAuth) btnGoogleAuth.disabled = true;
-          btnGithubAuthText.textContent = 'Connecting with GitHub...';
-
-          try {
-            const githubProvider = new GithubAuthProvider();
-            githubProvider.addScope('user:email');
-            githubProvider.addScope('read:user');
-            await signInWithPopup(auth, githubProvider);
-          } catch (error) {
-            console.error("GitHub Auth error:", error);
-            if (authErrorText) {
-              authErrorText.textContent = error.message;
-            } else {
-              authErrorMessage.textContent = error.message;
-            }
-
-            // Always display the current window hostname so the user can easily copy it into Firebase Authorized Domains
-            const currentHostname = window.location.hostname;
-            if (displayCurrentHostname) {
-              displayCurrentHostname.textContent = currentHostname;
-            }
-            if (authDomainInfoBox) {
-              authDomainInfoBox.style.display = 'block';
-            }
-
-            authErrorMessage.style.display = 'block';
-          } finally {
-            btnGithubAuth.disabled = false;
-            if (btnGoogleAuth) btnGoogleAuth.disabled = false;
-            btnGithubAuthText.textContent = 'Sign in with GitHub';
-          }
-        });
       }
+      window.triggerGoogleAuth = triggerGoogleAuth;
+
+      async function triggerGithubAuth() {
+        const gBtn = document.getElementById('btnGoogleAuth') || document.querySelector('.google-login');
+        const ghBtn = document.getElementById('btnGithubAuth') || document.querySelector('.github-login');
+        const ghText = document.getElementById('btnGithubAuthText') || ghBtn;
+        const errMsg = document.getElementById('authErrorMessage');
+        const errTxt = document.getElementById('authErrorText');
+        const domainBox = document.getElementById('authDomainInfoBox');
+        const hostDisplay = document.getElementById('displayCurrentHostname');
+
+        if (errMsg) errMsg.style.display = 'none';
+        if (domainBox) domainBox.style.display = 'none';
+        if (ghBtn) ghBtn.disabled = true;
+        if (gBtn) gBtn.disabled = true;
+        if (ghText) ghText.textContent = 'Connecting with GitHub...';
+
+        try {
+          if (!auth) {
+            throw new Error("Authentication service is initializing. Please try again in a moment.");
+          }
+          const githubProvider = new GithubAuthProvider();
+          githubProvider.addScope('user:email');
+          githubProvider.addScope('read:user');
+          await signInWithPopup(auth, githubProvider);
+        } catch (error) {
+          console.error("GitHub Auth error:", error);
+          if (errTxt) {
+            errTxt.textContent = error.message;
+          } else if (errMsg) {
+            errMsg.textContent = error.message;
+          }
+
+          // Display current hostname for Firebase Authorized Domains setup
+          const currentHostname = window.location.hostname;
+          if (hostDisplay) {
+            hostDisplay.textContent = currentHostname;
+          }
+          if (domainBox) {
+            domainBox.style.display = 'block';
+          }
+          if (errMsg) {
+            errMsg.style.display = 'block';
+          }
+        } finally {
+          if (ghBtn) ghBtn.disabled = false;
+          if (gBtn) gBtn.disabled = false;
+          if (ghText) ghText.textContent = 'Sign in with GitHub';
+        }
+      }
+      window.triggerGithubAuth = triggerGithubAuth;
 
       // Temporary Reviewer / Demo Access Handler (Prompt Requirements 1 & 2)
       function activateDemoReviewerSession() {
@@ -4565,6 +4697,18 @@ console.log(response.choices[0].message.content);`;
       }
       window.activateDemoReviewerSession = activateDemoReviewerSession;
 
+      // Resolve keyline auth readiness and execute pending demo action if queued
+      if (typeof window.__resolveKeylineAuth === 'function') {
+        window.__resolveKeylineAuth(true);
+      }
+      if (window.__pendingDemoActivation) {
+        activateDemoReviewerSession();
+        window.__pendingDemoActivation = false;
+      }
+      if (typeof window.bindAuthButtonListeners === 'function') {
+        window.bindAuthButtonListeners();
+      }
+
       const btnDemoAccess = document.getElementById('btn-demo-access');
       if (btnDemoAccess) {
         btnDemoAccess.addEventListener('click', (e) => {
@@ -4621,19 +4765,22 @@ console.log(response.choices[0].message.content);`;
       });
 
       // Sign Out
-      document.getElementById('btnSignOut').addEventListener('click', async () => {
-        localStorage.removeItem('keyline_demo_mode');
-        if (currentUser && currentUser.isDemo) {
-          currentUser = null;
-          await handleAuthStateChanged(null);
-          showToast('Signed out of demo session.');
-          return;
-        }
-        if (auth) {
-          await signOut(auth);
-          showToast('Signed out successfully.');
-        }
-      });
+      const btnSignOut = document.getElementById('btnSignOut');
+      if (btnSignOut) {
+        btnSignOut.addEventListener('click', async () => {
+          localStorage.removeItem('keyline_demo_mode');
+          if (currentUser && currentUser.isDemo) {
+            currentUser = null;
+            await handleAuthStateChanged(null);
+            showToast('Signed out of demo session.');
+            return;
+          }
+          if (auth) {
+            await signOut(auth);
+            showToast('Signed out successfully.');
+          }
+        });
+      }
 
       // Quickstart Language Tabs
       document.querySelectorAll('.code-tab-btn').forEach(btn => {
@@ -4746,29 +4893,43 @@ console.log(response.choices[0].message.content);`;
       }
 
       // Open Key Generator Modal
-      document.getElementById('btnOpenGenerateKey').addEventListener('click', () => {
-        document.getElementById('inputKeyName').value = `Live Key #${activeKeysList.length + 1}`;
-        openModal('modalGenerateKey');
-      });
+      const btnOpenGenKey = document.getElementById('btnOpenGenerateKey');
+      if (btnOpenGenKey) {
+        btnOpenGenKey.addEventListener('click', () => {
+          const inputKeyName = document.getElementById('inputKeyName');
+          if (inputKeyName) inputKeyName.value = `Live Key #${activeKeysList.length + 1}`;
+          openModal('modalGenerateKey');
+        });
+      }
 
-      document.getElementById('btnEmptyGenerateKey').addEventListener('click', () => {
-        document.getElementById('inputKeyName').value = 'Production Key';
-        openModal('modalGenerateKey');
-      });
+      const btnEmptyGenKey = document.getElementById('btnEmptyGenerateKey');
+      if (btnEmptyGenKey) {
+        btnEmptyGenKey.addEventListener('click', () => {
+          const inputKeyName = document.getElementById('inputKeyName');
+          if (inputKeyName) inputKeyName.value = 'Production Key';
+          openModal('modalGenerateKey');
+        });
+      }
 
       // Submit Key Generation
-      document.getElementById('formGenerateKey').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('inputKeyName').value;
-        generateNewApiKey(name);
-      });
+      const formGenKey = document.getElementById('formGenerateKey');
+      if (formGenKey) {
+        formGenKey.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('inputKeyName')?.value || 'Keyline API Key';
+          generateNewApiKey(name);
+        });
+      }
 
       // Copy Created Key
-      document.getElementById('btnCopyCreatedKey').addEventListener('click', () => {
-        const text = document.getElementById('displayNewKey').textContent;
-        navigator.clipboard.writeText(text);
-        showToast('Secret API key copied to clipboard!');
-      });
+      const btnCopyKey = document.getElementById('btnCopyCreatedKey');
+      if (btnCopyKey) {
+        btnCopyKey.addEventListener('click', () => {
+          const text = document.getElementById('displayNewKey')?.textContent || '';
+          navigator.clipboard.writeText(text);
+          showToast('Secret API key copied to clipboard!');
+        });
+      }
 
       // Confirm Permanent Delete API Key Button
       const btnConfirmDeleteKey = document.getElementById('btnConfirmDeleteKey');
@@ -5413,17 +5574,22 @@ console.log(response.choices[0].message.content);`;
         openModal('modalTestRequest');
       }
 
-      document.getElementById('btnOpenTestRequest').addEventListener('click', setupTestRequestModal);
-      document.getElementById('btnEmptyTestRequest').addEventListener('click', setupTestRequestModal);
+      const btnOpenTestReq = document.getElementById('btnOpenTestRequest');
+      if (btnOpenTestReq) btnOpenTestReq.addEventListener('click', setupTestRequestModal);
+
+      const btnEmptyTestReq = document.getElementById('btnEmptyTestRequest');
+      if (btnEmptyTestReq) btnEmptyTestReq.addEventListener('click', setupTestRequestModal);
 
       // Submit Test Request with Exact Token Breakdown & Billing
-      document.getElementById('formTestRequest').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const keyId = document.getElementById('selectTestKey').value;
-        const selectEndpoint = document.getElementById('selectTestEndpoint');
-        const selectedOpt = selectEndpoint.options[selectEndpoint.selectedIndex];
-        const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || 'openai/gpt-oss-20b') : 'openai/gpt-oss-20b';
-        const endpoint = selectedOpt ? selectedOpt.value.split('#')[0] : '/v1/chat/completions';
+      const formTestReq = document.getElementById('formTestRequest');
+      if (formTestReq) {
+        formTestReq.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const keyId = document.getElementById('selectTestKey')?.value;
+          const selectEndpoint = document.getElementById('selectTestEndpoint');
+          const selectedOpt = selectEndpoint?.options[selectEndpoint.selectedIndex];
+          const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || 'openai/gpt-oss-20b') : 'openai/gpt-oss-20b';
+          const endpoint = selectedOpt ? selectedOpt.value.split('#')[0] : '/v1/chat/completions';
 
         const promptText = document.getElementById('inputTestPrompt')?.value || '';
         const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
@@ -5464,7 +5630,8 @@ console.log(response.choices[0].message.content);`;
         };
 
         simulateApiRequest(keyId, endpoint, modelName, usage, promptText, '', simulatedApiResponse);
-      });
+        });
+      }
 
       // Progressive Web App (PWA) & Service Worker Registration
       if ('serviceWorker' in navigator) {
