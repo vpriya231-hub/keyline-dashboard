@@ -126,9 +126,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- Razorpay Standard Web Checkout Integration -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
     <style>
       /* =========================================================================
          KEYLINE DESIGN SYSTEM (Light Orange Modern Theme)
@@ -4378,10 +4375,9 @@ console.log(response.choices[0].message.content);`;
           || ((usage?.prompt_tokens || 0) + (usage?.completion_tokens || 0) + (usage?.reasoning_tokens || 0))
           || 1;
 
-        // 4. If user balance is less than the required minimum or 0, block request & show alert
+        // 4. If user balance is less than the required minimum or 0, block request & show toast
         const currentCredits = getCurrentCredits();
         if (currentCredits <= 0 || currentCredits < totalUsedTokens) {
-          alert("Insufficient credits. Please top up your account.");
           showToast(`Insufficient credits. Please top up your account. (${currentCredits.toLocaleString()} available, needed ${totalUsedTokens.toLocaleString()} tokens)`, "error");
           if (btnSubmit) {
             btnSubmit.disabled = false;
@@ -5029,32 +5025,21 @@ console.log(response.choices[0].message.content);`;
             document.head.appendChild(existing);
           }
 
-          const checkReady = () => {
-            if (typeof window.Razorpay === 'function') {
-              resolve(true);
-              return true;
-            }
-            return false;
+          existing.onload = () => {
+            resolve(typeof window.Razorpay === 'function');
+          };
+          existing.onerror = () => {
+            resolve(false);
           };
 
-          if (checkReady()) return;
-
-          existing.addEventListener('load', () => {
-            console.log("Razorpay script loaded via event listener");
-            setTimeout(() => resolve(typeof window.Razorpay === 'function'), 100);
-          });
-          existing.addEventListener('error', (err) => {
-            console.warn("Razorpay script load error:", err);
-            resolve(false);
-          });
-
-          // Polling check for up to 6 seconds
+          // Polling check in case script was already in flight or cached
           let pollCount = 0;
           const pollInterval = setInterval(() => {
             pollCount++;
-            if (checkReady()) {
+            if (typeof window.Razorpay === 'function') {
               clearInterval(pollInterval);
-            } else if (pollCount > 60) {
+              resolve(true);
+            } else if (pollCount > 40) {
               clearInterval(pollInterval);
               resolve(typeof window.Razorpay === 'function');
             }
@@ -5225,51 +5210,30 @@ console.log(response.choices[0].message.content);`;
         }
 
         try {
-          // Check if window.Razorpay is available. If not yet loaded, dynamically append script tag and wait for onload
+          // If window.Razorpay is taking a moment to load, dynamically inject the script and proceed immediately upon load
           if (typeof window.Razorpay !== 'function') {
             if (btnPayText) btnPayText.textContent = 'Loading Payment Gateway...';
-            const isLoaded = await loadRazorpayScript();
-            if (!isLoaded && typeof window.Razorpay !== 'function') {
-              console.warn('Razorpay checkout script not yet resolved, dynamically injecting tag...');
+            await loadRazorpayScript();
+            if (typeof window.Razorpay !== 'function') {
               await new Promise((resolve) => {
                 const s = document.createElement('script');
                 s.src = 'https://checkout.razorpay.com/v1/checkout.js';
                 s.async = true;
                 s.onload = () => resolve(true);
-                s.onerror = (e) => {
-                  console.warn('Direct script tag append error:', e);
-                  resolve(false);
-                };
+                s.onerror = () => resolve(false);
                 document.head.appendChild(s);
+                setTimeout(resolve, 1500);
               });
             }
           }
 
-          if (typeof window.Razorpay !== 'function' && typeof Razorpay === 'undefined') {
-            showToast('Unable to initialize Razorpay checkout. Please check your internet connection.', 'error');
+          if (typeof window.Razorpay !== 'function') {
+            showToast('Payment gateway is loading. Please try clicking Pay again in a moment.', 'info');
             resetPayButton();
             return;
           }
 
-          // Destroy previous instance & cleanup any orphaned razorpay containers
-          if (window.currentRzpInstance && typeof window.currentRzpInstance.close === 'function') {
-            try {
-              window.currentRzpInstance.close();
-            } catch (closeErr) {
-              console.warn('Error closing previous Razorpay instance:', closeErr);
-            }
-            window.currentRzpInstance = null;
-          }
-          document.querySelectorAll('.razorpay-container, iframe[src*="razorpay"]').forEach(el => {
-            try { el.remove(); } catch (_) {}
-          });
-
-          // Clean Top-up Modal UI: keep background completely still and prevent background clicks
           window.isRazorpayActive = true;
-          const modalBackdrop = document.getElementById('modalAddCredits');
-          if (modalBackdrop) {
-            modalBackdrop.style.pointerEvents = 'none'; // prevent clicks behind
-          }
 
           const liveKey = (window.KEYLINE_ENV && window.KEYLINE_ENV.RAZORPAY_KEY_ID) ||
                           RAZORPAY_CONFIG.keyId ||
@@ -5290,8 +5254,7 @@ console.log(response.choices[0].message.content);`;
               color: "#f97316"
             },
             modal: {
-              backdropclose: false,
-              escape: false,
+              backdropclose: true,
               ondismiss: function () {
                 console.log("Payment checkout closed");
                 isProcessingPayment = false;
@@ -5302,7 +5265,6 @@ console.log(response.choices[0].message.content);`;
               console.log("Payment successful:", response);
               isProcessingPayment = false;
               window.isRazorpayActive = false;
-              window.currentRzpInstance = null;
 
               // Verify signature via backend worker if order was created
               if (response.razorpay_order_id && response.razorpay_signature) {
@@ -5352,7 +5314,7 @@ console.log(response.choices[0].message.content);`;
               }
             }
           } catch (orderErr) {
-            console.warn('Backend order creation bypassed, using direct live options:', orderErr);
+            console.log('Using direct checkout options');
           }
 
           async function handleSuccessPayment(paymentId, credits, amount) {
@@ -5411,31 +5373,14 @@ console.log(response.choices[0].message.content);`;
             }
           }
 
-          const RazorpayConstructor = window.Razorpay || (typeof Razorpay !== 'undefined' ? Razorpay : null);
-          if (!RazorpayConstructor) {
-            throw new Error('Razorpay SDK is not available. Please check your internet connection.');
-          }
-
-          const rzp = new RazorpayConstructor(options);
-          window.currentRzpInstance = rzp;
+          // Directly invoke new window.Razorpay(options).open()
+          const rzp = new window.Razorpay(options);
 
           rzp.on('payment.failed', function (response) {
             isProcessingPayment = false;
             resetPayButton();
             const errDescription = response?.error?.description || response?.error?.reason || "Transaction declined";
-            const errCode = response?.error?.code || "PAYMENT_FAILED";
-            const errSource = response?.error?.source || "gateway";
-            const errStep = response?.error?.step || "checkout";
-
-            console.error("Payment failed details:", {
-              description: String(errDescription),
-              reason: String(response?.error?.reason || ""),
-              code: String(errCode),
-              source: String(errSource),
-              step: String(errStep)
-            });
-
-            alert("Payment Failed: " + (response?.error?.description || "Transaction declined"));
+            console.error("Payment failed details:", response?.error);
             showToast("Payment Failed: " + errDescription, 'error');
           });
 
