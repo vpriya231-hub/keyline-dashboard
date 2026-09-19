@@ -29,6 +29,12 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
 
+    <!-- Official Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Content Security Policy (CSP) allowing Razorpay Checkout and API endpoints -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://*.razorpay.com https://apis.google.com https://*.firebaseio.com https://*.googleapis.com https://cdn.jsdelivr.net; connect-src 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.razorpay.com https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; frame-src 'self' https://checkout.razorpay.com https://*.razorpay.com https://api.razorpay.com https://*.firebaseapp.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;" />
+
     <!-- Dynamic PNG Generation Canvas Utility for PWABuilder & Keyline Identity -->
     <script>
       window.generateKeylineIconCanvas = function(size) {
@@ -4838,7 +4844,7 @@ console.log(response.choices[0].message.content);`;
       // RAZORPAY STANDARD WEB CHECKOUT & TOP-UP INTEGRATION (LIVE PRODUCTION READY)
       // =========================================================================
       const RAZORPAY_CONFIG = {
-        keyId: "PASTE_YOUR_LIVE_KEY_ID_HERE",
+        keyId: "rzp_live_Tds28oLdXkQ5fC",
         currency: "INR",
         name: "Keyline AI Gateway",
         themeColor: "#f97316"
@@ -4873,19 +4879,23 @@ console.log(response.choices[0].message.content);`;
           if (checkReady()) return;
 
           existing.addEventListener('load', () => {
+            console.log("Razorpay script loaded via event listener");
             setTimeout(() => resolve(typeof window.Razorpay === 'function'), 100);
           });
-          existing.addEventListener('error', () => resolve(false));
+          existing.addEventListener('error', (err) => {
+            console.warn("Razorpay script load error:", err);
+            resolve(false);
+          });
 
-          // Polling check for up to 5 seconds
+          // Polling check for up to 6 seconds
           let pollCount = 0;
           const pollInterval = setInterval(() => {
             pollCount++;
             if (checkReady()) {
               clearInterval(pollInterval);
-            } else if (pollCount > 50) {
+            } else if (pollCount > 60) {
               clearInterval(pollInterval);
-              resolve(false);
+              resolve(typeof window.Razorpay === 'function');
             }
           }, 100);
         });
@@ -5042,25 +5052,6 @@ console.log(response.choices[0].message.content);`;
           return;
         }
 
-        // Sandboxed Iframe Fallback (Very Important)
-        // Check if window is running inside an iframe (like AI Studio preview)
-        let isIframe = false;
-        try {
-          isIframe = window.self !== window.top;
-        } catch (iframeErr) {
-          isIframe = true;
-        }
-
-        if (isIframe) {
-          const warningMsg = "Payment checkout cannot run inside AI Studio iframe preview. Please open your live Cloudflare deployment URL in a full browser tab to test payments.";
-          try {
-            alert(warningMsg);
-          } catch (_) {}
-          showToast(warningMsg, 'warning');
-          resetPayButton();
-          return;
-        }
-
         isProcessingPayment = true;
 
         const btnPay = document.getElementById('btnPayWithRazorpay') || document.getElementById('btn-pay') || document.querySelector('.btn-pay-razorpay');
@@ -5073,9 +5064,28 @@ console.log(response.choices[0].message.content);`;
         }
 
         try {
-          const isLoaded = await loadRazorpayScript();
-          if (!isLoaded || (typeof window.Razorpay === 'undefined' && typeof Razorpay === 'undefined')) {
-            showToast('Unable to load Razorpay checkout. Please check your network connection.', 'error');
+          // Check if window.Razorpay is available. If not yet loaded, dynamically append script tag and wait for onload
+          if (typeof window.Razorpay !== 'function') {
+            if (btnPayText) btnPayText.textContent = 'Loading Payment Gateway...';
+            const isLoaded = await loadRazorpayScript();
+            if (!isLoaded && typeof window.Razorpay !== 'function') {
+              console.warn('Razorpay checkout script not yet resolved, dynamically injecting tag...');
+              await new Promise((resolve) => {
+                const s = document.createElement('script');
+                s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                s.async = true;
+                s.onload = () => resolve(true);
+                s.onerror = (e) => {
+                  console.warn('Direct script tag append error:', e);
+                  resolve(false);
+                };
+                document.head.appendChild(s);
+              });
+            }
+          }
+
+          if (typeof window.Razorpay !== 'function' && typeof Razorpay === 'undefined') {
+            showToast('Unable to initialize Razorpay checkout. Please check your internet connection.', 'error');
             resetPayButton();
             return;
           }
@@ -5100,9 +5110,13 @@ console.log(response.choices[0].message.content);`;
             modalBackdrop.style.pointerEvents = 'none'; // prevent clicks behind
           }
 
+          const liveKey = (window.KEYLINE_ENV && window.KEYLINE_ENV.RAZORPAY_KEY_ID) ||
+                          RAZORPAY_CONFIG.keyId ||
+                          "rzp_live_Tds28oLdXkQ5fC";
+
           // Initialize Live Razorpay Checkout Options
           const options = {
-            key: "PASTE_YOUR_LIVE_KEY_ID_HERE",
+            key: liveKey,
             amount: amountInPaise,
             currency: "INR",
             name: "Keyline AI",
@@ -5171,7 +5185,7 @@ console.log(response.choices[0].message.content);`;
               const orderData = await orderRes.json();
               if (orderData && orderData.id) {
                 options.order_id = orderData.id;
-                if (orderData.key && orderData.key !== 'PASTE_YOUR_LIVE_KEY_ID_HERE') {
+                if (orderData.key && orderData.key.startsWith('rzp_')) {
                   options.key = orderData.key;
                 }
               }
