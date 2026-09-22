@@ -1773,7 +1773,7 @@
           </div>
 
           <!-- Google Auth Button -->
-          <button id="btnGoogleAuth" class="btn-google google-login" data-auth="google" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(45, 31, 22, 0.08); font-weight: 700; width: 100%;">
+          <button id="btnGoogleAuth" type="button" class="btn-google google-login" data-auth="google" onclick="if(window.triggerGoogleAuth){window.triggerGoogleAuth(event);}" style="padding: 13px 20px; font-size: 0.95rem; justify-content: center; box-shadow: 0 2px 8px rgba(45, 31, 22, 0.08); font-weight: 700; width: 100%;">
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -3026,27 +3026,22 @@
             googleButtons.forEach(function(btn) {
               if (btn && !btn.dataset.authAttached) {
                 btn.dataset.authAttached = 'true';
-                btn.addEventListener('click', function(e) {
-                  e.preventDefault();
-                  // Direct synchronous invocation preserves user gesture activation for popup
-                  if (typeof window.triggerGoogleAuth === 'function') {
-                    window.triggerGoogleAuth();
-                  } else {
-                    var textSpan = btn.querySelector('#btnGoogleAuthText') || btn;
-                    textSpan.textContent = 'Connecting with Google...';
-                    if (window.__keylineAuthPromise) {
-                      window.__keylineAuthPromise.then(function() {
-                        if (typeof window.triggerGoogleAuth === 'function') {
-                          window.triggerGoogleAuth();
-                        }
-                      }).catch(function(err) {
-                        console.error("Google Auth trigger error:", err);
-                        btn.disabled = false;
-                        textSpan.textContent = 'Sign in with Google';
-                      });
-                    }
+                btn.onclick = function(e) {
+                  if (e) {
+                    if (typeof e.preventDefault === 'function') e.preventDefault();
+                    if (typeof e.stopPropagation === 'function') e.stopPropagation();
                   }
-                });
+                  if (typeof window.triggerGoogleAuth === 'function') {
+                    window.triggerGoogleAuth(e);
+                  } else {
+                    // Do NOT defer popup via Promise.then! Deferral revokes user gesture activation.
+                    var textSpan = btn.querySelector('#btnGoogleAuthText') || btn;
+                    textSpan.textContent = 'Initializing... please click again';
+                    setTimeout(function() {
+                      textSpan.textContent = 'Sign in with Google';
+                    }, 1200);
+                  }
+                };
               }
             });
 
@@ -3259,6 +3254,7 @@
 
       // Reset Google auth button state and clean up pending flags
       function resetGoogleAuthButtonState() {
+        window.__keylineGoogleAuthInProgress = false;
         try {
           sessionStorage.removeItem('keyline_auth_in_progress');
         } catch (e) {}
@@ -4632,8 +4628,7 @@ console.log(response.choices[0].message.content);`;
       const btnGoogleAuth = document.getElementById('btnGoogleAuth');
       if (btnGoogleAuth) {
         btnGoogleAuth.onclick = (e) => {
-          e.preventDefault();
-          triggerGoogleAuth();
+          triggerGoogleAuth(e);
         };
       }
       const btnGoogleAuthText = document.getElementById('btnGoogleAuthText');
@@ -4776,10 +4771,18 @@ console.log(response.choices[0].message.content);`;
       }
       window.executeFallbackGoogleAuth = executeFallbackGoogleAuth;
 
-      function triggerGoogleAuth() {
-        const gBtn = document.getElementById('btnGoogleAuth') || document.querySelector('.google-login');
-        const gText = document.getElementById('btnGoogleAuthText') || gBtn;
-        const ghBtn = document.getElementById('btnGithubAuth') || document.querySelector('.github-login');
+      function triggerGoogleAuth(e) {
+        if (e) {
+          if (typeof e.preventDefault === 'function') e.preventDefault();
+          if (typeof e.stopPropagation === 'function') e.stopPropagation();
+        }
+
+        // Prevent duplicate concurrent popup calls
+        if (window.__keylineGoogleAuthInProgress) {
+          console.log("[Google Auth] Sign-in already in flight, ignoring duplicate trigger.");
+          return;
+        }
+
         const errMsg = document.getElementById('authErrorMessage');
         const errTxt = document.getElementById('authErrorText');
         const domainBox = document.getElementById('authDomainInfoBox');
@@ -4788,77 +4791,84 @@ console.log(response.choices[0].message.content);`;
         if (errMsg) errMsg.style.display = 'none';
         if (domainBox) domainBox.style.display = 'none';
 
-        // Update button visual state immediately
+        if (!auth) {
+          showToast("Firebase Authentication is initializing. Please try again.", "info");
+          return;
+        }
+
+        window.__keylineGoogleAuthInProgress = true;
+
+        // DIRECT SYNCHRONOUS INVOCATION of signInWithPopup directly on direct user gesture.
+        // CRITICAL: Do NOT disable the button element before calling signInWithPopup!
+        // Disabling the button synchronously cancels transient user activation in Chrome and WebViews,
+        // causing signInWithPopup to fail with "auth/popup-blocked".
+        let popupPromise;
+        try {
+          popupPromise = signInWithPopup(auth, googleProvider);
+        } catch (syncError) {
+          window.__keylineGoogleAuthInProgress = false;
+          console.error("[Firebase] Synchronous popup call exception:", syncError);
+          resetGoogleAuthButtonState();
+          showToast(syncError.message || "Failed to trigger Google sign-in.", "error");
+          return;
+        }
+
+        // Update button text indicator AFTER popup request has been dispatched
+        const gText = document.getElementById('btnGoogleAuthText');
         if (gText) gText.textContent = 'Connecting with Google...';
-        if (gBtn) gBtn.disabled = true;
-        if (ghBtn) ghBtn.disabled = true;
 
         // Safety timeout so UI never remains stuck if popup is closed outside event detection
         const safetyTimer = setTimeout(() => {
+          window.__keylineGoogleAuthInProgress = false;
           if (!currentUser && (!auth || !auth.currentUser) && localStorage.getItem('user_logged_in') !== 'true') {
             resetGoogleAuthButtonState();
-            if (ghBtn) ghBtn.disabled = false;
           }
-        }, 10000);
+        }, 12000);
 
-        try {
-          if (!auth) {
-            throw new Error("Firebase Authentication is initializing. Please try again.");
-          }
-
-          // SYNCHRONOUS INVOCATION of signInWithPopup directly in the click event callstack
-          // This ensures browser popup-blockers do not intercept the Google authentication popup
-          signInWithPopup(auth, googleProvider)
-            .then(async (result) => {
-              clearTimeout(safetyTimer);
-              if (result && result.user) {
-                console.log("[Firebase] Successfully authenticated via popup:", result.user.email);
-                // Save session: localStorage.setItem('user_logged_in', 'true') + extract user data + switch to #dashboard-view
-                await transitionToDashboard(result.user);
-                showToast(`Welcome back, ${result.user.displayName || result.user.email}! Signed in with Google.`, 'success');
-              } else {
-                resetGoogleAuthButtonState();
-                if (ghBtn) ghBtn.disabled = false;
-              }
-            })
-            .catch((error) => {
-              clearTimeout(safetyTimer);
-              console.error("[Firebase] Google signInWithPopup error - Code:", error.code, "Message:", error.message);
+        popupPromise
+          .then(async (result) => {
+            clearTimeout(safetyTimer);
+            window.__keylineGoogleAuthInProgress = false;
+            if (result && result.user) {
+              console.log("[Firebase] Successfully authenticated via popup:", result.user.email);
+              // Save session: localStorage.setItem('user_logged_in', 'true') + extract user data + switch to #dashboard-view
+              await transitionToDashboard(result.user);
+              showToast(`Welcome back, ${result.user.displayName || result.user.email}! Signed in with Google.`, 'success');
+            } else {
               resetGoogleAuthButtonState();
-              if (ghBtn) ghBtn.disabled = false;
+            }
+          })
+          .catch((error) => {
+            clearTimeout(safetyTimer);
+            window.__keylineGoogleAuthInProgress = false;
+            console.error("[Firebase] Google signInWithPopup error - Code:", error.code, "Message:", error.message);
+            resetGoogleAuthButtonState();
 
-              // Gracefully handle manual closure or cancellation by user
-              if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                showToast("Google sign-in was closed or cancelled.", "info");
-                return;
-              }
+            // Gracefully handle manual closure or cancellation by user
+            if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+              showToast("Google sign-in was closed or cancelled.", "info");
+              return;
+            }
 
-              let userMessage = error.message || "Unable to complete Google authentication.";
+            let userMessage = error.message || "Unable to complete Google authentication.";
 
-              if (error.code === 'auth/unauthorized-domain') {
-                const currentHostname = window.location.hostname;
-                userMessage = `This domain (${currentHostname}) is not authorized in Firebase Console. Please add it to Firebase Authentication > Settings > Authorized Domains.`;
-                if (hostDisplay) hostDisplay.textContent = currentHostname;
-                if (domainBox) domainBox.style.display = 'block';
-              } else if (error.code === 'auth/popup-blocked') {
-                userMessage = "Sign-in popup was blocked by your browser. Please allow popups for this site and try again.";
-              }
+            if (error.code === 'auth/unauthorized-domain') {
+              const currentHostname = window.location.hostname;
+              userMessage = `This domain (${currentHostname}) is not authorized in Firebase Console. Please add it to Firebase Authentication > Settings > Authorized Domains.`;
+              if (hostDisplay) hostDisplay.textContent = currentHostname;
+              if (domainBox) domainBox.style.display = 'block';
+            } else if (error.code === 'auth/popup-blocked') {
+              userMessage = "Sign-in popup was blocked by your browser. Please allow popups for this site and click again.";
+            }
 
-              if (errTxt) {
-                errTxt.textContent = `Error (${error.code || 'auth-error'}): ${userMessage}`;
-              } else if (errMsg) {
-                errMsg.textContent = `Error (${error.code || 'auth-error'}): ${userMessage}`;
-              }
-              if (errMsg) errMsg.style.display = 'block';
-              showToast(userMessage, 'error');
-            });
-        } catch (error) {
-          clearTimeout(safetyTimer);
-          console.error("[Firebase] Synchronous popup call exception:", error);
-          resetGoogleAuthButtonState();
-          if (ghBtn) ghBtn.disabled = false;
-          showToast(error.message || "Failed to trigger Google sign-in.", "error");
-        }
+            if (errTxt) {
+              errTxt.textContent = `Error (${error.code || 'auth-error'}): ${userMessage}`;
+            } else if (errMsg) {
+              errMsg.textContent = `Error (${error.code || 'auth-error'}): ${userMessage}`;
+            }
+            if (errMsg) errMsg.style.display = 'block';
+            showToast(userMessage, 'error');
+          });
       }
       window.triggerGoogleAuth = triggerGoogleAuth;
 
