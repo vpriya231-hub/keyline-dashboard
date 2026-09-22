@@ -3026,33 +3026,24 @@
             googleButtons.forEach(function(btn) {
               if (btn && !btn.dataset.authAttached) {
                 btn.dataset.authAttached = 'true';
-                btn.addEventListener('click', async function(e) {
+                btn.addEventListener('click', function(e) {
                   e.preventDefault();
-                  var textSpan = btn.querySelector('#btnGoogleAuthText') || btn;
-                  textSpan.textContent = 'Redirecting to Google...';
-                  btn.disabled = true;
-
-                  // Safety timeout for click action so button never stays frozen
-                  var clickSafetyTimer = setTimeout(function() {
-                    if (btn && btn.disabled && !window.currentUser && localStorage.getItem('user_logged_in') !== 'true') {
-                      btn.disabled = false;
-                      textSpan.textContent = 'Sign in with Google';
-                    }
-                  }, 5000);
-
+                  // Direct synchronous invocation preserves user gesture activation for popup
                   if (typeof window.triggerGoogleAuth === 'function') {
-                    await window.triggerGoogleAuth();
+                    window.triggerGoogleAuth();
                   } else {
-                    try {
-                      await window.__keylineAuthPromise;
-                      if (typeof window.triggerGoogleAuth === 'function') {
-                        await window.triggerGoogleAuth();
-                      }
-                    } catch (err) {
-                      console.error("Google Auth trigger error:", err);
-                      clearTimeout(clickSafetyTimer);
-                      btn.disabled = false;
-                      textSpan.textContent = 'Sign in with Google';
+                    var textSpan = btn.querySelector('#btnGoogleAuthText') || btn;
+                    textSpan.textContent = 'Connecting with Google...';
+                    if (window.__keylineAuthPromise) {
+                      window.__keylineAuthPromise.then(function() {
+                        if (typeof window.triggerGoogleAuth === 'function') {
+                          window.triggerGoogleAuth();
+                        }
+                      }).catch(function(err) {
+                        console.error("Google Auth trigger error:", err);
+                        btn.disabled = false;
+                        textSpan.textContent = 'Sign in with Google';
+                      });
                     }
                   }
                 });
@@ -3147,8 +3138,6 @@
       import {
         getAuth,
         signInWithPopup,
-        signInWithRedirect,
-        getRedirectResult,
         signInWithCredential,
         GoogleAuthProvider,
         GithubAuthProvider,
@@ -3387,90 +3376,28 @@
       }
       window.transitionToDashboard = transitionToDashboard;
 
-      // Initialize Firebase Auth Listener & Handle Redirect Result
+      // Initialize Firebase Auth Listener
       function setupFirebase() {
         try {
-          // Safety Timeout (Requirement 4): If auth resolution takes longer than 5 seconds,
-          // reset the button state back to clickable "Sign in with Google" so UI never freezes permanently
           const authSafetyTimeout = setTimeout(() => {
             if (!currentUser && (!auth || !auth.currentUser) && localStorage.getItem('user_logged_in') !== 'true') {
               console.warn("[Auth Safety Timeout] Auth resolution exceeded 5 seconds. Resetting button to clickable state.");
-              sessionStorage.removeItem('keyline_auth_in_progress');
               resetGoogleAuthButtonState();
             }
           }, 5000);
 
-          // Requirement 3: Set up onAuthStateChanged(auth, (user) => { ... }) immediately on page load
-          // - When a valid user is detected, save session (localStorage.setItem('user_logged_in', 'true')),
-          //   update the dashboard UI with user.displayName, user.email, and user.photoURL,
-          //   and cleanly switch view to #dashboard-view.
+          // Persistent Session: onAuthStateChanged keeps existing logged-in users on dashboard across page refreshes
           onAuthStateChanged(auth, async (user) => {
             if (user) {
               if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
               await transitionToDashboard(user);
             } else {
-              // If redirect processing is currently in progress, wait for getRedirectResult before resetting view
-              if (sessionStorage.getItem('keyline_auth_in_progress') === 'google') {
-                console.log("[Firebase] onAuthStateChanged received null while redirect is processing. Waiting for getRedirectResult...");
-                return;
-              }
-
               if (localStorage.getItem('user_logged_in') !== 'true') {
                 if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
                 await handleAuthStateChanged(null);
               }
             }
           });
-
-          // Requirement 4: Fix getRedirectResult(auth)
-          // - Handle the returned user credential and transition directly to the dashboard.
-          // - In .catch((error) => { ... }), log error.code and error.message to the console,
-          //   show a visible alert/toast notification with the error, and reset the button state.
-          // - If result is null and no user is authenticated, gracefully reset the button text to "Sign in with Google".
-          if (auth && typeof getRedirectResult === 'function') {
-            getRedirectResult(auth)
-              .then(async (result) => {
-                if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
-                if (result && result.user) {
-                  console.log("[Firebase] Successfully authenticated via redirect:", result.user.email);
-                  await transitionToDashboard(result.user);
-                  showToast(`Welcome back, ${result.user.displayName || result.user.email}! Signed in with Google.`, 'success');
-                } else {
-                  // If result is null and no user is authenticated, gracefully reset the button text to "Sign in with Google"
-                  if (!auth.currentUser && !currentUser && localStorage.getItem('user_logged_in') !== 'true') {
-                    console.log("[Firebase] getRedirectResult returned null, resetting button to Sign in with Google.");
-                    sessionStorage.removeItem('keyline_auth_in_progress');
-                    resetGoogleAuthButtonState();
-                  }
-                }
-              })
-              .catch((error) => {
-                if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
-                console.error("Firebase getRedirectResult error - Code:", error.code, "Message:", error.message);
-                sessionStorage.removeItem('keyline_auth_in_progress');
-                resetGoogleAuthButtonState();
-
-                let friendlyMessage = error.message || "Failed to complete Google Sign-In redirect.";
-                if (error.code === 'auth/unauthorized-domain') {
-                  const currentHostname = window.location.hostname;
-                  friendlyMessage = `Domain "${currentHostname}" is not authorized in Firebase Console. Please add "${currentHostname}" to Firebase Authentication > Settings > Authorized Domains.`;
-                  const hostDisplay = document.getElementById('displayCurrentHostname');
-                  const domainBox = document.getElementById('authDomainInfoBox');
-                  if (hostDisplay) hostDisplay.textContent = currentHostname;
-                  if (domainBox) domainBox.style.display = 'block';
-                }
-
-                const errMsg = document.getElementById('authErrorMessage');
-                const errTxt = document.getElementById('authErrorText');
-                if (errTxt) {
-                  errTxt.textContent = `Error (${error.code || 'auth-error'}): ${friendlyMessage}`;
-                } else if (errMsg) {
-                  errMsg.textContent = `Error (${error.code || 'auth-error'}): ${friendlyMessage}`;
-                }
-                if (errMsg) errMsg.style.display = 'block';
-                showToast(friendlyMessage, 'error');
-              });
-          }
 
           return true;
         } catch (error) {
@@ -4703,6 +4630,12 @@ console.log(response.choices[0].message.content);`;
 
       // Google & GitHub Sign In Methods
       const btnGoogleAuth = document.getElementById('btnGoogleAuth');
+      if (btnGoogleAuth) {
+        btnGoogleAuth.onclick = (e) => {
+          e.preventDefault();
+          triggerGoogleAuth();
+        };
+      }
       const btnGoogleAuthText = document.getElementById('btnGoogleAuthText');
       const btnGithubAuth = document.getElementById('btnGithubAuth');
       const btnGithubAuthText = document.getElementById('btnGithubAuthText');
@@ -4843,7 +4776,7 @@ console.log(response.choices[0].message.content);`;
       }
       window.executeFallbackGoogleAuth = executeFallbackGoogleAuth;
 
-      async function triggerGoogleAuth() {
+      function triggerGoogleAuth() {
         const gBtn = document.getElementById('btnGoogleAuth') || document.querySelector('.google-login');
         const gText = document.getElementById('btnGoogleAuthText') || gBtn;
         const ghBtn = document.getElementById('btnGithubAuth') || document.querySelector('.github-login');
@@ -4854,63 +4787,77 @@ console.log(response.choices[0].message.content);`;
 
         if (errMsg) errMsg.style.display = 'none';
         if (domainBox) domainBox.style.display = 'none';
+
+        // Update button visual state immediately
+        if (gText) gText.textContent = 'Connecting with Google...';
         if (gBtn) gBtn.disabled = true;
         if (ghBtn) ghBtn.disabled = true;
 
-        // Active loading state immediately
-        if (gText) gText.textContent = 'Redirecting to Google...';
-
-        // Safety timeout in case redirection doesn't trigger navigation within 5 seconds
-        setTimeout(() => {
+        // Safety timeout so UI never remains stuck if popup is closed outside event detection
+        const safetyTimer = setTimeout(() => {
           if (!currentUser && (!auth || !auth.currentUser) && localStorage.getItem('user_logged_in') !== 'true') {
             resetGoogleAuthButtonState();
             if (ghBtn) ghBtn.disabled = false;
           }
-        }, 5000);
+        }, 10000);
 
         try {
           if (!auth) {
-            throw new Error("Firebase Authentication service is initializing. Please try again in a moment.");
+            throw new Error("Firebase Authentication is initializing. Please try again.");
           }
 
-          // Replace signInWithPopup with signInWithRedirect
-          const provider = new GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: 'select_account' });
+          // SYNCHRONOUS INVOCATION of signInWithPopup directly in the click event callstack
+          // This ensures browser popup-blockers do not intercept the Google authentication popup
+          signInWithPopup(auth, googleProvider)
+            .then(async (result) => {
+              clearTimeout(safetyTimer);
+              if (result && result.user) {
+                console.log("[Firebase] Successfully authenticated via popup:", result.user.email);
+                // Save session: localStorage.setItem('user_logged_in', 'true') + extract user data + switch to #dashboard-view
+                await transitionToDashboard(result.user);
+                showToast(`Welcome back, ${result.user.displayName || result.user.email}! Signed in with Google.`, 'success');
+              } else {
+                resetGoogleAuthButtonState();
+                if (ghBtn) ghBtn.disabled = false;
+              }
+            })
+            .catch((error) => {
+              clearTimeout(safetyTimer);
+              console.error("[Firebase] Google signInWithPopup error - Code:", error.code, "Message:", error.message);
+              resetGoogleAuthButtonState();
+              if (ghBtn) ghBtn.disabled = false;
 
-          // Track redirect state in sessionStorage
-          sessionStorage.setItem('keyline_auth_in_progress', 'google');
+              // Gracefully handle manual closure or cancellation by user
+              if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+                showToast("Google sign-in was closed or cancelled.", "info");
+                return;
+              }
 
-          await signInWithRedirect(auth, provider);
+              let userMessage = error.message || "Unable to complete Google authentication.";
+
+              if (error.code === 'auth/unauthorized-domain') {
+                const currentHostname = window.location.hostname;
+                userMessage = `This domain (${currentHostname}) is not authorized in Firebase Console. Please add it to Firebase Authentication > Settings > Authorized Domains.`;
+                if (hostDisplay) hostDisplay.textContent = currentHostname;
+                if (domainBox) domainBox.style.display = 'block';
+              } else if (error.code === 'auth/popup-blocked') {
+                userMessage = "Sign-in popup was blocked by your browser. Please allow popups for this site and try again.";
+              }
+
+              if (errTxt) {
+                errTxt.textContent = `Error (${error.code || 'auth-error'}): ${userMessage}`;
+              } else if (errMsg) {
+                errMsg.textContent = `Error (${error.code || 'auth-error'}): ${userMessage}`;
+              }
+              if (errMsg) errMsg.style.display = 'block';
+              showToast(userMessage, 'error');
+            });
         } catch (error) {
-          console.error("[Google Auth] signInWithRedirect error:", error);
-          sessionStorage.removeItem('keyline_auth_in_progress');
-
-          // Robust error handling around redirect flow
-          let userMessage = error.message || "Unable to initiate Google redirect authentication.";
-
-          if (error.code === 'auth/unauthorized-domain') {
-            const currentHostname = window.location.hostname;
-            userMessage = `This domain (${currentHostname}) is not authorized in Firebase Console. Please add it to Firebase Authentication > Settings > Authorized Domains.`;
-            if (hostDisplay) hostDisplay.textContent = currentHostname;
-            if (domainBox) domainBox.style.display = 'block';
-          } else if (error.code === 'auth/operation-not-supported-in-this-environment') {
-            // Environment cannot handle standard web redirects (e.g. restrictive MSIX/WebView container)
-            console.warn("Redirect not supported in this container environment, falling back to reviewer flow.");
-            await executeFallbackGoogleAuth();
-            return;
-          }
-
-          if (errTxt) {
-            errTxt.textContent = userMessage;
-          } else if (errMsg) {
-            errMsg.textContent = userMessage;
-          }
-          if (errMsg) errMsg.style.display = 'block';
-          showToast(userMessage, 'error');
-
-          if (gBtn) gBtn.disabled = false;
+          clearTimeout(safetyTimer);
+          console.error("[Firebase] Synchronous popup call exception:", error);
+          resetGoogleAuthButtonState();
           if (ghBtn) ghBtn.disabled = false;
-          if (gText) gText.textContent = 'Sign in with Google';
+          showToast(error.message || "Failed to trigger Google sign-in.", "error");
         }
       }
       window.triggerGoogleAuth = triggerGoogleAuth;
@@ -6002,22 +5949,7 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      // Reflect pending redirect state if returning from Google
-      if (sessionStorage.getItem('keyline_auth_in_progress') === 'google') {
-        const gBtn = document.getElementById('btnGoogleAuth');
-        const gText = document.getElementById('btnGoogleAuthText');
-        if (gBtn) gBtn.disabled = true;
-        if (gText) gText.textContent = 'Completing Google sign-in...';
 
-        // Direct safety timeout to prevent permanent button freeze if redirect fails or returns empty
-        setTimeout(() => {
-          if (!window.currentUser && localStorage.getItem('user_logged_in') !== 'true') {
-            if (typeof resetGoogleAuthButtonState === 'function') {
-              resetGoogleAuthButtonState();
-            }
-          }
-        }, 5000);
-      }
 
       // Boot application
       setupFirebase();
