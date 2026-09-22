@@ -1759,7 +1759,8 @@
     <!-- Main Container -->
     <main class="app-container">
       <!-- Auth State View (When Not Authenticated) -->
-      <section id="authSection" class="auth-container">
+      <section id="authSection" class="auth-container" data-view="auth-view">
+        <div id="auth-view" style="display: none;"></div>
         <div class="auth-card">
           <div class="auth-header">
             <div class="auth-logo">
@@ -1853,8 +1854,8 @@
       </section>
 
       <!-- Authenticated Dashboard View -->
-      <section id="dashboardSection" class="dashboard-view" data-view="dashboard-view" style="display: none;">
-        <div id="dashboard-view" style="display: none;"></div>
+      <section id="dashboard-view" class="dashboard-view" data-view="dashboard-view" style="display: none;">
+        <div id="dashboardSection" style="display: none;"></div>
         <!-- Lifetime Free Trial Utilized Welcome Banner -->
         <div id="bannerTrialUtilized" style="display: none; margin-bottom: 20px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: var(--radius-md); padding: 14px 18px; color: #92400E; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);">
           <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
@@ -3099,8 +3100,8 @@
                     window.activateDemoReviewerSession();
                   } else {
                     window.__pendingDemoActivation = true;
-                    var authSec = document.getElementById('authSection');
-                    var dashSec = document.getElementById('dashboardSection');
+                    var authSec = document.getElementById('authSection') || document.getElementById('auth-view');
+                    var dashSec = document.getElementById('dashboard-view') || document.getElementById('dashboardSection');
                     var navSec = document.getElementById('userNavSection');
                     if (authSec) authSec.style.display = 'none';
                     if (dashSec) dashSec.style.display = 'block';
@@ -3178,6 +3179,8 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
+      const googleProvider = new GoogleAuthProvider();
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
 
       let currentUser = null;
       let unsubscribeUserDoc = null;
@@ -3279,6 +3282,111 @@
       }
       window.resetGoogleAuthButtonState = resetGoogleAuthButtonState;
 
+      // Helper function to transition directly to the active dashboard
+      async function transitionToDashboard(user) {
+        if (!user) return;
+        currentUser = user;
+        sessionStorage.removeItem('keyline_auth_in_progress');
+        localStorage.setItem('user_logged_in', 'true');
+
+        const displayName = user.displayName || user.reloadUserInfo?.screenName || user.providerData?.[0]?.displayName || (user.email ? user.email.split('@')[0] : 'Developer');
+        const userEmail = user.email || user.providerData?.[0]?.email || 'developer@gmail.com';
+        const photoURL = user.photoURL || user.providerData?.[0]?.photoURL || '';
+
+        // Persist session to localStorage
+        try {
+          localStorage.setItem('keyline_user_session', JSON.stringify({
+            uid: user.uid,
+            displayName: displayName,
+            email: userEmail,
+            photoURL: photoURL
+          }));
+        } catch (e) {
+          console.warn("Could not cache user session:", e);
+        }
+
+        // Update dashboard UI with user.displayName, user.email, and user.photoURL
+        const navNameEl = document.getElementById('navUserName');
+        const navEmailEl = document.getElementById('navUserEmail');
+        if (navNameEl) navNameEl.textContent = displayName;
+        if (navEmailEl) navEmailEl.textContent = userEmail;
+
+        const avatarEl = document.getElementById('navUserAvatar');
+        if (avatarEl) {
+          if (photoURL) {
+            avatarEl.innerHTML = `<img src="${photoURL}" alt="${displayName}" referrerpolicy="no-referrer" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+          } else {
+            avatarEl.textContent = displayName.charAt(0).toUpperCase();
+          }
+        }
+
+        // Cleanly switch view to #dashboard-view
+        const authSection = document.getElementById('authSection') || document.getElementById('auth-view');
+        const authView = document.getElementById('auth-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const userNavSection = document.getElementById('userNavSection');
+
+        if (authSection) authSection.style.display = 'none';
+        if (authView) authView.style.display = 'none';
+        if (dashboardView) dashboardView.style.display = 'block';
+        if (dashboardSection && dashboardSection !== dashboardView) dashboardSection.style.display = 'block';
+        if (userNavSection) userNavSection.style.display = 'flex';
+
+        resetGoogleAuthButtonState();
+
+        // Handle review/GIS standalone session without Firestore dependency
+        if (user.isDemo || user.isGoogleReviewer || user.isGoogleSession) {
+          const currentCredits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
+          saveUserCredits(currentCredits);
+
+          if (!activeKeysList || activeKeysList.length === 0) {
+            activeKeysList = [
+              {
+                id: 'key_live_' + (user.uid ? user.uid.substring(0, 12) : 'rev_01'),
+                name: 'Reviewer API Key (Production)',
+                key: 'keyline_live_rev_8f93bc104a9e4d678',
+                prefix: 'keyline_live_rev_8f93••••',
+                status: 'active',
+                createdAt: new Date().toISOString()
+              }
+            ];
+          }
+          renderApiKeys(activeKeysList);
+          updateIntegrationSnippet();
+
+          if (!window.demoUsageLogs || window.demoUsageLogs.length === 0) {
+            window.demoUsageLogs = [
+              {
+                id: 'log_rev_001',
+                endpoint: '/v1/chat/completions',
+                model: 'openai/gpt-oss-20b',
+                promptTokens: 120,
+                completionTokens: 48,
+                reasoningTokens: 0,
+                totalTokens: 168,
+                totalUsedTokens: 168,
+                creditsDeducted: 168,
+                status: 200,
+                keyPrefix: 'keyline_live_rev_8f93••••',
+                timestamp: new Date().toISOString()
+              }
+            ];
+          }
+          renderUsageLogs(window.demoUsageLogs);
+          return;
+        }
+
+        // Initialize user document in Firestore and subscribe to user's real data
+        try {
+          await initUserFirestoreDoc(user);
+        } catch (err) {
+          console.warn("initUserFirestoreDoc error:", err);
+        }
+        subscribeToUserData(user.uid);
+      }
+      window.transitionToDashboard = transitionToDashboard;
+
       // Initialize Firebase Auth Listener & Handle Redirect Result
       function setupFirebase() {
         try {
@@ -3287,66 +3395,77 @@
           const authSafetyTimeout = setTimeout(() => {
             if (!currentUser && (!auth || !auth.currentUser) && localStorage.getItem('user_logged_in') !== 'true') {
               console.warn("[Auth Safety Timeout] Auth resolution exceeded 5 seconds. Resetting button to clickable state.");
+              sessionStorage.removeItem('keyline_auth_in_progress');
               resetGoogleAuthButtonState();
             }
           }, 5000);
 
-          // Requirement 2: Implement Firebase onAuthStateChanged(auth, (user) => { ... })
-          // If a valid user object is detected, immediately save session data, render user profile, and switch view to dashboard
+          // Requirement 3: Set up onAuthStateChanged(auth, (user) => { ... }) immediately on page load
+          // - When a valid user is detected, save session (localStorage.setItem('user_logged_in', 'true')),
+          //   update the dashboard UI with user.displayName, user.email, and user.photoURL,
+          //   and cleanly switch view to #dashboard-view.
           onAuthStateChanged(auth, async (user) => {
-            if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
             if (user) {
-              sessionStorage.removeItem('keyline_auth_in_progress');
-              localStorage.setItem('user_logged_in', 'true');
-              await handleAuthStateChanged(user);
+              if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
+              await transitionToDashboard(user);
             } else {
-              if (!currentUser && localStorage.getItem('user_logged_in') !== 'true') {
-                resetGoogleAuthButtonState();
+              // If redirect processing is currently in progress, wait for getRedirectResult before resetting view
+              if (sessionStorage.getItem('keyline_auth_in_progress') === 'google') {
+                console.log("[Firebase] onAuthStateChanged received null while redirect is processing. Waiting for getRedirectResult...");
+                return;
               }
-              await handleAuthStateChanged(null);
+
+              if (localStorage.getItem('user_logged_in') !== 'true') {
+                if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
+                await handleAuthStateChanged(null);
+              }
             }
           });
 
-          // Requirement 3: Fix getRedirectResult(auth) via Promise chain
+          // Requirement 4: Fix getRedirectResult(auth)
+          // - Handle the returned user credential and transition directly to the dashboard.
+          // - In .catch((error) => { ... }), log error.code and error.message to the console,
+          //   show a visible alert/toast notification with the error, and reset the button state.
+          // - If result is null and no user is authenticated, gracefully reset the button text to "Sign in with Google".
           if (auth && typeof getRedirectResult === 'function') {
             getRedirectResult(auth)
               .then(async (result) => {
                 if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
                 if (result && result.user) {
                   console.log("[Firebase] Successfully authenticated via redirect:", result.user.email);
-                  sessionStorage.removeItem('keyline_auth_in_progress');
-                  localStorage.setItem('user_logged_in', 'true');
-                  await handleAuthStateChanged(result.user);
+                  await transitionToDashboard(result.user);
                   showToast(`Welcome back, ${result.user.displayName || result.user.email}! Signed in with Google.`, 'success');
                 } else {
-                  // If result is null and no user is logged in, cleanly reset button text back to "Sign in with Google"
+                  // If result is null and no user is authenticated, gracefully reset the button text to "Sign in with Google"
                   if (!auth.currentUser && !currentUser && localStorage.getItem('user_logged_in') !== 'true') {
+                    console.log("[Firebase] getRedirectResult returned null, resetting button to Sign in with Google.");
+                    sessionStorage.removeItem('keyline_auth_in_progress');
                     resetGoogleAuthButtonState();
                   }
                 }
               })
               .catch((error) => {
                 if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
-                console.error("[Firebase] getRedirectResult error:", error);
+                console.error("Firebase getRedirectResult error - Code:", error.code, "Message:", error.message);
+                sessionStorage.removeItem('keyline_auth_in_progress');
                 resetGoogleAuthButtonState();
-
-                const errMsg = document.getElementById('authErrorMessage');
-                const errTxt = document.getElementById('authErrorText');
-                const domainBox = document.getElementById('authDomainInfoBox');
-                const hostDisplay = document.getElementById('displayCurrentHostname');
 
                 let friendlyMessage = error.message || "Failed to complete Google Sign-In redirect.";
                 if (error.code === 'auth/unauthorized-domain') {
                   const currentHostname = window.location.hostname;
                   friendlyMessage = `Domain "${currentHostname}" is not authorized in Firebase Console. Please add "${currentHostname}" to Firebase Authentication > Settings > Authorized Domains.`;
+                  const hostDisplay = document.getElementById('displayCurrentHostname');
+                  const domainBox = document.getElementById('authDomainInfoBox');
                   if (hostDisplay) hostDisplay.textContent = currentHostname;
                   if (domainBox) domainBox.style.display = 'block';
                 }
 
+                const errMsg = document.getElementById('authErrorMessage');
+                const errTxt = document.getElementById('authErrorText');
                 if (errTxt) {
-                  errTxt.textContent = friendlyMessage;
+                  errTxt.textContent = `Error (${error.code || 'auth-error'}): ${friendlyMessage}`;
                 } else if (errMsg) {
-                  errMsg.textContent = friendlyMessage;
+                  errMsg.textContent = `Error (${error.code || 'auth-error'}): ${friendlyMessage}`;
                 }
                 if (errMsg) errMsg.style.display = 'block';
                 showToast(friendlyMessage, 'error');
@@ -3364,90 +3483,15 @@
 
       // Handle Auth State Changes
       async function handleAuthStateChanged(user) {
-        const authSection = document.getElementById('authSection') || document.getElementById('auth-view');
-        const dashboardSection = document.getElementById('dashboardSection') || document.getElementById('dashboard-view');
-        const dashboardView = document.getElementById('dashboard-view');
-        const userNavSection = document.getElementById('userNavSection');
-
         if (user) {
-          resetGoogleAuthButtonState();
-          sessionStorage.removeItem('keyline_auth_in_progress');
-          localStorage.setItem('user_logged_in', 'true');
-          currentUser = user;
-
-          if (authSection) authSection.style.display = 'none';
-          if (dashboardSection) dashboardSection.style.display = 'block';
-          if (dashboardView && dashboardView !== dashboardSection) dashboardView.style.display = 'block';
-          if (userNavSection) userNavSection.style.display = 'flex';
-
-          // Update user navbar UI
-          const displayName = user.displayName || user.reloadUserInfo?.screenName || user.providerData?.[0]?.displayName || 'Developer';
-          const userEmail = user.email || user.providerData?.[0]?.email || 'developer@gmail.com';
-
-          const navNameEl = document.getElementById('navUserName');
-          const navEmailEl = document.getElementById('navUserEmail');
-          if (navNameEl) navNameEl.textContent = displayName;
-          if (navEmailEl) navEmailEl.textContent = userEmail;
-          
-          const avatarEl = document.getElementById('navUserAvatar');
-          if (avatarEl) {
-            const photoURL = user.photoURL || user.providerData?.[0]?.photoURL;
-            if (photoURL) {
-              avatarEl.innerHTML = `<img src="${photoURL}" alt="${displayName}" referrerpolicy="no-referrer" />`;
-            } else {
-              avatarEl.textContent = displayName.charAt(0).toUpperCase();
-            }
-          }
-
-          // Handle review/GIS standalone session without Firestore dependency
-          if (user.isDemo || user.isGoogleReviewer || user.isGoogleSession) {
-            const currentCredits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
-            saveUserCredits(currentCredits);
-
-            if (!activeKeysList || activeKeysList.length === 0) {
-              activeKeysList = [
-                {
-                  id: 'key_live_' + (user.uid ? user.uid.substring(0, 12) : 'rev_01'),
-                  name: 'Reviewer API Key (Production)',
-                  key: 'keyline_live_rev_8f93bc104a9e4d678',
-                  prefix: 'keyline_live_rev_8f93••••',
-                  status: 'active',
-                  createdAt: new Date().toISOString()
-                }
-              ];
-            }
-            renderApiKeys(activeKeysList);
-            updateIntegrationSnippet();
-
-            if (!window.demoUsageLogs || window.demoUsageLogs.length === 0) {
-              window.demoUsageLogs = [
-                {
-                  id: 'log_rev_001',
-                  endpoint: '/v1/chat/completions',
-                  model: 'openai/gpt-oss-20b',
-                  promptTokens: 120,
-                  completionTokens: 48,
-                  reasoningTokens: 0,
-                  totalTokens: 168,
-                  totalUsedTokens: 168,
-                  creditsDeducted: 168,
-                  status: 200,
-                  keyPrefix: 'keyline_live_rev_8f93••••',
-                  timestamp: new Date().toISOString()
-                }
-              ];
-            }
-            renderUsageLogs(window.demoUsageLogs);
-            return;
-          }
-
-          // Initialize or fetch user document in Firestore (strictly no dummy data!)
-          await initUserFirestoreDoc(user);
-          // Subscribe to real-time collections
-          subscribeToUserData(user.uid);
+          await transitionToDashboard(user);
         } else {
           // If demo reviewer mode or active Google session is active, do not overwrite unless explicit logout
           if (currentUser && (currentUser.isDemo || currentUser.isGoogleReviewer || currentUser.isGoogleSession)) {
+            return;
+          }
+          if (localStorage.getItem('keyline_demo_mode') === 'true') {
+            activateDemoReviewerSession();
             return;
           }
           if (localStorage.getItem('user_logged_in') === 'true') {
@@ -3457,17 +3501,13 @@
                 const savedUser = JSON.parse(savedSessionStr);
                 if (savedUser && (savedUser.uid || savedUser.email)) {
                   currentUser = savedUser;
-                  await handleAuthStateChanged(savedUser);
+                  await transitionToDashboard(savedUser);
                   return;
                 }
               } catch (e) {
                 console.warn("Session restore parsing error:", e);
               }
             }
-          }
-          if (localStorage.getItem('keyline_demo_mode') === 'true') {
-            activateDemoReviewerSession();
-            return;
           }
 
           currentUser = null;
@@ -3479,14 +3519,21 @@
           const banner = document.getElementById('bannerTrialUtilized');
           if (banner) banner.style.display = 'none';
 
+          const authSection = document.getElementById('authSection') || document.getElementById('auth-view');
+          const authView = document.getElementById('auth-view');
+          const dashboardView = document.getElementById('dashboard-view');
+          const dashboardSection = document.getElementById('dashboardSection');
+          const userNavSection = document.getElementById('userNavSection');
+
           if (authSection) authSection.style.display = 'flex';
+          if (authView) authView.style.display = 'flex';
+          if (dashboardView) dashboardView.style.display = 'none';
           if (dashboardSection) dashboardSection.style.display = 'none';
-          const dashboardViewEl = document.getElementById('dashboard-view');
-          if (dashboardViewEl && dashboardViewEl !== dashboardSection) dashboardViewEl.style.display = 'none';
           if (userNavSection) userNavSection.style.display = 'none';
           resetGoogleAuthButtonState();
         }
       }
+      window.handleAuthStateChanged = handleAuthStateChanged;
 
       // Initialize User Document with Lifetime Email Tracking System
       async function initUserFirestoreDoc(user) {
@@ -4971,12 +5018,16 @@ console.log(response.choices[0].message.content);`;
         const currentCredits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
         saveUserCredits(currentCredits);
 
-        const authSection = document.getElementById('authSection');
+        const authSection = document.getElementById('authSection') || document.getElementById('auth-view');
+        const authView = document.getElementById('auth-view');
+        const dashboardView = document.getElementById('dashboard-view');
         const dashboardSection = document.getElementById('dashboardSection');
         const userNavSection = document.getElementById('userNavSection');
 
         if (authSection) authSection.style.display = 'none';
-        if (dashboardSection) dashboardSection.style.display = 'block';
+        if (authView) authView.style.display = 'none';
+        if (dashboardView) dashboardView.style.display = 'block';
+        if (dashboardSection && dashboardSection !== dashboardView) dashboardSection.style.display = 'block';
         if (userNavSection) userNavSection.style.display = 'flex';
 
         // Update nav user profile UI
