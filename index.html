@@ -1779,7 +1779,7 @@
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            <span id="btnGoogleAuthText">Continue with Google</span>
+            <span id="btnGoogleAuthText">Sign in with Google</span>
           </button>
 
           <!-- Google Identity Services (GIS) Container (Rendered when Client ID is configured) -->
@@ -1853,7 +1853,8 @@
       </section>
 
       <!-- Authenticated Dashboard View -->
-      <section id="dashboardSection" style="display: none;">
+      <section id="dashboardSection" class="dashboard-view" data-view="dashboard-view" style="display: none;">
+        <div id="dashboard-view" style="display: none;"></div>
         <!-- Lifetime Free Trial Utilized Welcome Banner -->
         <div id="bannerTrialUtilized" style="display: none; margin-bottom: 20px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: var(--radius-md); padding: 14px 18px; color: #92400E; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);">
           <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
@@ -2590,16 +2591,16 @@
                 </div>
               </div>
 
-              <!-- Tier 3: ₹249 -> 20,000 Credits (Best Value) -->
-              <div class="tier-card" data-tier-id="scale" data-package-amount="249" data-credits="20000">
+              <!-- Tier 3: ₹149 -> 12,000 Credits (Best Value) -->
+              <div class="tier-card" data-tier-id="scale" data-package-amount="149" data-credits="12000">
                 <span class="tier-badge" style="background: #2E7D32;">Best Value</span>
                 <div>
                   <div class="tier-title">Scale Pro</div>
-                  <div class="tier-credits">20,000</div>
+                  <div class="tier-credits">12,000</div>
                   <div class="tier-subtext">Credits</div>
                 </div>
                 <div>
-                  <div class="tier-price">₹249</div>
+                  <div class="tier-price">₹149</div>
                   <div class="tier-subtext">₹0.0124 / credit</div>
                 </div>
               </div>
@@ -3027,9 +3028,16 @@
                 btn.addEventListener('click', async function(e) {
                   e.preventDefault();
                   var textSpan = btn.querySelector('#btnGoogleAuthText') || btn;
-                  var prevText = textSpan.textContent;
                   textSpan.textContent = 'Redirecting to Google...';
                   btn.disabled = true;
+
+                  // Safety timeout for click action so button never stays frozen
+                  var clickSafetyTimer = setTimeout(function() {
+                    if (btn && btn.disabled && !window.currentUser && localStorage.getItem('user_logged_in') !== 'true') {
+                      btn.disabled = false;
+                      textSpan.textContent = 'Sign in with Google';
+                    }
+                  }, 5000);
 
                   if (typeof window.triggerGoogleAuth === 'function') {
                     await window.triggerGoogleAuth();
@@ -3041,8 +3049,9 @@
                       }
                     } catch (err) {
                       console.error("Google Auth trigger error:", err);
+                      clearTimeout(clickSafetyTimer);
                       btn.disabled = false;
-                      textSpan.textContent = prevText || 'Continue with Google';
+                      textSpan.textContent = 'Sign in with Google';
                     }
                   }
                 });
@@ -3256,50 +3265,98 @@
         });
       });
 
-      // Initialize Firebase Auth Listener & Handle Redirect Result
-      async function setupFirebase() {
+      // Reset Google auth button state and clean up pending flags
+      function resetGoogleAuthButtonState() {
         try {
-          // Listen for persistent auth state changes
-          onAuthStateChanged(auth, handleAuthStateChanged);
+          sessionStorage.removeItem('keyline_auth_in_progress');
+        } catch (e) {}
+        const gBtns = document.querySelectorAll('#btnGoogleAuth, .google-login, [data-auth="google"]');
+        gBtns.forEach(btn => {
+          if (btn) btn.disabled = false;
+        });
+        const gText = document.getElementById('btnGoogleAuthText');
+        if (gText) gText.textContent = 'Sign in with Google';
+      }
+      window.resetGoogleAuthButtonState = resetGoogleAuthButtonState;
 
-          // Handle redirect authentication result (signInWithRedirect)
-          try {
-            const redirectResult = await getRedirectResult(auth);
-            if (redirectResult && redirectResult.user) {
-              console.log("[Firebase] Successfully authenticated via redirect:", redirectResult.user.email);
+      // Initialize Firebase Auth Listener & Handle Redirect Result
+      function setupFirebase() {
+        try {
+          // Safety Timeout (Requirement 4): If auth resolution takes longer than 5 seconds,
+          // reset the button state back to clickable "Sign in with Google" so UI never freezes permanently
+          const authSafetyTimeout = setTimeout(() => {
+            if (!currentUser && (!auth || !auth.currentUser) && localStorage.getItem('user_logged_in') !== 'true') {
+              console.warn("[Auth Safety Timeout] Auth resolution exceeded 5 seconds. Resetting button to clickable state.");
+              resetGoogleAuthButtonState();
+            }
+          }, 5000);
+
+          // Requirement 2: Implement Firebase onAuthStateChanged(auth, (user) => { ... })
+          // If a valid user object is detected, immediately save session data, render user profile, and switch view to dashboard
+          onAuthStateChanged(auth, async (user) => {
+            if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
+            if (user) {
               sessionStorage.removeItem('keyline_auth_in_progress');
               localStorage.setItem('user_logged_in', 'true');
-              await handleAuthStateChanged(redirectResult.user);
-              showToast(`Welcome back, ${redirectResult.user.displayName || redirectResult.user.email}! Signed in with Google.`, 'success');
+              await handleAuthStateChanged(user);
+            } else {
+              if (!currentUser && localStorage.getItem('user_logged_in') !== 'true') {
+                resetGoogleAuthButtonState();
+              }
+              await handleAuthStateChanged(null);
             }
-          } catch (redirectError) {
-            console.error("[Firebase] getRedirectResult error:", redirectError);
-            sessionStorage.removeItem('keyline_auth_in_progress');
-            const errMsg = document.getElementById('authErrorMessage');
-            const errTxt = document.getElementById('authErrorText');
-            const domainBox = document.getElementById('authDomainInfoBox');
-            const hostDisplay = document.getElementById('displayCurrentHostname');
+          });
 
-            let friendlyMessage = redirectError.message || "Failed to complete Google Sign-In redirect.";
-            if (redirectError.code === 'auth/unauthorized-domain') {
-              const currentHostname = window.location.hostname;
-              friendlyMessage = `Domain "${currentHostname}" is not authorized in Firebase Console. Please add "${currentHostname}" to Firebase Authentication > Settings > Authorized Domains.`;
-              if (hostDisplay) hostDisplay.textContent = currentHostname;
-              if (domainBox) domainBox.style.display = 'block';
-            }
+          // Requirement 3: Fix getRedirectResult(auth) via Promise chain
+          if (auth && typeof getRedirectResult === 'function') {
+            getRedirectResult(auth)
+              .then(async (result) => {
+                if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
+                if (result && result.user) {
+                  console.log("[Firebase] Successfully authenticated via redirect:", result.user.email);
+                  sessionStorage.removeItem('keyline_auth_in_progress');
+                  localStorage.setItem('user_logged_in', 'true');
+                  await handleAuthStateChanged(result.user);
+                  showToast(`Welcome back, ${result.user.displayName || result.user.email}! Signed in with Google.`, 'success');
+                } else {
+                  // If result is null and no user is logged in, cleanly reset button text back to "Sign in with Google"
+                  if (!auth.currentUser && !currentUser && localStorage.getItem('user_logged_in') !== 'true') {
+                    resetGoogleAuthButtonState();
+                  }
+                }
+              })
+              .catch((error) => {
+                if (authSafetyTimeout) clearTimeout(authSafetyTimeout);
+                console.error("[Firebase] getRedirectResult error:", error);
+                resetGoogleAuthButtonState();
 
-            if (errTxt) {
-              errTxt.textContent = friendlyMessage;
-            } else if (errMsg) {
-              errMsg.textContent = friendlyMessage;
-            }
-            if (errMsg) errMsg.style.display = 'block';
-            showToast("Google Sign-In note: " + friendlyMessage, 'error');
+                const errMsg = document.getElementById('authErrorMessage');
+                const errTxt = document.getElementById('authErrorText');
+                const domainBox = document.getElementById('authDomainInfoBox');
+                const hostDisplay = document.getElementById('displayCurrentHostname');
+
+                let friendlyMessage = error.message || "Failed to complete Google Sign-In redirect.";
+                if (error.code === 'auth/unauthorized-domain') {
+                  const currentHostname = window.location.hostname;
+                  friendlyMessage = `Domain "${currentHostname}" is not authorized in Firebase Console. Please add "${currentHostname}" to Firebase Authentication > Settings > Authorized Domains.`;
+                  if (hostDisplay) hostDisplay.textContent = currentHostname;
+                  if (domainBox) domainBox.style.display = 'block';
+                }
+
+                if (errTxt) {
+                  errTxt.textContent = friendlyMessage;
+                } else if (errMsg) {
+                  errMsg.textContent = friendlyMessage;
+                }
+                if (errMsg) errMsg.style.display = 'block';
+                showToast(friendlyMessage, 'error');
+              });
           }
 
           return true;
         } catch (error) {
           console.error("Firebase auth listener setup error:", error);
+          resetGoogleAuthButtonState();
           showToast("Firebase error: " + error.message, 'error');
           return false;
         }
@@ -3307,30 +3364,39 @@
 
       // Handle Auth State Changes
       async function handleAuthStateChanged(user) {
-        const authSection = document.getElementById('authSection');
-        const dashboardSection = document.getElementById('dashboardSection');
+        const authSection = document.getElementById('authSection') || document.getElementById('auth-view');
+        const dashboardSection = document.getElementById('dashboardSection') || document.getElementById('dashboard-view');
+        const dashboardView = document.getElementById('dashboard-view');
         const userNavSection = document.getElementById('userNavSection');
 
         if (user) {
+          resetGoogleAuthButtonState();
+          sessionStorage.removeItem('keyline_auth_in_progress');
           localStorage.setItem('user_logged_in', 'true');
           currentUser = user;
-          authSection.style.display = 'none';
-          dashboardSection.style.display = 'block';
-          userNavSection.style.display = 'flex';
+
+          if (authSection) authSection.style.display = 'none';
+          if (dashboardSection) dashboardSection.style.display = 'block';
+          if (dashboardView && dashboardView !== dashboardSection) dashboardView.style.display = 'block';
+          if (userNavSection) userNavSection.style.display = 'flex';
 
           // Update user navbar UI
           const displayName = user.displayName || user.reloadUserInfo?.screenName || user.providerData?.[0]?.displayName || 'Developer';
           const userEmail = user.email || user.providerData?.[0]?.email || 'developer@gmail.com';
 
-          document.getElementById('navUserName').textContent = displayName;
-          document.getElementById('navUserEmail').textContent = userEmail;
+          const navNameEl = document.getElementById('navUserName');
+          const navEmailEl = document.getElementById('navUserEmail');
+          if (navNameEl) navNameEl.textContent = displayName;
+          if (navEmailEl) navEmailEl.textContent = userEmail;
           
           const avatarEl = document.getElementById('navUserAvatar');
-          const photoURL = user.photoURL || user.providerData?.[0]?.photoURL;
-          if (photoURL) {
-            avatarEl.innerHTML = `<img src="${photoURL}" alt="${displayName}" referrerpolicy="no-referrer" />`;
-          } else {
-            avatarEl.textContent = displayName.charAt(0).toUpperCase();
+          if (avatarEl) {
+            const photoURL = user.photoURL || user.providerData?.[0]?.photoURL;
+            if (photoURL) {
+              avatarEl.innerHTML = `<img src="${photoURL}" alt="${displayName}" referrerpolicy="no-referrer" />`;
+            } else {
+              avatarEl.textContent = displayName.charAt(0).toUpperCase();
+            }
           }
 
           // Handle review/GIS standalone session without Firestore dependency
@@ -3413,9 +3479,12 @@
           const banner = document.getElementById('bannerTrialUtilized');
           if (banner) banner.style.display = 'none';
 
-          authSection.style.display = 'flex';
-          dashboardSection.style.display = 'none';
-          userNavSection.style.display = 'none';
+          if (authSection) authSection.style.display = 'flex';
+          if (dashboardSection) dashboardSection.style.display = 'none';
+          const dashboardViewEl = document.getElementById('dashboard-view');
+          if (dashboardViewEl && dashboardViewEl !== dashboardSection) dashboardViewEl.style.display = 'none';
+          if (userNavSection) userNavSection.style.display = 'none';
+          resetGoogleAuthButtonState();
         }
       }
 
@@ -4719,7 +4788,7 @@ console.log(response.choices[0].message.content);`;
 
         if (gBtn) gBtn.disabled = false;
         if (ghBtn) ghBtn.disabled = false;
-        if (gText) gText.textContent = 'Continue with Google';
+        if (gText) gText.textContent = 'Sign in with Google';
 
         // Smoothly transition to the main dashboard
         await handleAuthStateChanged(reviewerGoogleUser);
@@ -4741,15 +4810,23 @@ console.log(response.choices[0].message.content);`;
         if (gBtn) gBtn.disabled = true;
         if (ghBtn) ghBtn.disabled = true;
 
-        // Requirement 5: Active loading state immediately
+        // Active loading state immediately
         if (gText) gText.textContent = 'Redirecting to Google...';
+
+        // Safety timeout in case redirection doesn't trigger navigation within 5 seconds
+        setTimeout(() => {
+          if (!currentUser && (!auth || !auth.currentUser) && localStorage.getItem('user_logged_in') !== 'true') {
+            resetGoogleAuthButtonState();
+            if (ghBtn) ghBtn.disabled = false;
+          }
+        }, 5000);
 
         try {
           if (!auth) {
             throw new Error("Firebase Authentication service is initializing. Please try again in a moment.");
           }
 
-          // Requirement 2: Replace signInWithPopup with signInWithRedirect
+          // Replace signInWithPopup with signInWithRedirect
           const provider = new GoogleAuthProvider();
           provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -4761,7 +4838,7 @@ console.log(response.choices[0].message.content);`;
           console.error("[Google Auth] signInWithRedirect error:", error);
           sessionStorage.removeItem('keyline_auth_in_progress');
 
-          // Requirement 4: Robust error handling around redirect flow
+          // Robust error handling around redirect flow
           let userMessage = error.message || "Unable to initiate Google redirect authentication.";
 
           if (error.code === 'auth/unauthorized-domain') {
@@ -4786,7 +4863,7 @@ console.log(response.choices[0].message.content);`;
 
           if (gBtn) gBtn.disabled = false;
           if (ghBtn) ghBtn.disabled = false;
-          if (gText) gText.textContent = 'Continue with Google';
+          if (gText) gText.textContent = 'Sign in with Google';
         }
       }
       window.triggerGoogleAuth = triggerGoogleAuth;
@@ -5037,6 +5114,7 @@ console.log(response.choices[0].message.content);`;
       const btnSignOut = document.getElementById('btnSignOut');
       if (btnSignOut) {
         btnSignOut.addEventListener('click', async () => {
+          if (typeof resetGoogleAuthButtonState === 'function') resetGoogleAuthButtonState();
           localStorage.removeItem('user_logged_in');
           localStorage.removeItem('keyline_user_session');
           localStorage.removeItem('keyline_demo_mode');
@@ -5289,7 +5367,7 @@ console.log(response.choices[0].message.content);`;
         themeColor: "#f97316"
       };
 
-      // Tiers: Starter (₹49, 2,500 Credits), Growth (₹99, 6,000 Credits), Scale Pro (₹249, 20,000 Credits)
+      // Tiers: Starter (₹49, 2,500 Credits), Growth (₹99, 6,000 Credits), Scale Pro (₹149, 12,000 Credits)
       let selectedPackage = { id: 'growth', amount: 99, credits: 6000 };
 
       // Helper to dynamically load Razorpay checkout script if missing
@@ -5879,6 +5957,15 @@ console.log(response.choices[0].message.content);`;
         const gText = document.getElementById('btnGoogleAuthText');
         if (gBtn) gBtn.disabled = true;
         if (gText) gText.textContent = 'Completing Google sign-in...';
+
+        // Direct safety timeout to prevent permanent button freeze if redirect fails or returns empty
+        setTimeout(() => {
+          if (!window.currentUser && localStorage.getItem('user_logged_in') !== 'true') {
+            if (typeof resetGoogleAuthButtonState === 'function') {
+              resetGoogleAuthButtonState();
+            }
+          }
+        }, 5000);
       }
 
       // Boot application
