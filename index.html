@@ -1149,6 +1149,24 @@
       .code-string { color: #A8E6CF; }
       .code-comment { color: #8F7F76; }
 
+      .highlight-baseurl {
+        color: #38EF7D !important;
+        font-weight: 700;
+        background: rgba(56, 239, 125, 0.15);
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(56, 239, 125, 0.4);
+      }
+
+      .highlight-apikey {
+        color: #FFA870 !important;
+        font-weight: 700;
+        background: rgba(255, 107, 0, 0.2);
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 107, 0, 0.45);
+      }
+
       /* Integration Guide & Security Best Practices */
       .guide-card {
         background-color: #1A120D;
@@ -2046,21 +2064,33 @@
             </button>
           </div>
 
-          <!-- Interactive Quickstart & API Integration Code Docs Section -->
-          <div class="code-card">
+          <!-- QUICKSTART & API INTEGRATION DOCS Section -->
+          <div class="code-card" id="quickstartDocsSection">
             <div class="code-header">
-              <div class="code-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="16 18 22 12 16 6"></polyline>
-                  <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
-                Quickstart • API Integration Docs
+              <div>
+                <div class="code-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                  </svg>
+                  QUICKSTART &amp; API INTEGRATION DOCS
+                </div>
+                <div style="font-size: 0.76rem; color: #C2B6AF; margin-top: 3px;">
+                  Connect standard OpenAI-compatible SDKs or direct HTTP requests to Keyline Gateway.
+                </div>
               </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
+
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <div class="code-tabs">
-                  <button type="button" class="code-tab-btn active" data-lang="curl">cURL</button>
-                  <button type="button" class="code-tab-btn" data-lang="python">Python</button>
-                  <button type="button" class="code-tab-btn" data-lang="javascript">JavaScript / Node</button>
+                  <button type="button" class="code-tab-btn active" data-lang="javascript" id="tabBtnJs">
+                    Tab 1: JavaScript / Node.js (OpenAI SDK)
+                  </button>
+                  <button type="button" class="code-tab-btn" data-lang="python" id="tabBtnPy">
+                    Tab 2: Python (OpenAI SDK)
+                  </button>
+                  <button type="button" class="code-tab-btn" data-lang="curl" id="tabBtnCurl">
+                    Tab 3: cURL (Direct API)
+                  </button>
                 </div>
                 <button id="btnCopyIntegrationCode" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #FFF;" title="Copy Code Snippet">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2072,290 +2102,49 @@
               </div>
             </div>
 
-            <!-- Subheader: Model switch & Active key indicator -->
-            <div class="code-subnav">
-              <div class="model-selector" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <label for="selectQuickstartModel" style="color: #FFB380; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Model:</label>
-                  <select id="selectQuickstartModel" class="code-model-dropdown">
-                    <option value="openai/gpt-oss-20b" selected>openai/gpt-oss-20b (Ultra Fast Reasoning - Flagship)</option>
-                    <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (High Reasoning &amp; Logic)</option>
-                    <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b (Multi-modal &amp; Coding)</option>
-                    <option value="groq/compound-mini">groq/compound-mini (Lightweight Agentic)</option>
-                  </select>
+            <!-- Key Quick Reference Highlights (Base URL & Live API Key clearly highlighted) -->
+            <div class="quickstart-highlight-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 14px;">
+              <!-- Base URL Callout -->
+              <div style="background: rgba(56, 239, 125, 0.06); border: 1px solid rgba(56, 239, 125, 0.28); border-radius: var(--radius-sm); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="min-width: 0;">
+                  <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #38EF7D; font-weight: 700; margin-bottom: 2px; display: flex; align-items: center; gap: 5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    Base URL (OpenAI-Compatible)
+                  </div>
+                  <code class="mono highlight-baseurl" style="font-size: 0.82rem; word-break: break-all;">https://keyline.v0408688.workers.dev/v1</code>
                 </div>
-                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                  <button type="button" class="model-pill-btn active" data-model="openai/gpt-oss-20b" title="openai/gpt-oss-20b (Ultra Fast Reasoning - Flagship)">
-                    gpt-oss-20b
-                  </button>
-                  <button type="button" class="model-pill-btn" data-model="openai/gpt-oss-120b" title="openai/gpt-oss-120b (High Reasoning &amp; Logic)">
-                    gpt-oss-120b
-                  </button>
-                  <button type="button" class="model-pill-btn" data-model="qwen/qwen3.8-27b" title="qwen/qwen3.8-27b (Multi-modal &amp; Coding)">
-                    qwen3.8-27b
-                  </button>
-                  <button type="button" class="model-pill-btn" data-model="groq/compound-mini" title="groq/compound-mini (Lightweight Agentic)">
-                    compound-mini
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Key Injection Mode Toggle & Live Key Indicator Bar -->
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding: 7px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm);">
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <span style="color: #FFB380; font-size: 0.74rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Key Injection:</span>
-                <div style="display: inline-flex; background: rgba(0, 0, 0, 0.35); padding: 2px; border-radius: var(--radius-full); border: 1px solid rgba(255, 255, 255, 0.1);">
-                  <button type="button" class="key-mode-btn active" data-mode="direct" id="btnModeDirect" title="Inject your active API key directly into code for quick testing">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
-                    Direct Key (Quick Test)
-                  </button>
-                  <button type="button" class="key-mode-btn" data-mode="secure" id="btnModeSecure" title="Use environment variable (.env / Secrets) convention">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    Secure (.env / Secrets)
-                  </button>
-                </div>
-              </div>
-              <div id="codeKeyIndicator" style="font-size: 0.76rem; color: #D6CCC5; display: flex; align-items: center; gap: 6px;">
-                <!-- Dynamically populated with active key or environment status -->
-              </div>
-            </div>
-
-            <pre class="code-block" id="integrationCodeBlock"></pre>
-
-            <!-- Security Helper Tip -->
-            <div style="margin-top: 10px; padding: 9px 12px; background: rgba(255, 107, 0, 0.07); border: 1px solid rgba(255, 107, 0, 0.2); border-radius: var(--radius-sm); font-size: 0.76rem; color: #E6DFDA; display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF944D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-              <div>
-                <strong style="color: #FFB380;">Security Tip:</strong> For enterprise security and production systems, you can add <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">KEYLINE_API_KEY</code> or <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">V_ASTRA_API_KEY</code> to your <code class="mono" style="color: #A8E6CF;">.env</code> file, Cloudflare Worker secrets, or Android secrets instead of hardcoding raw credentials.
-              </div>
-            </div>
-          </div>
-
-          <!-- Beginner-Friendly Integration Guide & Security Best Practices -->
-          <div class="guide-card" id="integrationGuideCard">
-            <div class="guide-header">
-              <div>
-                <div class="guide-title">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-orange);">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                  </svg>
-                  How to Integrate Keyline Gateway
-                </div>
-                <p class="guide-subtitle">A beginner-friendly 3-step walk-through for testing, security, and SDK integration.</p>
-              </div>
-
-              <!-- Quick Step Switcher Pills -->
-              <div class="guide-stepper-nav">
-                <button type="button" class="guide-step-nav-btn active" data-step="1">
-                  <span>1. Quick Testing</span>
+                <button type="button" id="btnCopyQuickstartBaseUrl" class="btn btn-secondary btn-sm" style="flex-shrink: 0; padding: 4px 9px; font-size: 0.72rem; background: rgba(56, 239, 125, 0.15); border: 1px solid rgba(56, 239, 125, 0.35); color: #38EF7D;" title="Copy Base URL">
+                  <span id="txtCopyBaseUrlBtn">Copy Base URL</span>
                 </button>
-                <button type="button" class="guide-step-nav-btn" data-step="2">
-                  <span>2. Production Security</span>
-                </button>
-                <button type="button" class="guide-step-nav-btn" data-step="3">
-                  <span>3. Endpoints &amp; Models</span>
+              </div>
+
+              <!-- Live API Key Callout -->
+              <div style="background: rgba(255, 107, 0, 0.07); border: 1px solid rgba(255, 107, 0, 0.28); border-radius: var(--radius-sm); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="min-width: 0;">
+                  <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #FFB380; font-weight: 700; margin-bottom: 2px; display: flex; align-items: center; gap: 5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                    Live API Key Placeholder
+                  </div>
+                  <code class="mono highlight-apikey" id="quickstartLiveKeyDisplay" style="font-size: 0.82rem; word-break: break-all;">YOUR_KEYLINE_API_KEY</code>
+                </div>
+                <button type="button" id="btnCopyQuickstartApiKey" class="btn btn-secondary btn-sm" style="flex-shrink: 0; padding: 4px 9px; font-size: 0.72rem; background: rgba(255, 107, 0, 0.15); border: 1px solid rgba(255, 107, 0, 0.35); color: #FFA870;" title="Copy Live Key">
+                  <span id="txtCopyApiKeyBtn">Copy Key</span>
                 </button>
               </div>
             </div>
 
-            <!-- 3-Step Accordion -->
-            <div class="guide-accordion">
-              <!-- Step 1: Quick Testing (Direct Key) -->
-              <div class="guide-accordion-item active" id="guideStep1" data-step-item="1">
-                <button type="button" class="guide-accordion-header" data-toggle-step="1">
-                  <div class="guide-header-left">
-                    <span class="guide-step-badge">1</span>
-                    <div class="guide-header-text">
-                      <div class="guide-header-title">Step 1: Quick Testing (Direct Key)</div>
-                      <div class="guide-header-desc">Test API calls immediately in Postman, cURL, or local scripts without any setup.</div>
-                    </div>
-                  </div>
-                  <svg class="guide-header-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-                <div class="guide-accordion-content">
-                  <p style="margin-bottom: 10px;">
-                    Beginners or testers can directly copy the code with their live key embedded to test API calls instantly in <strong>Postman</strong>, <strong>cURL</strong>, or local scripts without any setup or configuration:
-                  </p>
-                  <div class="guide-code-box">
-                    <span class="code-comment"># Direct Key execution example (instant test):</span><br/>
-                    curl -X POST https://keyline.v0408688.workers.dev/v1/chat/completions \<br/>
-                    &nbsp;&nbsp;-H <span class="code-string">"Authorization: Bearer keyline_live_YOUR_ACTUAL_KEY"</span> \<br/>
-                    &nbsp;&nbsp;-H <span class="code-string">"Content-Type: application/json"</span> \<br/>
-                    &nbsp;&nbsp;-d <span class="code-string">'{<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;"model": "openai/gpt-oss-20b",<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;"messages": [{"role": "user", "content": "Hello Keyline!"}]<br/>
-                    &nbsp;&nbsp;}'</span>
-                  </div>
-                  <div style="font-size: 0.76rem; color: #C2B6AF; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF944D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    <span>Toggle to <strong>"Direct Key (Quick Test)"</strong> in the code snippet above to auto-inject your active key.</span>
-                  </div>
-                </div>
-              </div>
+            <!-- Code Snippet Display Block -->
+            <pre class="code-block" id="integrationCodeBlock" style="font-size: 0.84rem; line-height: 1.6;"></pre>
 
-              <!-- Step 2: Production Security (Environment Variables) -->
-              <div class="guide-accordion-item" id="guideStep2" data-step-item="2">
-                <button type="button" class="guide-accordion-header" data-toggle-step="2">
-                  <div class="guide-header-left">
-                    <span class="guide-step-badge">2</span>
-                    <div class="guide-header-text">
-                      <div class="guide-header-title">Step 2: Production Security (Environment Variables)</div>
-                      <div class="guide-header-desc">Protect your credentials from leakages in git repos, production apps, and mobile clients.</div>
-                    </div>
-                  </div>
-                  <svg class="guide-header-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-                <div class="guide-accordion-content">
-                  <p style="margin-bottom: 10px;">
-                    For production apps, public GitHub repos, or Android/client-side apps, <strong>never hardcode your key</strong> directly in source files. Instead, set it as an environment variable or system secret using either of the supported keys:
-                  </p>
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 10px 0;">
-                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: var(--radius-sm);">
-                      <div style="font-size: 0.72rem; text-transform: uppercase; color: #FFB380; font-weight: 700; margin-bottom: 4px;">Primary Gateway Variable</div>
-                      <code class="mono" style="color: #A8E6CF; font-size: 0.8rem; font-weight: 700;">KEYLINE_API_KEY="your_api_key_here"</code>
-                    </div>
-                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: var(--radius-sm);">
-                      <div style="font-size: 0.72rem; text-transform: uppercase; color: #FFB380; font-weight: 700; margin-bottom: 4px;">Alternative Supported Alias</div>
-                      <code class="mono" style="color: #A8E6CF; font-size: 0.8rem; font-weight: 700;">V_ASTRA_API_KEY="your_api_key_here"</code>
-                    </div>
-                  </div>
-                  <div class="guide-code-box">
-                    <span class="code-comment"># In your .env file (ensure .env is included in .gitignore!):</span><br/>
-                    KEYLINE_API_KEY="keyline_live_xxxxxxxxxxxxxxxx"<br/>
-                    <span class="code-comment"># Or universal engine alias:</span><br/>
-                    V_ASTRA_API_KEY="keyline_live_xxxxxxxxxxxxxxxx"
-                  </div>
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px;">
-                    <div style="font-size: 0.76rem; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
-                      <strong style="color: #FFB380;">Python:</strong> <code class="mono" style="color: #A8E6CF;">os.environ.get("KEYLINE_API_KEY")</code>
-                    </div>
-                    <div style="font-size: 0.76rem; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
-                      <strong style="color: #FFB380;">Node.js:</strong> <code class="mono" style="color: #A8E6CF;">process.env.KEYLINE_API_KEY</code>
-                    </div>
-                    <div style="font-size: 0.76rem; background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
-                      <strong style="color: #FFB380;">Android:</strong> <code class="mono" style="color: #A8E6CF;">local.properties &rarr; BuildConfig</code>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Step 3: Supported Endpoints & Models -->
-              <div class="guide-accordion-item" id="guideStep3" data-step-item="3">
-                <button type="button" class="guide-accordion-header" data-toggle-step="3">
-                  <div class="guide-header-left">
-                    <span class="guide-step-badge">3</span>
-                    <div class="guide-header-text">
-                      <div class="guide-header-title">Step 3: Supported Endpoints &amp; Models</div>
-                      <div class="guide-header-desc">Base gateway URL and OpenAI-compatible SDK usage with live models.</div>
-                    </div>
-                  </div>
-                  <svg class="guide-header-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-                <div class="guide-accordion-content">
-                  <p style="margin-bottom: 8px;">
-                    Keyline Gateway is 100% OpenAI-compatible. Any SDK or HTTP client can connect seamlessly by configuring <code class="mono" style="color: #FFB380;">baseURL</code> and your key:
-                  </p>
-                  
-                  <div style="margin: 10px 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                    <div>
-                      <div style="font-size: 0.72rem; text-transform: uppercase; color: #C2B6AF; font-weight: 700;">Base Gateway URL:</div>
-                      <code class="mono" id="txtBaseGatewayUrl" style="color: #A8E6CF; font-size: 0.82rem; font-weight: 700;">https://keyline.v0408688.workers.dev/v1/chat/completions</code>
-                    </div>
-                    <button type="button" class="btn btn-secondary btn-sm" id="btnCopyGatewayUrl" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #FFF;">
-                      Copy URL
-                    </button>
-                  </div>
-
-                  <table class="guide-ref-table">
-                    <thead>
-                      <tr>
-                        <th>Model ID</th>
-                        <th>Architecture</th>
-                        <th>Billing Rate Multiplier</th>
-                        <th>Recommended Use</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">openai/gpt-oss-20b</code></td>
-                        <td>Ultra-fast reasoning (Flagship)</td>
-                        <td><span class="status-pill success" style="font-size: 0.72rem; padding: 2px 7px;">Fast: 1 credit / 10k tok</span></td>
-                        <td>High-throughput applications &amp; bots</td>
-                      </tr>
-                      <tr>
-                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">openai/gpt-oss-120b</code></td>
-                        <td>Deep logic &amp; advanced reasoning</td>
-                        <td><span class="status-pill warning" style="font-size: 0.72rem; padding: 2px 7px; background: rgba(255, 107, 0, 0.15); color: #FF944D; border: 1px solid rgba(255, 107, 0, 0.3);">Reasoning: 1 credit / 2k tok</span></td>
-                        <td>Complex reasoning &amp; multi-step logic</td>
-                      </tr>
-                      <tr>
-                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">qwen/qwen3.8-27b</code></td>
-                        <td>Code generation &amp; Multimodal</td>
-                        <td><span class="status-pill warning" style="font-size: 0.72rem; padding: 2px 7px; background: rgba(255, 107, 0, 0.15); color: #FF944D; border: 1px solid rgba(255, 107, 0, 0.3);">High-Tier: 1 credit / 2k tok</span></td>
-                        <td>Full-stack programming &amp; refactoring</td>
-                      </tr>
-                      <tr>
-                        <td><code class="mono" style="color: #FFB380; font-weight: 700;">groq/compound-mini</code></td>
-                        <td>Lightweight agentic execution</td>
-                        <td><span class="status-pill success" style="font-size: 0.72rem; padding: 2px 7px;">Fast: 1 credit / 10k tok</span></td>
-                        <td>Agent loops, fast function tools</td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  <!-- Dynamic Billing Formula Guide -->
-                  <div style="margin: 12px 0 10px 0; padding: 11px 13px; background: rgba(255, 107, 0, 0.07); border: 1px solid rgba(255, 107, 0, 0.22); border-radius: var(--radius-sm); font-size: 0.77rem;">
-                    <div style="font-weight: 700; color: #FFB380; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                      </svg>
-                      <span>Dynamic Token-Based Billing Formula:</span>
-                    </div>
-                    <code class="mono" style="color: #A8E6CF; display: block; font-size: 0.76rem; background: rgba(0,0,0,0.35); padding: 5px 8px; border-radius: 3px; margin: 4px 0;">credits_deducted = (prompt_tokens * input_multiplier) + (completion_tokens * output_multiplier) + (reasoning_tokens * reasoning_multiplier)</code>
-                    <div style="color: #D6CCC5; font-size: 0.74rem; margin-top: 5px; line-height: 1.45;">
-                      • <strong>Fast Models</strong> (e.g. <code class="mono">gpt-oss-20b</code>): <strong>1 credit per 10,000 tokens</strong> (<span class="mono">0.0001 cr/token</span>)<br/>
-                      • <strong>Reasoning / High-tier Models</strong> (e.g. <code class="mono">gpt-oss-120b</code>): <strong>1 credit per 2,000 tokens</strong> (<span class="mono">0.0005 cr/token</span>)
-                    </div>
-                  </div>
-
-                  <div class="guide-code-box" style="margin-top: 10px;">
-                    <span class="code-comment">// Standard OpenAI SDK Usage:</span><br/>
-                    <span class="code-keyword">import</span> OpenAI <span class="code-keyword">from</span> <span class="code-string">"openai"</span>;<br/><br/>
-                    <span class="code-keyword">const</span> client = <span class="code-keyword">new</span> OpenAI({<br/>
-                    &nbsp;&nbsp;apiKey: process.env.KEYLINE_API_KEY || process.env.V_ASTRA_API_KEY,<br/>
-                    &nbsp;&nbsp;baseURL: <span class="code-string">"https://keyline.v0408688.workers.dev/v1"</span><br/>
-                    });
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Pro Tip Info Callout Box (Item 3 in request) -->
-            <div class="guide-callout-box">
-              <svg class="guide-callout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Beginner-friendly Explanatory Note -->
+            <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); font-size: 0.76rem; color: #D6CCC5; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF944D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
               <div>
-                <strong style="color: #FFB380;">Pro Tip:</strong> If you're building with <strong>Python</strong>, <strong>Node.js</strong>, or <strong>Android Studio (Kotlin)</strong>, store your key inside <code class="mono" style="color: #A8E6CF; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">.env</code> or <code class="mono" style="color: #A8E6CF; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">local.properties</code> and read it securely via <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">KEYLINE_API_KEY</code> or <code class="mono" style="color: #FFA870; font-weight: 700; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px;">V_ASTRA_API_KEY</code>.
+                <strong style="color: #FFB380;">Standard OpenAI Compatibility:</strong> Replace your OpenAI client configuration with <code class="mono" style="color: #38EF7D; background: rgba(56, 239, 125, 0.1); padding: 1px 6px; border-radius: 3px; font-weight: 700;">baseURL: "https://keyline.v0408688.workers.dev/v1"</code> and pass your Keyline API key. All chat completions endpoints, streaming, and tool calls work out-of-the-box using the flagship <code class="mono" style="color: #FFB380; font-weight: 700;">openai/gpt-oss-20b</code> model.
               </div>
             </div>
           </div>
@@ -3915,9 +3704,8 @@
       }
 
       // Quickstart Integration Snippet State & Methods
-      let currentSelectedLanguage = 'curl'; // 'curl' | 'python' | 'javascript'
-      let currentSelectedModel = 'openai/gpt-oss-20b';
-      let currentKeyMode = 'direct'; // 'direct' | 'secure'
+      let currentSelectedLanguage = 'javascript'; // Tab 1: 'javascript', Tab 2: 'python', Tab 3: 'curl'
+      let currentSnippetPlainText = '';
 
       function getActiveUserApiKey() {
         const activeKey = activeKeysList.find(k => k.status === 'active' && k.key);
@@ -3925,144 +3713,97 @@
       }
 
       function updateIntegrationSnippet() {
-        const key = getActiveUserApiKey();
-        const model = currentSelectedModel;
-        const endpoint = 'https://keyline.v0408688.workers.dev/v1/chat/completions';
+        const activeKey = getActiveUserApiKey();
         const baseUrl = 'https://keyline.v0408688.workers.dev/v1';
 
-        const indicatorEl = document.getElementById('codeKeyIndicator');
-        if (indicatorEl) {
-          if (currentKeyMode === 'direct') {
-            if (key !== 'YOUR_KEYLINE_API_KEY') {
-              indicatorEl.innerHTML = `<span class="pulse-dot"></span> <span style="color:#A8E6CF;">Direct Injected:</span> <code class="mono" style="color: #FFB380;">${key.slice(0, 16)}••••${key.slice(-4)}</code>`;
-            } else {
-              indicatorEl.innerHTML = `<span style="color: #FF944D;">⚠ No active key (placeholder used)</span>`;
-            }
-          } else {
-            indicatorEl.innerHTML = `<span style="color: #A8E6CF; display: inline-flex; align-items: center; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              Secure Mode:
-            </span> <code class="mono" style="color: #FFB380;">KEYLINE_API_KEY (.env)</code>`;
-          }
+        // Update live API key placeholder display in the top quickstart highlight callout
+        const quickstartKeyDisplay = document.getElementById('quickstartLiveKeyDisplay');
+        if (quickstartKeyDisplay) {
+          quickstartKeyDisplay.textContent = activeKey;
         }
 
         const snippetEl = document.getElementById('integrationCodeBlock');
         if (!snippetEl) return;
 
-        let codeText = '';
+        let plainCode = '';
+        let htmlCode = '';
 
-        if (currentKeyMode === 'direct') {
-          // Direct Key Mode (Quick Test)
-          if (currentSelectedLanguage === 'curl') {
-            codeText = `curl -X POST ${endpoint} \\
-  -H "Authorization: Bearer ${key}" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "${model}",
-    "messages": [
-      {"role": "system", "content": "You are a helpful AI assistant."},
-      {"role": "user", "content": "Explain quantum computing in two sentences."}
-    ],
-    "temperature": 0.7
-  }'`;
-          } else if (currentSelectedLanguage === 'python') {
-            codeText = `from openai import OpenAI
+        if (currentSelectedLanguage === 'javascript') {
+          plainCode = `import OpenAI from "openai";
 
-# Keyline is 100% OpenAI SDK compatible
-client = OpenAI(
-    api_key="${key}",
-    base_url="${baseUrl}"
-)
-
-response = client.chat.completions.create(
-    model="${model}",
-    messages=[
-        {"role": "system", "content": "You are a helpful AI assistant."},
-        {"role": "user", "content": "Explain quantum computing in two sentences."}
-    ],
-    temperature=0.7
-)
-
-print(response.choices[0].message.content)`;
-          } else if (currentSelectedLanguage === 'javascript') {
-            codeText = `import OpenAI from "openai";
-
-// Keyline is 100% OpenAI SDK compatible
 const client = new OpenAI({
-  apiKey: "${key}",
-  baseURL: "${baseUrl}"
+  baseURL: "https://keyline.v0408688.workers.dev/v1",
+  apiKey: process.env.KEYLINE_API_KEY
 });
 
 const response = await client.chat.completions.create({
-  model: "${model}",
-  messages: [
-    { role: "system", content: "You are a helpful AI assistant." },
-    { role: "user", content: "Explain quantum computing in two sentences." }
-  ],
-  temperature: 0.7
+  model: "openai/gpt-oss-20b",
+  messages: [{ role: "user", content: "Hello Keyline!" }]
+});
+console.log(response.choices[0].message.content);`;
+
+          htmlCode = `<span class="code-keyword">import</span> OpenAI <span class="code-keyword">from</span> <span class="code-string">"openai"</span>;
+
+<span class="code-keyword">const</span> client = <span class="code-keyword">new</span> OpenAI({
+  baseURL: <span class="highlight-baseurl">"https://keyline.v0408688.workers.dev/v1"</span>,
+  apiKey: <span class="highlight-apikey">process.env.KEYLINE_API_KEY</span>
 });
 
+<span class="code-keyword">const</span> response = <span class="code-keyword">await</span> client.chat.completions.create({
+  model: <span class="code-string">"openai/gpt-oss-20b"</span>,
+  messages: [{ role: <span class="code-string">"user"</span>, content: <span class="code-string">"Hello Keyline!"</span> }]
+});
 console.log(response.choices[0].message.content);`;
-          }
-        } else {
-          // Secure (.env / Secrets) Mode
-          if (currentSelectedLanguage === 'curl') {
-            codeText = `export KEYLINE_API_KEY="your_api_key_here"
 
-curl -X POST ${endpoint} \\
-  -H "Authorization: Bearer $KEYLINE_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "${model}",
-    "messages": [
-      {"role": "system", "content": "You are a helpful AI assistant."},
-      {"role": "user", "content": "Explain quantum computing in two sentences."}
-    ],
-    "temperature": 0.7
-  }'`;
-          } else if (currentSelectedLanguage === 'python') {
-            codeText = `import os
-from openai import OpenAI
+        } else if (currentSelectedLanguage === 'python') {
+          plainCode = `from openai import OpenAI
+import os
 
-# Keyline is 100% OpenAI SDK compatible
 client = OpenAI(
-    api_key=os.environ.get("KEYLINE_API_KEY"),
-    base_url="${baseUrl}"
+    base_url="https://keyline.v0408688.workers.dev/v1",
+    api_key=os.environ.get("KEYLINE_API_KEY")
 )
 
 response = client.chat.completions.create(
-    model="${model}",
-    messages=[
-        {"role": "system", "content": "You are a helpful AI assistant."},
-        {"role": "user", "content": "Explain quantum computing in two sentences."}
-    ],
-    temperature=0.7
+    model="openai/gpt-oss-20b",
+    messages=[{"role": "user", "content": "Hello Keyline!"}]
+)
+print(response.choices[0].message.content)`;
+
+          htmlCode = `<span class="code-keyword">from</span> openai <span class="code-keyword">import</span> OpenAI
+<span class="code-keyword">import</span> os
+
+client = OpenAI(
+    base_url=<span class="highlight-baseurl">"https://keyline.v0408688.workers.dev/v1"</span>,
+    api_key=<span class="highlight-apikey">os.environ.get("KEYLINE_API_KEY")</span>
 )
 
+response = client.chat.completions.create(
+    model=<span class="code-string">"openai/gpt-oss-20b"</span>,
+    messages=[{<span class="code-string">"role"</span>: <span class="code-string">"user"</span>, <span class="code-string">"content"</span>: <span class="code-string">"Hello Keyline!"</span>}]
+)
 print(response.choices[0].message.content)`;
-          } else if (currentSelectedLanguage === 'javascript') {
-            codeText = `import OpenAI from "openai";
 
-// Keyline is 100% OpenAI SDK compatible
-const client = new OpenAI({
-  apiKey: process.env.KEYLINE_API_KEY,
-  baseURL: "${baseUrl}"
-});
+        } else if (currentSelectedLanguage === 'curl') {
+          plainCode = `curl -X POST https://keyline.v0408688.workers.dev/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_KEYLINE_API_KEY" \\
+  -d '{
+    "model": "openai/gpt-oss-20b",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'`;
 
-const response = await client.chat.completions.create({
-  model: "${model}",
-  messages: [
-    { role: "system", content: "You are a helpful AI assistant." },
-    { role: "user", content: "Explain quantum computing in two sentences." }
-  ],
-  temperature: 0.7
-});
-
-console.log(response.choices[0].message.content);`;
-          }
+          htmlCode = `curl -X POST <span class="highlight-baseurl">https://keyline.v0408688.workers.dev/v1</span>/chat/completions \\
+  -H <span class="code-string">"Content-Type: application/json"</span> \\
+  -H <span class="code-string">"Authorization: Bearer <span class="highlight-apikey">YOUR_KEYLINE_API_KEY</span>"</span> \\
+  -d <span class="code-string">'{
+    "model": "openai/gpt-oss-20b",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'</span>`;
         }
 
-        snippetEl.textContent = codeText;
+        currentSnippetPlainText = plainCode;
+        snippetEl.innerHTML = htmlCode;
       }
 
       // Generate New API Key Function (Cryptographically unique + Dual-Write to Firestore)
@@ -5146,7 +4887,7 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      // Quickstart Language Tabs
+      // Quickstart Language Tabs (Tab 1: JavaScript, Tab 2: Python, Tab 3: cURL)
       document.querySelectorAll('.code-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
@@ -5156,51 +4897,16 @@ console.log(response.choices[0].message.content);`;
         });
       });
 
-      // Quickstart Key Injection Mode (Direct Key vs Secure .env)
-      document.querySelectorAll('.key-mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.key-mode-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentKeyMode = btn.getAttribute('data-mode') || 'direct';
-          updateIntegrationSnippet();
-        });
-      });
-
-      // Quickstart Model Selector Dropdown & Pills Sync
-      const selectQuickstartModel = document.getElementById('selectQuickstartModel');
-      if (selectQuickstartModel) {
-        selectQuickstartModel.addEventListener('change', (e) => {
-          currentSelectedModel = e.target.value;
-          document.querySelectorAll('.model-pill-btn').forEach(b => {
-            b.classList.toggle('active', b.getAttribute('data-model') === currentSelectedModel);
-          });
-          updateIntegrationSnippet();
-        });
-      }
-
-      // Quickstart Model Selector Buttons
-      document.querySelectorAll('.model-pill-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.model-pill-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentSelectedModel = btn.getAttribute('data-model');
-          if (selectQuickstartModel) {
-            selectQuickstartModel.value = currentSelectedModel;
-          }
-          updateIntegrationSnippet();
-        });
-      });
-
-      // Copy Integration Code Snippet
+      // Copy Integration Code Snippet (Exact plain-text representation)
       const btnCopyIntegrationCode = document.getElementById('btnCopyIntegrationCode');
       if (btnCopyIntegrationCode) {
         btnCopyIntegrationCode.addEventListener('click', () => {
-          const snippetEl = document.getElementById('integrationCodeBlock');
-          if (snippetEl) {
-            navigator.clipboard.writeText(snippetEl.textContent);
+          const textToCopy = currentSnippetPlainText || (document.getElementById('integrationCodeBlock') ? document.getElementById('integrationCodeBlock').textContent : '');
+          if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy);
             const btnText = document.getElementById('txtCopyIntegrationBtn');
             if (btnText) btnText.textContent = 'Copied!';
-            showToast('Code snippet copied to clipboard!');
+            showToast('Code snippet copied to clipboard!', 'success');
             setTimeout(() => {
               if (btnText) btnText.textContent = 'Copy Code';
             }, 2000);
@@ -5208,50 +4914,32 @@ console.log(response.choices[0].message.content);`;
         });
       }
 
-      // Integration Guide: Stepper Nav Buttons
-      document.querySelectorAll('.guide-step-nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const stepNum = btn.getAttribute('data-step');
-          document.querySelectorAll('.guide-step-nav-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-
-          // Open the corresponding accordion step item
-          document.querySelectorAll('.guide-accordion-item').forEach(item => {
-            const isMatch = item.getAttribute('data-step-item') === stepNum;
-            item.classList.toggle('active', isMatch);
-          });
-        });
-      });
-
-      // Integration Guide: Accordion Headers Toggle
-      document.querySelectorAll('[data-toggle-step]').forEach(headerBtn => {
-        headerBtn.addEventListener('click', () => {
-          const stepNum = headerBtn.getAttribute('data-toggle-step');
-          const targetItem = document.querySelector(`.guide-accordion-item[data-step-item="${stepNum}"]`);
-          if (targetItem) {
-            const isCurrentlyActive = targetItem.classList.contains('active');
-            targetItem.classList.toggle('active', !isCurrentlyActive);
-
-            // Sync top pill if opened
-            if (!isCurrentlyActive) {
-              document.querySelectorAll('.guide-step-nav-btn').forEach(b => {
-                b.classList.toggle('active', b.getAttribute('data-step') === stepNum);
-              });
-            }
-          }
-        });
-      });
-
-      // Integration Guide: Copy Gateway Base URL
-      const btnCopyGatewayUrl = document.getElementById('btnCopyGatewayUrl');
-      if (btnCopyGatewayUrl) {
-        btnCopyGatewayUrl.addEventListener('click', () => {
-          const url = 'https://keyline.v0408688.workers.dev/v1/chat/completions';
-          navigator.clipboard.writeText(url);
-          btnCopyGatewayUrl.textContent = 'Copied!';
-          showToast('Gateway Base URL copied to clipboard!');
+      // Copy Quickstart Base URL
+      const btnCopyQuickstartBaseUrl = document.getElementById('btnCopyQuickstartBaseUrl');
+      if (btnCopyQuickstartBaseUrl) {
+        btnCopyQuickstartBaseUrl.addEventListener('click', () => {
+          const baseUrl = 'https://keyline.v0408688.workers.dev/v1';
+          navigator.clipboard.writeText(baseUrl);
+          const btnText = document.getElementById('txtCopyBaseUrlBtn');
+          if (btnText) btnText.textContent = 'Copied!';
+          showToast('Base URL copied: https://keyline.v0408688.workers.dev/v1', 'success');
           setTimeout(() => {
-            btnCopyGatewayUrl.textContent = 'Copy URL';
+            if (btnText) btnText.textContent = 'Copy Base URL';
+          }, 2000);
+        });
+      }
+
+      // Copy Quickstart Live API Key Placeholder
+      const btnCopyQuickstartApiKey = document.getElementById('btnCopyQuickstartApiKey');
+      if (btnCopyQuickstartApiKey) {
+        btnCopyQuickstartApiKey.addEventListener('click', () => {
+          const keyToCopy = getActiveUserApiKey();
+          navigator.clipboard.writeText(keyToCopy);
+          const btnText = document.getElementById('txtCopyApiKeyBtn');
+          if (btnText) btnText.textContent = 'Copied!';
+          showToast(`API Key copied to clipboard!`, 'success');
+          setTimeout(() => {
+            if (btnText) btnText.textContent = 'Copy Key';
           }, 2000);
         });
       }
