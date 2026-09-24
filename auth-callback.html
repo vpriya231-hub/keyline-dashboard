@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authorize Keyline Desktop App — Google Sign-In</title>
+  <link rel="icon" type="image/png" href="/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #090D16;
+      --card-bg: rgba(18, 24, 38, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --primary-orange: #FF6B00;
+      --primary-amber: #FFA870;
+      --accent-emerald: #38EF7D;
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 107, 0, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(56, 239, 125, 0.08) 0%, transparent 50%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-main);
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      max-width: 460px;
+      width: 100%;
+      padding: 32px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 0, 0.08);
+      text-align: center;
+      position: relative;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 107, 0, 0.12);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary-amber);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    p.subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 14px 20px;
+      background: #FFFFFF;
+      color: #1F2937;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-google:hover {
+      background: #F3F4F6;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-google:active {
+      transform: translateY(0);
+    }
+
+    .btn-google:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-box {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      display: none;
+      text-align: left;
+    }
+
+    .status-box.info {
+      display: block;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #93C5FD;
+    }
+
+    .status-box.success {
+      display: block;
+      background: rgba(56, 239, 125, 0.1);
+      border: 1px solid rgba(56, 239, 125, 0.3);
+      color: #A8E6CF;
+    }
+
+    .status-box.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+    }
+
+    .success-view {
+      display: none;
+    }
+
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--primary-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #FFF;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .user-info {
+      min-width: 0;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-email {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .code-box {
+      margin-top: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .code-title {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      color: #FFA870;
+      word-break: break-all;
+      line-height: 1.4;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+
+    .btn-action {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-emerald {
+      background: var(--accent-emerald);
+      color: #090D16;
+    }
+
+    .btn-emerald:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFF;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="brand-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+        <line x1="12" y1="17" x2="12" y2="21"></line>
+      </svg>
+      Keyline Windows PWA Gateway
+    </div>
+
+    <!-- Pre-Auth View -->
+    <div id="preAuthView">
+      <h1>Authorize Windows Desktop</h1>
+      <p class="subtitle">
+        Sign in with Google in your system browser to securely authorize your Keyline Windows MSIX desktop application.
+      </p>
+
+      <button id="btnSignWithGoogle" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span id="btnGoogleText">Sign In with Google</span>
+      </button>
+
+      <div id="statusBox" class="status-box"></div>
+    </div>
+
+    <!-- Success View -->
+    <div id="successView" class="success-view">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(56, 239, 125, 0.15); border: 2px solid var(--accent-emerald); color: var(--accent-emerald); margin-bottom: 14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+
+      <h1 style="color: var(--accent-emerald);">Authorization Complete!</h1>
+      <p class="subtitle" style="margin-bottom: 12px;">
+        Your Google account is authenticated and synced to your Keyline Windows desktop app.
+      </p>
+
+      <div class="user-profile-badge">
+        <div id="userAvatar" class="user-avatar">U</div>
+        <div class="user-info">
+          <div id="userName" class="user-name">Developer</div>
+          <div id="userEmail" class="user-email">developer@example.com</div>
+        </div>
+      </div>
+
+      <div class="status-box success">
+        ✓ Session signal broadcasted to Windows App via BroadcastChannel, postMessage, and LocalStorage sync.
+      </div>
+
+      <!-- Manual Session Token Fallback Box -->
+      <div class="code-box">
+        <div class="code-title">
+          <span>Manual Sync Code (Instant Fallback)</span>
+          <span id="copyCodeStatus" style="color: var(--accent-emerald); font-size: 0.7rem;"></span>
+        </div>
+        <div id="sessionCodeValue" class="code-value">Generating...</div>
+        <button id="btnCopySessionCode" class="btn-action btn-secondary" style="margin-top: 8px;">
+          Copy Sync Code to Clipboard
+        </button>
+      </div>
+
+      <button id="btnReturnToApp" class="btn-action btn-emerald" style="margin-top: 14px;">
+        Return to Keyline App / Close Window
+      </button>
+
+      <div id="autoCloseNotice" style="font-size: 0.74rem; color: var(--text-muted); margin-top: 12px;">
+        Window will automatically close in <span id="closeCountdown">5</span> seconds...
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+    // EXACT Official Keyline Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGmK9Np_HfnZBjmy5FYWQhbUqP0yrEvc8",
+      authDomain: "keyline-ai.firebaseapp.com",
+      projectId: "keyline-ai",
+      storageBucket: "keyline-ai.firebasestorage.app",
+      messagingSenderId: "808373985169",
+      appId: "1:808373985169:web:d9b09766ebae2b64a24430",
+      measurementId: "G-TTNP899DJD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    const btnSignWithGoogle = document.getElementById('btnSignWithGoogle');
+    const btnGoogleText = document.getElementById('btnGoogleText');
+    const statusBox = document.getElementById('statusBox');
+    const preAuthView = document.getElementById('preAuthView');
+    const successView = document.getElementById('successView');
+    const userName = document.getElementById('userName');
+    const userEmail = document.getElementById('userEmail');
+    const userAvatar = document.getElementById('userAvatar');
+    const sessionCodeValue = document.getElementById('sessionCodeValue');
+    const btnCopySessionCode = document.getElementById('btnCopySessionCode');
+    const copyCodeStatus = document.getElementById('copyCodeStatus');
+    const btnReturnToApp = document.getElementById('btnReturnToApp');
+    const closeCountdown = document.getElementById('closeCountdown');
+
+    function setStatus(msg, type = 'info') {
+      statusBox.className = `status-box ${type}`;
+      statusBox.textContent = msg;
+    }
+
+    // Broadcast authenticated user session to Windows Desktop PWA across all channels
+    function broadcastSessionToDesktop(userPayload) {
+      console.log("[Keyline Auth Gateway] Broadcasting session to desktop app:", userPayload.email);
+
+      // 1. BroadcastChannel (Same-origin communication between external browser & PWA)
+      try {
+        const authChannel = new BroadcastChannel('keyline_auth_channel');
+        authChannel.postMessage({
+          type: 'KEYLINE_AUTH_SUCCESS',
+          user: userPayload
+        });
+      } catch (e) {
+        console.warn("BroadcastChannel error:", e);
+      }
+
+      // 2. window.opener postMessage (Direct window handle if opened via window.open)
+      if (window.opener && !window.opener.closed) {
+        try {
+          window.opener.postMessage({
+            type: 'KEYLINE_AUTH_SUCCESS',
+            user: userPayload
+          }, '*');
+        } catch (e) {
+          console.warn("window.opener postMessage error:", e);
+        }
+      }
+
+      // 3. localStorage Sync (Trigger storage event on desktop PWA)
+      try {
+        localStorage.setItem('keyline_pwa_auth_session', JSON.stringify({
+          timestamp: Date.now(),
+          user: userPayload
+        }));
+        localStorage.setItem('user_logged_in', 'true');
+        localStorage.setItem('keyline_user_session', JSON.stringify({
+          uid: userPayload.uid,
+          displayName: userPayload.displayName,
+          email: userPayload.email,
+          photoURL: userPayload.photoURL
+        }));
+      } catch (e) {
+        console.warn("localStorage sync error:", e);
+      }
+    }
+
+    // Render Success View
+    function renderSuccess(userPayload) {
+      preAuthView.style.display = 'none';
+      successView.style.display = 'block';
+
+      userName.textContent = userPayload.displayName || userPayload.email.split('@')[0];
+      userEmail.textContent = userPayload.email;
+
+      if (userPayload.photoURL) {
+        userAvatar.innerHTML = `<img src="${userPayload.photoURL}" alt="${userPayload.displayName}" referrerpolicy="no-referrer" />`;
+      } else {
+        userAvatar.textContent = (userPayload.displayName || userPayload.email).charAt(0).toUpperCase();
+      }
+
+      // Generate compact base64-encoded sync code
+      const syncTokenData = {
+        uid: userPayload.uid,
+        email: userPayload.email,
+        displayName: userPayload.displayName,
+        photoURL: userPayload.photoURL || '',
+        isGoogleSession: true,
+        t: Date.now()
+      };
+      const encodedCode = btoa(unescape(encodeURIComponent(JSON.stringify(syncTokenData))));
+      sessionCodeValue.textContent = encodedCode;
+
+      btnCopySessionCode.onclick = () => {
+        navigator.clipboard.writeText(encodedCode);
+        copyCodeStatus.textContent = "Copied!";
+        btnCopySessionCode.textContent = "Copied to Clipboard ✓";
+        setTimeout(() => {
+          btnCopySessionCode.textContent = "Copy Sync Code to Clipboard";
+          copyCodeStatus.textContent = "";
+        }, 2500);
+      };
+
+      btnReturnToApp.onclick = () => {
+        try {
+          if (window.opener && !window.opener.closed) {
+            window.opener.focus();
+          }
+        } catch (e) {}
+        try {
+          window.close();
+        } catch (e) {
+          window.location.href = '/#dashboard-view';
+        }
+      };
+
+      // Auto-close countdown
+      let timeLeft = 5;
+      const timer = setInterval(() => {
+        timeLeft -= 1;
+        if (closeCountdown) closeCountdown.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          try {
+            window.close();
+          } catch (e) {
+            // Fallback if browser security denies self-close
+            window.location.href = '/#dashboard-view';
+          }
+        }
+      }, 1000);
+    }
+
+    // Trigger Google Sign-In with Popup (Allowed cleanly in external browser)
+    async function handleSignIn() {
+      btnSignWithGoogle.disabled = true;
+      btnGoogleText.textContent = "Signing In...";
+      setStatus("Opening secure Google OAuth dialog...", "info");
+
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        if (result && result.user) {
+          const user = result.user;
+          const idToken = await user.getIdToken().catch(() => '');
+          const userPayload = {
+            uid: user.uid,
+            displayName: user.displayName || user.email.split('@')[0] || 'Developer',
+            email: user.email,
+            photoURL: user.photoURL || '',
+            idToken: idToken,
+            isGoogleSession: true,
+            authTime: Date.now()
+          };
+
+          broadcastSessionToDesktop(userPayload);
+          renderSuccess(userPayload);
+        }
+      } catch (error) {
+        console.error("Google Sign-In error:", error);
+        btnSignWithGoogle.disabled = false;
+        btnGoogleText.textContent = "Sign In with Google";
+
+        if (error.code === 'auth/popup-closed-by-user') {
+          setStatus("Sign-in dialog was closed before completing.", "info");
+        } else {
+          setStatus(`Authentication Error (${error.code || 'unknown'}): ${error.message}`, "error");
+        }
+      }
+    }
+
+    btnSignWithGoogle.addEventListener('click', handleSignIn);
+
+    // Auto-check if already authenticated in this browser
+    onAuthStateChanged(auth, async (existingUser) => {
+      if (existingUser) {
+        console.log("[Keyline Auth Gateway] Existing session found:", existingUser.email);
+        const idToken = await existingUser.getIdToken().catch(() => '');
+        const userPayload = {
+          uid: existingUser.uid,
+          displayName: existingUser.displayName || existingUser.email.split('@')[0] || 'Developer',
+          email: existingUser.email,
+          photoURL: existingUser.photoURL || '',
+          idToken: idToken,
+          isGoogleSession: true,
+          authTime: Date.now()
+        };
+        broadcastSessionToDesktop(userPayload);
+        renderSuccess(userPayload);
+      }
+    });
+  </script>
+</body>
+</html>

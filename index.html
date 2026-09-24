@@ -1804,6 +1804,32 @@
           <!-- Google Identity Services (GIS) Container (Rendered when Client ID is configured) -->
           <div id="googleGsiContainer" style="display: none; justify-content: center; width: 100%; margin: 8px 0;"></div>
 
+          <!-- Windows Desktop PWA External Auth Status Card -->
+          <div id="windowsPwaAuthBanner" style="display: none; margin-top: 14px; padding: 14px 16px; background: rgba(59, 130, 246, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-sm); font-size: 0.82rem; color: #93C5FD; text-align: left;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+              <div class="pulse-dot" style="background: #60A5FA; box-shadow: 0 0 10px #60A5FA; margin-top: 5px; flex-shrink: 0;"></div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 700; color: #BFDBFE; margin-bottom: 3px; font-size: 0.86rem;">
+                  External Browser Sign-In In Progress
+                </div>
+                <div style="line-height: 1.45; color: #DBEAFE; font-size: 0.78rem;">
+                  A system browser window was opened to complete Google authentication securely without WebView restrictions. Once authorized, this app will automatically log in.
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" id="btnReopenExternalBrowser" class="btn btn-secondary btn-sm" style="font-size: 0.74rem; padding: 4px 10px; background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4); color: #FFF;">
+                    Re-open Browser
+                  </button>
+                  <button type="button" id="btnOpenManualSyncModal" class="btn btn-secondary btn-sm" style="font-size: 0.74rem; padding: 4px 10px; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); color: #E2E8F0;">
+                    Paste Sync Code
+                  </button>
+                  <button type="button" id="btnCancelExternalAuth" class="btn btn-secondary btn-sm" style="font-size: 0.74rem; padding: 4px 10px; background: transparent; border-color: rgba(255, 255, 255, 0.15); color: #94A3B8;">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Subtle Divider -->
           <div class="auth-divider" style="margin: 16px 0;">
             <span>or continue with</span>
@@ -2793,6 +2819,29 @@
       </div>
     </div>
 
+    <!-- Manual Sync Code Modal (Instant Fallback for Windows Sandbox Isolation) -->
+    <div id="modalManualSync" class="modal-backdrop">
+      <div class="modal" style="max-width: 480px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Enter Authorization Sync Code</h3>
+          <button class="modal-close" data-close="modalManualSync">&times;</button>
+        </div>
+        <form id="formManualSync">
+          <div class="form-group">
+            <label class="form-label" for="inputManualSyncCode">Sync Code from Browser</label>
+            <textarea id="inputManualSyncCode" class="form-input mono" rows="4" placeholder="Paste the code copied from the browser authorization window here..." required style="resize: vertical; font-size: 0.8rem;"></textarea>
+            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">
+              💡 If your Windows VM restricts direct window postMessage or storage sync, simply copy the code from the browser window and paste it above.
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" data-close="modalManualSync">Cancel</button>
+            <button type="submit" id="btnSubmitManualSync" class="btn btn-primary">Authorize App</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toastNotification" class="toast">
       <span id="toastMessage">Notification</span>
@@ -3170,6 +3219,11 @@
               resetGoogleAuthButtonState();
             }
           }, 5000);
+
+          // Setup Windows PWA Cross-Window & Storage Synchronization Listeners
+          if (typeof setupWindowsPwaAuthListeners === 'function') {
+            setupWindowsPwaAuthListeners();
+          }
 
           // Persistent Session: onAuthStateChanged keeps existing logged-in users on dashboard across page refreshes
           onAuthStateChanged(auth, async (user) => {
@@ -4512,6 +4566,143 @@ print(response.choices[0].message.content)`;
       }
       window.executeFallbackGoogleAuth = executeFallbackGoogleAuth;
 
+      // =========================================================================
+      // WINDOWS DESKTOP PWA & EXTERNAL SYSTEM BROWSER OAUTH FLOW
+      // =========================================================================
+      function isWindowsOrPwaStandalone() {
+        try {
+          const isStandaloneMedia = Boolean(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+          const isNavStandalone = Boolean(window.navigator && window.navigator.standalone);
+          const isWindowsUwp = Boolean(window.Windows);
+          const isWindowsWebView = Boolean(
+            (window.chrome && window.chrome.webview) ||
+            (navigator.userAgent && (navigator.userAgent.includes('WebView') || (navigator.userAgent.includes('Windows') && isStandaloneMedia)))
+          );
+          return Boolean(isStandaloneMedia || isNavStandalone || isWindowsUwp || isWindowsWebView);
+        } catch (e) {
+          return false;
+        }
+      }
+      window.isWindowsOrPwaStandalone = isWindowsOrPwaStandalone;
+
+      let windowsPwaAuthPollInterval = null;
+      let windowsPwaAuthChannel = null;
+
+      function hideWindowsPwaWaitingBanner() {
+        const banner = document.getElementById('windowsPwaAuthBanner');
+        if (banner) banner.style.display = 'none';
+        if (windowsPwaAuthPollInterval) {
+          clearInterval(windowsPwaAuthPollInterval);
+          windowsPwaAuthPollInterval = null;
+        }
+      }
+      window.hideWindowsPwaWaitingBanner = hideWindowsPwaWaitingBanner;
+
+      async function handleExternalAuthSuccess(userData) {
+        if (!userData) return;
+        window.__keylineGoogleAuthInProgress = false;
+        hideWindowsPwaWaitingBanner();
+        resetGoogleAuthButtonState();
+        closeModal('modalManualSync');
+
+        // Store active session token if provided
+        try {
+          if (userData.idToken) {
+            localStorage.setItem('keyline_auth_token', userData.idToken);
+          }
+        } catch (e) {}
+
+        await transitionToDashboard(userData);
+        showToast(`Welcome back, ${userData.displayName || userData.email}! Authorized via external browser.`, 'success');
+      }
+      window.handleExternalAuthSuccess = handleExternalAuthSuccess;
+
+      function setupWindowsPwaAuthListeners() {
+        // A. BroadcastChannel for cross-window / external browser communication on same origin
+        if ('BroadcastChannel' in window && !windowsPwaAuthChannel) {
+          try {
+            windowsPwaAuthChannel = new BroadcastChannel('keyline_auth_channel');
+            windowsPwaAuthChannel.onmessage = async (event) => {
+              if (event.data && event.data.type === 'KEYLINE_AUTH_SUCCESS' && event.data.user) {
+                console.log("[Windows PWA Auth] Received session from BroadcastChannel:", event.data.user.email);
+                await handleExternalAuthSuccess(event.data.user);
+              }
+            };
+          } catch (e) {
+            console.warn("BroadcastChannel initialization error:", e);
+          }
+        }
+
+        // B. window postMessage listener
+        window.addEventListener('message', async (event) => {
+          if (event.data && event.data.type === 'KEYLINE_AUTH_SUCCESS' && event.data.user) {
+            console.log("[Windows PWA Auth] Received session from window message:", event.data.user.email);
+            await handleExternalAuthSuccess(event.data.user);
+          }
+        });
+
+        // C. localStorage storage event listener
+        window.addEventListener('storage', async (e) => {
+          if (e.key === 'keyline_pwa_auth_session' && e.newValue) {
+            try {
+              const parsed = JSON.parse(e.newValue);
+              if (parsed && parsed.user) {
+                console.log("[Windows PWA Auth] Received session from localStorage event:", parsed.user.email);
+                await handleExternalAuthSuccess(parsed.user);
+              }
+            } catch (err) {
+              console.warn("Storage sync parse error:", err);
+            }
+          }
+        });
+      }
+      window.setupWindowsPwaAuthListeners = setupWindowsPwaAuthListeners;
+
+      function startWindowsPwaExternalAuth() {
+        window.__keylineGoogleAuthInProgress = true;
+        const gText = document.getElementById('btnGoogleAuthText');
+        if (gText) gText.textContent = 'Authorizing in Browser...';
+
+        const banner = document.getElementById('windowsPwaAuthBanner');
+        if (banner) banner.style.display = 'block';
+
+        const authInitiatedTime = Date.now();
+        const authUrl = new URL('/auth-callback.html?mode=windows_pwa&t=' + authInitiatedTime, window.location.origin).href;
+        
+        console.log("[Windows PWA Auth] Launching external system browser authentication:", authUrl);
+        window.open(authUrl, '_blank');
+
+        showToast("Opening external system browser for Google sign-in...", "info");
+
+        // Clear any active polling interval
+        if (windowsPwaAuthPollInterval) clearInterval(windowsPwaAuthPollInterval);
+
+        // Polling loop across localStorage in case WebView2 process doesn't receive cross-process storage event
+        windowsPwaAuthPollInterval = setInterval(async () => {
+          try {
+            const rawSession = localStorage.getItem('keyline_pwa_auth_session');
+            if (rawSession) {
+              const sessionObj = JSON.parse(rawSession);
+              if (sessionObj && sessionObj.user && sessionObj.timestamp >= authInitiatedTime - 5000) {
+                console.log("[Windows PWA Auth] Detected fresh auth session via polling:", sessionObj.user.email);
+                await handleExternalAuthSuccess(sessionObj.user);
+              }
+            }
+          } catch (err) {
+            console.warn("Storage polling check error:", err);
+          }
+        }, 1000);
+
+        // Safety timeout after 3 minutes to reset UI
+        setTimeout(() => {
+          if (window.__keylineGoogleAuthInProgress) {
+            window.__keylineGoogleAuthInProgress = false;
+            resetGoogleAuthButtonState();
+          }
+        }, 180000);
+      }
+      window.startWindowsPwaExternalAuth = startWindowsPwaExternalAuth;
+
       function triggerGoogleAuth(e) {
         if (e) {
           if (typeof e.preventDefault === 'function') e.preventDefault();
@@ -4532,6 +4723,17 @@ print(response.choices[0].message.content)`;
         if (errMsg) errMsg.style.display = 'none';
         if (domainBox) domainBox.style.display = 'none';
 
+        // 1. Environment Detection: Standalone PWA / Windows WebView2 container
+        // For Windows Desktop App Users (isStandalone):
+        // Do NOT open an inline popup. Open an external browser authentication URL.
+        const isStandalone = isWindowsOrPwaStandalone();
+        if (isStandalone) {
+          console.log("[Google Auth] Windows Standalone / PWA container detected. Launching external system browser OAuth flow.");
+          startWindowsPwaExternalAuth();
+          return;
+        }
+
+        // 2. For Standard Web Users (!isStandalone): Keep using standard signInWithPopup(auth, googleProvider)
         if (!auth) {
           showToast("Firebase Authentication is initializing. Please try again.", "info");
           return;
@@ -4941,6 +5143,54 @@ print(response.choices[0].message.content)`;
           setTimeout(() => {
             if (btnText) btnText.textContent = 'Copy Key';
           }, 2000);
+        });
+      }
+
+      // Windows Desktop PWA External Auth UI Actions
+      const btnReopenExternalBrowser = document.getElementById('btnReopenExternalBrowser');
+      if (btnReopenExternalBrowser) {
+        btnReopenExternalBrowser.addEventListener('click', () => {
+          startWindowsPwaExternalAuth();
+        });
+      }
+
+      const btnOpenManualSyncModal = document.getElementById('btnOpenManualSyncModal');
+      if (btnOpenManualSyncModal) {
+        btnOpenManualSyncModal.addEventListener('click', () => {
+          openModal('modalManualSync');
+        });
+      }
+
+      const btnCancelExternalAuth = document.getElementById('btnCancelExternalAuth');
+      if (btnCancelExternalAuth) {
+        btnCancelExternalAuth.addEventListener('click', () => {
+          window.__keylineGoogleAuthInProgress = false;
+          hideWindowsPwaWaitingBanner();
+          resetGoogleAuthButtonState();
+          showToast('External browser authorization cancelled.', 'info');
+        });
+      }
+
+      // Manual Sync Code Submission Form
+      const formManualSync = document.getElementById('formManualSync');
+      if (formManualSync) {
+        formManualSync.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const codeInput = document.getElementById('inputManualSyncCode');
+          if (!codeInput || !codeInput.value.trim()) return;
+
+          try {
+            const rawStr = decodeURIComponent(escape(atob(codeInput.value.trim())));
+            const parsedUser = JSON.parse(rawStr);
+            if (parsedUser && (parsedUser.uid || parsedUser.email)) {
+              await handleExternalAuthSuccess(parsedUser);
+            } else {
+              showToast("Invalid authorization code. Please copy the complete code from the browser window.", "error");
+            }
+          } catch (err) {
+            console.error("Manual sync parse error:", err);
+            showToast("Could not decode authorization code. Please verify the code and try again.", "error");
+          }
         });
       }
 
