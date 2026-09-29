@@ -1980,7 +1980,7 @@
             </div>
 
             <!-- Wallet Actions Footer -->
-            <div class="stat-footer" style="padding-top: 14px; margin-top: 10px; border-top: 1px solid rgba(255, 107, 0, 0.15);">
+            <div class="stat-footer" style="padding-top: 14px; margin-top: 10px; border-top: 1px solid rgba(255, 107, 0, 0.15); display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
               <button id="btnOpenAddCredits" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35);">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1994,6 +1994,13 @@
                   <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                 </svg>
                 <span id="btnSyncCreditsText">Sync</span>
+              </button>
+
+              <button id="btnTestDeductCredit" class="btn btn-secondary btn-sm" title="Directly deduct 1 credit and log telemetry to Cloud Firestore" style="display: inline-flex; align-items: center; gap: 6px; border-color: rgba(255, 107, 0, 0.45); color: #FFA870; font-weight: 600;">
+                <svg id="iconTestDeduct" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span id="btnTestDeductText">Test Deduct 1 Credit</span>
               </button>
             </div>
           </div>
@@ -2031,7 +2038,7 @@
                 </div>
               </div>
               <div class="stat-value" id="valTotalRequests">0</div>
-              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+              <div id="descTotalRequests" style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
                 Real telemetry records
               </div>
             </div>
@@ -2198,12 +2205,18 @@
               </h2>
               <p class="card-subtitle">Live request telemetry stream from Cloud Firestore (<code class="mono" style="font-size: 0.78rem;">users/{uid}/usage_logs</code>).</p>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <button id="btnSyncTelemetryLogs" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits & telemetry from Firestore" style="display: inline-flex; align-items: center; gap: 6px;">
                 <svg id="iconSyncTelemetry" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                 </svg>
                 <span id="btnSyncTelemetryText">Sync</span>
+              </button>
+              <button id="btnTestDeductCreditTelemetry" class="btn btn-secondary btn-sm" title="Directly deduct 1 credit and log telemetry to Cloud Firestore" style="display: inline-flex; align-items: center; gap: 6px; border-color: rgba(255, 107, 0, 0.45); color: #FFA870; font-weight: 600;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span id="btnTestDeductTelemetryText">Test Deduct 1 Credit</span>
               </button>
               <button id="btnOpenTestRequest" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2525,96 +2538,76 @@
       </div>
     </div>
 
-    <!-- Simulate API Test Request Modal -->
+    <!-- Real Cloudflare Worker Gateway Test Request Modal -->
     <div id="modalTestRequest" class="modal-backdrop">
-      <div class="modal" style="max-width: 540px;">
+      <div class="modal" style="max-width: 560px;">
         <div class="modal-header">
-          <h3 class="modal-title">Simulate Real API Request</h3>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 30px; height: 30px; border-radius: 6px; background: rgba(255, 107, 0, 0.15); display: flex; align-items: center; justify-content: center; color: var(--primary-orange);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </div>
+            <h3 class="modal-title" style="margin: 0; font-size: 1.12rem;">Live Cloudflare Worker Test</h3>
+          </div>
           <button class="modal-close" data-close="modalTestRequest">&times;</button>
         </div>
         <form id="formTestRequest">
-          <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 14px;">
-            Simulate a gateway request with real token usage metrics. Credits are dynamically deducted from your balance based on model rate multipliers and logged to <code class="mono">users/{uid}/usage_logs</code>.
+          <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.45;">
+            Sends a real HTTP POST request to the live Cloudflare Worker endpoint. The worker verifies your active API key against Cloud Firestore, routes the completion, deducts credits, and writes the telemetry log to <code class="mono" style="color: #FFA870; font-size: 0.76rem;">users/{uid}/usage_logs</code>.
           </p>
 
-          <div class="form-group">
-            <label class="form-label" for="selectTestKey">Select Active API Key</label>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="selectTestKey" style="font-size: 0.78rem;">Select Active API Key (from Firestore)</label>
             <select id="selectTestKey" class="form-select" required>
-              <!-- Populated dynamically -->
+              <!-- Populated dynamically from Firestore activeKeysList -->
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="selectTestEndpoint">API Endpoint &amp; Model</label>
-            <select id="selectTestEndpoint" class="form-select">
-              <option value="/v1/chat/completions" data-model="openai/gpt-oss-20b" selected>POST /v1/chat/completions (openai/gpt-oss-20b • Fast)</option>
-              <option value="/v1/chat/completions#120b" data-model="openai/gpt-oss-120b">POST /v1/chat/completions (openai/gpt-oss-120b • Reasoning)</option>
-              <option value="/v1/chat/completions#qwen" data-model="qwen/qwen3.8-27b">POST /v1/chat/completions (qwen/qwen3.8-27b • High-Tier)</option>
-              <option value="/v1/chat/completions#compound" data-model="groq/compound-mini">POST /v1/chat/completions (groq/compound-mini • Fast)</option>
-              <option value="/v1/embeddings" data-model="keyline-embed-v2">POST /v1/embeddings (keyline-embed-v2 • Fast)</option>
-            </select>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 0.78rem;">Cloudflare Worker Endpoint</label>
+            <div class="mono" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 107, 0, 0.25); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.78rem; color: #FFA870; word-break: break-all;">
+              POST https://keyline.v0408688.workers.dev/v1/chat/completions
+            </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-bottom: 12px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-              <label class="form-label" for="inputTestPrompt" style="margin-bottom: 0;">Test Prompt / Query (Optional)</label>
-              <span style="font-size: 0.72rem; color: var(--text-secondary);">Auto-calculates token breakdown</span>
+              <label class="form-label" for="inputTestPrompt" style="margin-bottom: 0; font-size: 0.78rem;">Message Prompt (JSON payload)</label>
+              <span class="mono" style="font-size: 0.72rem; color: #38EF7D;">model: "openai/gpt-oss-20b"</span>
             </div>
-            <textarea id="inputTestPrompt" class="form-input" rows="2" style="font-family: inherit; font-size: 0.85rem; resize: vertical;" placeholder="e.g. Compare quantum algorithms step-by-step with deep reasoning..."></textarea>
+            <input type="text" id="inputTestPrompt" class="form-input" style="font-size: 0.85rem;" value="Test ping" placeholder="Test ping" required />
           </div>
 
-          <!-- Upstream Usage Breakdown: Prompt, Completion, Reasoning Tokens -->
-          <div style="background: rgba(255, 107, 0, 0.04); border: 1px solid rgba(255, 107, 0, 0.16); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;">
+          <!-- Real-Time Sync Information Banner -->
+          <div style="background: rgba(56, 239, 125, 0.05); border: 1px solid rgba(56, 239, 125, 0.25); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.78rem; color: #C4F7D6; line-height: 1.45; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: #38EF7D; margin-bottom: 3px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Zero Mock Deductions &bull; Pure Real-Time Firestore Sync</span>
+            </div>
+            When submitted, this triggers a real <code class="mono" style="color: #38EF7D;">fetch()</code> to the Worker with <code class="mono" style="color: #38EF7D;">Authorization: Bearer &lt;key&gt;</code>. Dashboard credit balance and request logs update automatically via live Firestore <code class="mono" style="color: #38EF7D;">onSnapshot</code> listeners without a manual page reload.
+          </div>
+
+          <!-- Worker Response Result View (Populated after request) -->
+          <div id="testRequestResultBox" style="display: none; margin-bottom: 14px; background: rgba(0, 0, 0, 0.4); border-radius: var(--radius-sm); border: 1px solid var(--border-warm); padding: 12px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--primary-orange); letter-spacing: 0.04em;">
-                Upstream Token Usage Breakdown
-              </div>
-              <span class="status-pill" style="font-size: 0.7rem; padding: 2px 7px; background: rgba(255, 107, 0, 0.1); color: var(--primary-orange); border: 1px solid rgba(255, 107, 0, 0.25);">Real-Time Billed</span>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="inputPromptTokens" style="font-size: 0.78rem;">Prompt Tokens</label>
-                <input type="number" id="inputPromptTokens" class="form-input" value="1200" min="0" max="1000000" style="padding: 7px 10px; font-size: 0.85rem;" required />
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="inputCompletionTokens" style="font-size: 0.78rem;">Completion Tokens</label>
-                <input type="number" id="inputCompletionTokens" class="form-input" value="450" min="0" max="1000000" style="padding: 7px 10px; font-size: 0.85rem;" required />
-              </div>
-              <div class="form-group" style="margin-bottom: 0;" id="groupReasoningTokens">
-                <label class="form-label" for="inputReasoningTokens" style="font-size: 0.78rem;">Reasoning / Thinking</label>
-                <input type="number" id="inputReasoningTokens" class="form-input" value="0" min="0" max="1000000" style="padding: 7px 10px; font-size: 0.85rem;" />
+              <span style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">HTTP Response Telemetry</span>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span id="testResponseStatus" class="status-pill success" style="font-size: 0.72rem;">200 OK</span>
+                <span id="testResponseLatency" class="mono" style="font-size: 0.72rem; color: var(--text-secondary);">0ms</span>
               </div>
             </div>
-
-            <!-- Dynamic Credit Calculation Preview -->
-            <div style="margin-top: 12px; padding: 10px 12px; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-sm); border: 1px solid rgba(255, 107, 0, 0.15); font-size: 0.8rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="color: var(--text-secondary);">Current Available Balance:</span>
-                <span id="previewAvailableBalance" class="mono credit-balance" data-credit-balance style="font-weight: 700; color: var(--text-primary);">1,000</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="color: var(--text-secondary);">Total Used Tokens:</span>
-                <span id="previewTotalTokens" class="mono" style="font-weight: 700; color: var(--text-primary);">1,650</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px dashed rgba(255, 107, 0, 0.2);">
-                <span style="font-weight: 700; color: var(--text-primary);">Tokens to Deduct:</span>
-                <span id="previewCreditsDeducted" class="mono" style="font-weight: 800; color: var(--primary-orange); font-size: 0.96rem;">1,650 Tokens</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                <span style="font-size: 0.76rem; color: var(--text-secondary);">Projected Remaining Balance:</span>
-                <span id="previewProjectedBalance" class="mono" style="font-size: 0.8rem; font-weight: 700; color: #A8E6CF;">--</span>
-              </div>
-            </div>
-            
-            <p class="form-helper" style="margin-top: 8px; margin-bottom: 0; font-size: 0.75rem; color: var(--text-secondary);">
-              Deducts exact prompt, output, and internal thinking tokens from user balance in real-time.
-            </p>
+            <pre id="testResponseOutput" class="mono" style="font-size: 0.76rem; color: #E5E7EB; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 4px; max-height: 160px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; margin: 0;"></pre>
           </div>
 
-          <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" data-close="modalTestRequest">Cancel</button>
-            <button type="submit" id="btnSubmitTestRequest" class="btn btn-primary">Send Request (200 OK)</button>
+          <div class="modal-actions" style="margin-top: 14px;">
+            <button type="button" class="btn btn-secondary" data-close="modalTestRequest">Close</button>
+            <button type="submit" id="btnSubmitTestRequest" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700;">
+              <svg id="iconSubmitTestReq" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="btnSubmitTestRequestText">Send Live Request to Worker</span>
+            </button>
           </div>
         </form>
       </div>
@@ -3227,6 +3220,9 @@
         if (user.uid) {
           subscribeToUserData(user.uid);
         }
+        if (typeof calculateActiveSessionUsage === 'function') {
+          calculateActiveSessionUsage();
+        }
       }
       window.transitionToDashboard = transitionToDashboard;
 
@@ -3472,37 +3468,9 @@
       }
       window.saveUserCredits = saveUserCredits;
 
+      // Centralized credit operations are server-authoritative via Cloudflare Worker & Firestore
       function deductTokens(tokenCount) {
-        // fallback to 50 if tokenCount is missing or 0
-        const used = (typeof tokenCount === 'number' && tokenCount > 0) ? Math.round(tokenCount) : 50;
-
-        let currentCredits = parseInt(localStorage.getItem('keyline_credits') || '2500', 10);
-        let newBalance = Math.max(0, currentCredits - used);
-
-        // Save to storage
-        localStorage.setItem('keyline_credits', newBalance.toString());
-
-        // Update all DOM elements showing balance
-        const balanceDisplays = document.querySelectorAll('.credit-balance, #credit-count, [data-credit-balance], #valCredits');
-        balanceDisplays.forEach(el => {
-          el.innerText = newBalance.toLocaleString();
-        });
-
-        if (typeof updateCreditProgressUI === 'function') {
-          updateCreditProgressUI(newBalance);
-        }
-
-        // Real-time Firestore sync
-        if (currentUser && !currentUser.isDemo && db) {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          updateDoc(userDocRef, {
-            credits: newBalance,
-            updatedAt: serverTimestamp()
-          }).catch(err => console.warn('Syncing credits to Firestore:', err));
-        }
-
-        console.log(`Deducted ${used} tokens. Previous: ${currentCredits}, Remaining: ${newBalance}`);
-        return newBalance;
+        console.info('[Keyline] Credit deductions are authoritatively executed via Cloudflare Worker and Firebase Firestore.');
       }
       window.deductTokens = deductTokens;
 
@@ -3771,8 +3739,55 @@
         });
       }
 
+      // =========================================================================
+      // 📊 ACTIVE SESSION REQUEST USAGE CALCULATOR
+      // =========================================================================
+      function calculateActiveSessionUsage(logs = null) {
+        const sourceLogs = Array.isArray(logs) ? logs : (window.currentUsageLogs || window.demoUsageLogs || []);
+        const totalRequests = sourceLogs.length;
+        const totalTokens = sourceLogs.reduce((sum, log) => {
+          return sum + Number(log.totalUsedTokens || log.totalTokens || log.tokensUsed || 0);
+        }, 0);
+        const totalCreditsDeducted = sourceLogs.reduce((sum, log) => {
+          return sum + Number(log.creditsDeducted !== undefined ? log.creditsDeducted : (log.tokensUsed ? Math.ceil(log.tokensUsed / 1000) : 0));
+        }, 0);
+
+        const usageData = {
+          totalRequests,
+          totalTokens,
+          totalCreditsDeducted,
+          activeKeysCount: activeKeysList ? activeKeysList.filter(k => k.status === 'active').length : 0,
+          lastCalculated: new Date().toISOString()
+        };
+
+        if (currentUser) {
+          currentUser.sessionUsage = usageData;
+        }
+        try {
+          localStorage.setItem('keyline_session_usage', JSON.stringify(usageData));
+        } catch (e) {}
+
+        const valTotalRequests = document.getElementById('valTotalRequests');
+        if (valTotalRequests) {
+          valTotalRequests.textContent = totalRequests.toLocaleString();
+        }
+
+        const subtitleReq = document.getElementById('descTotalRequests');
+        if (subtitleReq) {
+          subtitleReq.textContent = totalTokens > 0 
+            ? `${totalTokens.toLocaleString()} tokens (${totalCreditsDeducted.toLocaleString()} credits used)`
+            : 'Real telemetry records';
+        }
+
+        return usageData;
+      }
+      window.calculateActiveSessionUsage = calculateActiveSessionUsage;
+
       // Render Usage Logs in Dashboard Table
       function renderUsageLogs(logs) {
+        window.currentUsageLogs = logs;
+        calculateActiveSessionUsage(logs);
+
         const tableContainer = document.getElementById('logsTableContainer');
         const emptyState = document.getElementById('logsEmptyState');
         const tableBody = document.getElementById('logsTableBody');
@@ -3998,6 +4013,7 @@ print(response.choices[0].message.content)`;
             activeKeysList.unshift(demoKeyObj);
             renderApiKeys(activeKeysList);
             updateIntegrationSnippet();
+            calculateActiveSessionUsage();
             closeModal('modalGenerateKey');
             document.getElementById('displayNewKey').textContent = fullKey;
             openModal('modalKeyCreated');
@@ -4038,6 +4054,7 @@ print(response.choices[0].message.content)`;
           openModal('modalKeyCreated');
 
           updateIntegrationSnippet();
+          calculateActiveSessionUsage();
           showToast('Cryptographically unique API Key generated & stored in Firestore.');
         } catch (error) {
           handleFirestoreError(error, OperationType.CREATE, `users/${currentUser.uid}/api_keys`);
@@ -4406,110 +4423,162 @@ print(response.choices[0].message.content)`;
         };
       }
 
-      // Simulate Real API Request (Deducts exact token count, writes usage_log in Firestore)
-      async function simulateApiRequest(keyId, endpoint, modelName, usage, promptText, responseText, response) {
-        if (!currentUser || !db) return;
+      // =========================================================================
+      // 🚀 REAL CLOUDFLARE WORKER TEST REQUEST HANDLER
+      // =========================================================================
+      // Sends a real HTTP POST request to:
+      // URL: https://keyline.v0408688.workers.dev/v1/chat/completions
+      // Headers: Authorization: Bearer <the user's active API key from Firestore>
+      // Body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [{ role: "user", content: "Test ping" }] })
+      // Zero mock deduction: the Worker verifies the key in Firestore, runs inference,
+      // updates credits, and records telemetry in users/{uid}/usage_logs.
+      // Firestore onSnapshot listeners update the dashboard automatically in real-time.
+      async function sendCloudflareWorkerTestRequest(e) {
+        if (e && typeof e.preventDefault === 'function') {
+          e.preventDefault();
+        }
+
+        if (!currentUser) {
+          showToast('Please sign in to test the Cloudflare Worker.', 'error');
+          return;
+        }
+
+        const selectKey = document.getElementById('selectTestKey');
+        const keyId = selectKey ? selectKey.value : '';
+        let keyObj = (activeKeysList && activeKeysList.find(k => k.id === keyId))
+                  || (activeKeysList && activeKeysList.find(k => k.status === 'active'))
+                  || (activeKeysList && activeKeysList[0]);
+
+        if (!keyObj) {
+          showToast('Please generate an active API key first before sending test requests.', 'error');
+          closeModal('modalTestRequest');
+          openModal('modalGenerateKey');
+          return;
+        }
+
+        // Retrieve secret key string
+        let secretKey = keyObj.key;
+        if (!secretKey && db && currentUser.uid) {
+          try {
+            const keySnap = await getDoc(doc(db, 'users', currentUser.uid, 'api_keys', keyObj.id));
+            if (keySnap.exists()) {
+              secretKey = keySnap.data().key;
+              keyObj.key = secretKey;
+            }
+          } catch (kErr) {
+            console.warn('Could not fetch secretKey from Firestore:', kErr);
+          }
+        }
+
+        if (!secretKey) {
+          secretKey = keyObj.id;
+        }
+
+        if (keyObj.status === 'revoked') {
+          showToast('Selected API key is revoked. Please select an active key or activate it.', 'error');
+          return;
+        }
+
+        const promptInput = document.getElementById('inputTestPrompt');
+        const promptContent = (promptInput && promptInput.value.trim()) || 'Test ping';
+
         const btnSubmit = document.getElementById('btnSubmitTestRequest');
+        const btnText = document.getElementById('btnSubmitTestRequestText');
+        const iconSubmit = document.getElementById('iconSubmitTestReq');
+        const resultBox = document.getElementById('testRequestResultBox');
+        const statusPill = document.getElementById('testResponseStatus');
+        const latencyPill = document.getElementById('testResponseLatency');
+        const outputPre = document.getElementById('testResponseOutput');
 
-        // 1. Read Total Tokens from API Response (supports Gemini usageMetadata, OpenAI usage, or simulated usage)
-        const totalUsedTokens = response?.usageMetadata?.totalTokenCount 
-          || ((response?.usageMetadata?.promptTokenCount || 0) + (response?.usageMetadata?.candidatesTokenCount || 0))
-          || response?.usage?.total_tokens
-          || usage?.total_tokens
-          || ((usage?.prompt_tokens || 0) + (usage?.completion_tokens || 0) + (usage?.reasoning_tokens || 0))
-          || 1;
+        if (btnSubmit) btnSubmit.disabled = true;
+        if (btnText) btnText.textContent = 'Sending to Cloudflare Worker...';
+        if (iconSubmit) iconSubmit.classList.add('spin');
 
-        // 4. If user balance is less than the required minimum or 0, block request & show toast
-        const currentCredits = getCurrentCredits();
-        if (currentCredits <= 0 || currentCredits < totalUsedTokens) {
-          showToast(`Insufficient credits. Please top up your account. (${currentCredits.toLocaleString()} available, needed ${totalUsedTokens.toLocaleString()} tokens)`, "error");
-          if (btnSubmit) {
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Send Request (200 OK)';
-          }
-          return;
-        }
-
-        // Verify key status
-        const keyObj = activeKeysList.find(k => k.id === keyId);
-        if (keyObj && keyObj.status === 'revoked') {
-          showToast('Gateway 401 Unauthorized: Selected API key is revoked.', 'error');
-          if (btnSubmit) {
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Send Request (200 OK)';
-          }
-          return;
-        }
-
-        if (btnSubmit) {
-          btnSubmit.disabled = true;
-          btnSubmit.textContent = 'Processing request...';
-        }
+        const startTime = performance.now();
+        const workerUrl = 'https://keyline.v0408688.workers.dev/v1/chat/completions';
+        const requestPayload = {
+          model: 'openai/gpt-oss-20b',
+          messages: [{ role: 'user', content: promptContent }]
+        };
 
         try {
-          const model = modelName || 'openai/gpt-oss-20b';
+          console.log('[Cloudflare Worker Test] Dispatching POST to:', workerUrl);
+          const response = await fetch(workerUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${secretKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestPayload)
+          });
 
-          const promptTokens = response?.usageMetadata?.promptTokenCount 
-            || usage?.prompt_tokens 
-            || Math.ceil((promptText || '').length / 4) 
-            || Math.round(totalUsedTokens * 0.7);
-
-          const completionTokens = response?.usageMetadata?.candidatesTokenCount 
-            || usage?.completion_tokens 
-            || Math.ceil((responseText || '').length / 4) 
-            || Math.round(totalUsedTokens * 0.3);
-
-          const reasoningTokens = response?.usageMetadata?.candidatesTokenDetails?.find?.(d => d.type === 'THINKING')?.tokenCount
-            || usage?.reasoning_tokens
-            || usage?.completion_tokens_details?.reasoning_tokens
-            || 0;
-
-          // 2. Deduct Exact Tokens from User Balance (includes prompt, completion, and reasoning tokens)
-          const updatedCredits = Math.max(0, currentCredits - totalUsedTokens);
-          saveUserCredits(updatedCredits);
-
-          // 3. Telemetry Sync: Write usage log with exact totalUsedTokens & breakdown
-          const logData = {
-            userId: currentUser.uid,
-            keyId: keyId,
-            keyPrefix: keyObj ? keyObj.prefix : 'keyline_live_••••',
-            endpoint: endpoint,
-            model: model,
-            promptTokens: promptTokens,
-            completionTokens: completionTokens,
-            reasoningTokens: reasoningTokens,
-            totalTokens: totalUsedTokens,
-            totalUsedTokens: totalUsedTokens,
-            tokensUsed: totalUsedTokens,
-            creditsDeducted: totalUsedTokens,
-            remainingBalance: updatedCredits,
-            status: 200,
-            timestamp: new Date().toISOString()
-          };
-
-          if (currentUser.isDemo) {
-            window.demoUsageLogs = window.demoUsageLogs || [];
-            window.demoUsageLogs.unshift(logData);
-            renderUsageLogs(window.demoUsageLogs);
-            closeModal('modalTestRequest');
-            showToast(`Request 200 OK: ${totalUsedTokens.toLocaleString()} tokens deducted. Remaining: ${updatedCredits.toLocaleString()} credits.`);
-            return;
+          const latency = Math.round(performance.now() - startTime);
+          let responseData = null;
+          const contentType = response.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            try {
+              responseData = await response.json();
+            } catch (jsonErr) {
+              responseData = { raw: await response.text() };
+            }
+          } else {
+            const rawText = await response.text();
+            try {
+              responseData = JSON.parse(rawText);
+            } catch (e) {
+              responseData = { message: rawText };
+            }
           }
 
-          await addDoc(collection(db, 'users', currentUser.uid, 'usage_logs'), logData);
+          if (resultBox) resultBox.style.display = 'block';
+          if (latencyPill) latencyPill.textContent = `${latency}ms`;
 
-          closeModal('modalTestRequest');
-          showToast(`Request 200 OK: ${totalUsedTokens.toLocaleString()} tokens deducted. Remaining: ${updatedCredits.toLocaleString()} credits.`);
-        } catch (error) {
-          handleFirestoreError(error, OperationType.WRITE, `users/${currentUser.uid}/usage_logs`);
-          showToast('API request failed: ' + error.message, 'error');
+          if (response.ok) {
+            if (statusPill) {
+              statusPill.textContent = `${response.status} OK`;
+              statusPill.className = 'status-pill success';
+            }
+            if (outputPre) {
+              const replyText = responseData?.choices?.[0]?.message?.content || JSON.stringify(responseData, null, 2);
+              outputPre.textContent = replyText;
+            }
+
+            // NOTE: Zero client-side mock deduction!
+            // The Cloudflare Worker modifies 'credits' and appends to 'users/{uid}/usage_logs' in Firestore.
+            // Active onSnapshot listeners will update the dashboard balance and telemetry history automatically.
+            showToast(`Worker 200 OK (${latency}ms): Live Firestore balance updated!`, 'success');
+          } else {
+            if (statusPill) {
+              statusPill.textContent = `${response.status} ${response.statusText || 'Error'}`;
+              statusPill.className = 'status-pill danger';
+            }
+            if (outputPre) {
+              outputPre.textContent = JSON.stringify(responseData, null, 2);
+            }
+            const errMsg = responseData?.error?.message || responseData?.message || response.statusText || 'Request failed';
+            showToast(`Worker ${response.status}: ${errMsg}`, 'error');
+          }
+        } catch (fetchError) {
+          console.error('[Cloudflare Worker Test Error]', fetchError);
+          const latency = Math.round(performance.now() - startTime);
+          if (resultBox) resultBox.style.display = 'block';
+          if (statusPill) {
+            statusPill.textContent = 'Network Error';
+            statusPill.className = 'status-pill danger';
+          }
+          if (latencyPill) latencyPill.textContent = `${latency}ms`;
+          if (outputPre) {
+            outputPre.textContent = `Error: ${fetchError.message}\nEndpoint: ${workerUrl}`;
+          }
+          showToast(`Worker connection failed: ${fetchError.message}`, 'error');
         } finally {
-          if (btnSubmit) {
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = 'Send Request (200 OK)';
-          }
+          if (btnSubmit) btnSubmit.disabled = false;
+          if (btnText) btnText.textContent = 'Send Live Request to Worker';
+          if (iconSubmit) iconSubmit.classList.remove('spin');
         }
       }
+      window.sendCloudflareWorkerTestRequest = sendCloudflareWorkerTestRequest;
+      window.simulateApiRequest = sendCloudflareWorkerTestRequest;
 
       // Utility to escape HTML
       function escapeHtml(str) {
@@ -5543,6 +5612,115 @@ print(response.choices[0].message.content)`;
       }
 
       // =========================================================================
+      // ⚡ MANUAL TEST DEDUCT 1 CREDIT & TELEMETRY HANDLER
+      // =========================================================================
+      async function executeManualTestDeductCredit() {
+        if (!currentUser) {
+          showToast('Please sign in to test deducting credits.', 'info');
+          return;
+        }
+
+        const btnDeduct = document.getElementById('btnTestDeductCredit');
+        const textDeduct = document.getElementById('btnTestDeductText');
+        const iconDeduct = document.getElementById('iconTestDeduct');
+        const btnDeductTel = document.getElementById('btnTestDeductCreditTelemetry');
+        const textDeductTel = document.getElementById('btnTestDeductTelemetryText');
+
+        if (btnDeduct) btnDeduct.disabled = true;
+        if (btnDeductTel) btnDeductTel.disabled = true;
+        if (textDeduct) textDeduct.textContent = 'Deducting 1 Credit...';
+        if (textDeductTel) textDeductTel.textContent = 'Deducting...';
+        if (iconDeduct) iconDeduct.classList.add('spin');
+
+        try {
+          const user = currentUser;
+          const activeKey = (activeKeysList && activeKeysList.find(k => k.status === 'active')) || (activeKeysList && activeKeysList[0]);
+          const activeKeyId = activeKey ? activeKey.id : 'key_manual_test';
+          const activeKeyPrefix = activeKey ? (activeKey.prefix || (activeKey.key ? `${activeKey.key.slice(0, 14)}••••` : 'keyline_live••••')) : 'keyline_live••••';
+
+          const logData = {
+            userId: user.uid,
+            endpoint: '/v1/chat/completions',
+            model: 'openai/gpt-oss-20b',
+            tokensUsed: 1000,
+            totalTokens: 1000,
+            totalUsedTokens: 1000,
+            promptTokens: 750,
+            completionTokens: 250,
+            reasoningTokens: 0,
+            creditsDeducted: 1,
+            status: 200,
+            keyId: activeKeyId,
+            keyPrefix: activeKeyPrefix,
+            timestamp: new Date().toISOString()
+          };
+
+          // Reviewer demo fallback mode
+          if (user.isDemo) {
+            await new Promise(r => setTimeout(r, 350));
+            const currentCredits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
+            const updatedCredits = Math.max(0, currentCredits - 1);
+            saveUserCredits(updatedCredits);
+            window.demoUsageLogs = window.demoUsageLogs || [];
+            window.demoUsageLogs.unshift({ ...logData, id: 'log_test_' + Date.now() });
+            renderUsageLogs(window.demoUsageLogs);
+            calculateActiveSessionUsage(window.demoUsageLogs);
+            showToast(`Test Deduction (Reviewer): Deducted 1 credit. New balance: ${updatedCredits.toLocaleString()}`);
+            return;
+          }
+
+          if (!db) {
+            throw new Error('Firestore database is not available.');
+          }
+
+          // Ensure user document exists in Firestore before incrementing
+          const userDocRef = doc(db, 'users', user.uid);
+          const snap = await getDoc(userDocRef);
+          if (!snap.exists()) {
+            await initUserFirestoreDoc(user);
+          }
+
+          // 1. Directly runs updateDoc(doc(db, 'users', user.uid), { credits: increment(-1) })
+          await updateDoc(userDocRef, {
+            uid: user.uid,
+            credits: increment(-1),
+            updatedAt: serverTimestamp()
+          });
+
+          // 2. Directly adds document to users/${user.uid}/usage_logs
+          await addDoc(collection(db, 'users', user.uid, 'usage_logs'), logData);
+
+          // Calculate request usage directly from user's active session
+          calculateActiveSessionUsage();
+
+          showToast('Deducted 1 credit & logged telemetry directly to Cloud Firestore!', 'success');
+        } catch (error) {
+          console.error('[Manual Deduct Error]', error);
+          handleFirestoreError(error, OperationType.WRITE, `users/${currentUser?.uid}/usage_logs`);
+          showToast('Failed to deduct credit: ' + error.message, 'error');
+        } finally {
+          setTimeout(() => {
+            if (iconDeduct) iconDeduct.classList.remove('spin');
+            if (textDeduct) textDeduct.textContent = 'Test Deduct 1 Credit';
+            if (textDeductTel) textDeductTel.textContent = 'Test Deduct 1 Credit';
+            if (btnDeduct) btnDeduct.disabled = false;
+            if (btnDeductTel) btnDeductTel.disabled = false;
+          }, 350);
+        }
+      }
+      window.executeManualTestDeductCredit = executeManualTestDeductCredit;
+
+      // Manual Test Deduct 1 Credit button listeners
+      const btnTestDeduct = document.getElementById('btnTestDeductCredit');
+      if (btnTestDeduct) {
+        btnTestDeduct.addEventListener('click', executeManualTestDeductCredit);
+      }
+      const btnTestDeductTel = document.getElementById('btnTestDeductCreditTelemetry');
+      if (btnTestDeductTel) {
+        btnTestDeductTel.addEventListener('click', executeManualTestDeductCredit);
+      }
+
+      // =========================================================================
       // RAZORPAY STANDARD WEB CHECKOUT & TOP-UP INTEGRATION (LIVE PRODUCTION READY)
       // =========================================================================
       const RAZORPAY_CONFIG = {
@@ -5967,100 +6145,42 @@ print(response.choices[0].message.content)`;
         });
       }
 
-      // Dynamic Test Request Preview Calculation
-      function updateTestRequestPreview() {
-        const selectEndpoint = document.getElementById('selectTestEndpoint');
-        if (!selectEndpoint) return;
-        const selectedOpt = selectEndpoint.options[selectEndpoint.selectedIndex];
-        const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || selectedOpt.value) : 'openai/gpt-oss-20b';
-
-        const promptInput = document.getElementById('inputTestPrompt');
-        if (promptInput && promptInput.value.trim().length > 0) {
-          const estimatedPromptTokens = Math.max(1, Math.ceil(promptInput.value.length / 4));
-          const pTokenEl = document.getElementById('inputPromptTokens');
-          if (pTokenEl && !pTokenEl.dataset.userEdited) {
-            pTokenEl.value = estimatedPromptTokens;
-          }
-        }
-
-        const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
-        const completionTokens = Math.max(0, parseInt(document.getElementById('inputCompletionTokens')?.value, 10) || 0);
-        const reasoningTokens = Math.max(0, parseInt(document.getElementById('inputReasoningTokens')?.value, 10) || 0);
-        
-        const totalUsedTokens = promptTokens + completionTokens + reasoningTokens;
-        const currentBal = getCurrentCredits();
-        const projected = Math.max(0, currentBal - totalUsedTokens);
-
-        const availEl = document.getElementById('previewAvailableBalance');
-        const totalEl = document.getElementById('previewTotalTokens');
-        const creditsEl = document.getElementById('previewCreditsDeducted');
-        const projectedEl = document.getElementById('previewProjectedBalance');
-
-        if (availEl) availEl.textContent = currentBal.toLocaleString();
-        if (totalEl) totalEl.textContent = totalUsedTokens.toLocaleString();
-        if (creditsEl) creditsEl.textContent = `${totalUsedTokens.toLocaleString()} Tokens`;
-        if (projectedEl) {
-          projectedEl.textContent = `${projected.toLocaleString()} Credits`;
-          projectedEl.style.color = currentBal < totalUsedTokens ? '#EF4444' : '#A8E6CF';
-        }
-      }
-
-      // Event listeners for real-time calculation preview
-      ['inputPromptTokens', 'inputCompletionTokens', 'inputReasoningTokens'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', () => {
-            el.dataset.userEdited = 'true';
-            updateTestRequestPreview();
-          });
-        }
-      });
-
-      const promptInputEl = document.getElementById('inputTestPrompt');
-      if (promptInputEl) {
-        promptInputEl.addEventListener('input', () => {
-          const pTokenEl = document.getElementById('inputPromptTokens');
-          if (pTokenEl) pTokenEl.dataset.userEdited = '';
-          updateTestRequestPreview();
-        });
-      }
-
-      const selectTestEndpointEl = document.getElementById('selectTestEndpoint');
-      if (selectTestEndpointEl) {
-        selectTestEndpointEl.addEventListener('change', () => {
-          const selectedOpt = selectTestEndpointEl.options[selectTestEndpointEl.selectedIndex];
-          const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || selectedOpt.value) : '';
-          const reasoningInput = document.getElementById('inputReasoningTokens');
-          if (reasoningInput) {
-            if (modelName.includes('120b') || modelName.includes('qwen') || modelName.includes('reasoning')) {
-              if (parseInt(reasoningInput.value, 10) === 0) {
-                reasoningInput.value = 350;
-              }
-            }
-          }
-          updateTestRequestPreview();
-        });
-      }
-
-      // Open Test Request Modal
+      // Open Live Cloudflare Worker Test Modal
       function setupTestRequestModal() {
-        const activeKeys = activeKeysList.filter(k => k.status === 'active');
+        if (!currentUser) {
+          showToast('Please sign in to test the Cloudflare Worker.', 'error');
+          return;
+        }
+
+        const activeKeys = (activeKeysList || []).filter(k => k.status === 'active');
         if (activeKeys.length === 0) {
-          showToast('Please generate an active API key first.', 'error');
+          showToast('Please generate an active API key first before testing.', 'error');
           openModal('modalGenerateKey');
           return;
         }
 
         const select = document.getElementById('selectTestKey');
-        select.innerHTML = '';
-        activeKeys.forEach(k => {
-          const opt = document.createElement('option');
-          opt.value = k.id;
-          opt.textContent = `${k.name} (${k.prefix || k.id.slice(0, 8)})`;
-          select.appendChild(opt);
-        });
+        if (select) {
+          select.innerHTML = '';
+          activeKeys.forEach(k => {
+            const opt = document.createElement('option');
+            opt.value = k.id;
+            const prefix = k.prefix || (k.key ? `${k.key.slice(0, 14)}••••` : k.id);
+            opt.textContent = `${k.name || 'API Key'} (${prefix})`;
+            select.appendChild(opt);
+          });
+        }
 
-        updateTestRequestPreview();
+        const promptInput = document.getElementById('inputTestPrompt');
+        if (promptInput && !promptInput.value) {
+          promptInput.value = 'Test ping';
+        }
+
+        const resultBox = document.getElementById('testRequestResultBox');
+        if (resultBox) {
+          resultBox.style.display = 'none';
+        }
+
         openModal('modalTestRequest');
       }
 
@@ -6070,56 +6190,11 @@ print(response.choices[0].message.content)`;
       const btnEmptyTestReq = document.getElementById('btnEmptyTestRequest');
       if (btnEmptyTestReq) btnEmptyTestReq.addEventListener('click', setupTestRequestModal);
 
-      // Submit Test Request with Exact Token Breakdown & Billing
+      // Submit Live Test Request directly to Cloudflare Worker Edge
       const formTestReq = document.getElementById('formTestRequest');
       if (formTestReq) {
         formTestReq.addEventListener('submit', (e) => {
-          e.preventDefault();
-          const keyId = document.getElementById('selectTestKey')?.value;
-          const selectEndpoint = document.getElementById('selectTestEndpoint');
-          const selectedOpt = selectEndpoint?.options[selectEndpoint.selectedIndex];
-          const modelName = selectedOpt ? (selectedOpt.getAttribute('data-model') || 'openai/gpt-oss-20b') : 'openai/gpt-oss-20b';
-          const endpoint = selectedOpt ? selectedOpt.value.split('#')[0] : '/v1/chat/completions';
-
-        const promptText = document.getElementById('inputTestPrompt')?.value || '';
-        const promptTokens = Math.max(0, parseInt(document.getElementById('inputPromptTokens')?.value, 10) || 0);
-        const completionTokens = Math.max(0, parseInt(document.getElementById('inputCompletionTokens')?.value, 10) || 0);
-        const reasoningTokens = Math.max(0, parseInt(document.getElementById('inputReasoningTokens')?.value, 10) || 0);
-        const totalUsedTokens = promptTokens + completionTokens + reasoningTokens;
-
-        // Simulated Upstream Response object with usageMetadata & thinking tokens details
-        const simulatedApiResponse = {
-          id: 'chatcmpl-' + Math.random().toString(36).substring(2, 11),
-          object: 'chat.completion',
-          created: Math.floor(Date.now() / 1000),
-          model: modelName,
-          usageMetadata: {
-            promptTokenCount: promptTokens,
-            candidatesTokenCount: completionTokens + reasoningTokens,
-            totalTokenCount: totalUsedTokens,
-            candidatesTokenDetails: reasoningTokens > 0 ? [{ type: 'THINKING', tokenCount: reasoningTokens }] : []
-          },
-          usage: {
-            prompt_tokens: promptTokens,
-            completion_tokens: completionTokens + reasoningTokens,
-            total_tokens: totalUsedTokens,
-            completion_tokens_details: {
-              reasoning_tokens: reasoningTokens
-            }
-          }
-        };
-
-        const usage = {
-          prompt_tokens: promptTokens,
-          completion_tokens: completionTokens,
-          reasoning_tokens: reasoningTokens,
-          total_tokens: totalUsedTokens,
-          completion_tokens_details: {
-            reasoning_tokens: reasoningTokens
-          }
-        };
-
-        simulateApiRequest(keyId, endpoint, modelName, usage, promptText, '', simulatedApiResponse);
+          sendCloudflareWorkerTestRequest(e);
         });
       }
 
