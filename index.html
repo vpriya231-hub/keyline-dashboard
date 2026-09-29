@@ -667,6 +667,16 @@
         to { transform: rotate(360deg); }
       }
 
+      .balance-pulse {
+        animation: creditPulseAnim 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes creditPulseAnim {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.5)); color: #FFA870; }
+        100% { transform: scale(1); }
+      }
+
       /* Top-up Tiers & Razorpay Checkout Modal */
       .tier-grid {
         display: grid;
@@ -1979,11 +1989,11 @@
                 Add Credits / Top-up
               </button>
 
-              <button id="btnSyncFirestoreCredits" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits from Firestore" style="display: inline-flex; align-items: center; gap: 4px;">
+              <button id="btnSyncFirestoreCredits" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits & telemetry from Firestore" style="display: inline-flex; align-items: center; gap: 6px;">
                 <svg id="iconSyncRefresh" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                 </svg>
-                <span>Sync</span>
+                <span id="btnSyncCreditsText">Sync</span>
               </button>
             </div>
           </div>
@@ -2188,12 +2198,20 @@
               </h2>
               <p class="card-subtitle">Live request telemetry stream from Cloud Firestore (<code class="mono" style="font-size: 0.78rem;">users/{uid}/usage_logs</code>).</p>
             </div>
-            <button id="btnOpenTestRequest" class="btn btn-secondary btn-sm">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              Simulate Test Request
-            </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button id="btnSyncTelemetryLogs" class="btn btn-secondary btn-sm" title="Refresh and sync real-time credits & telemetry from Firestore" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg id="iconSyncTelemetry" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+                <span id="btnSyncTelemetryText">Sync</span>
+              </button>
+              <button id="btnOpenTestRequest" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Simulate Test Request
+              </button>
+            </div>
           </div>
 
           <!-- Logs Table Container -->
@@ -3158,8 +3176,8 @@
 
         resetGoogleAuthButtonState();
 
-        // Handle review/GIS standalone session without Firestore dependency
-        if (user.isDemo || user.isGoogleReviewer || user.isGoogleSession) {
+        // Handle review / demo mode session without Firestore dependency
+        if (user.isDemo || user.isGoogleReviewer) {
           const currentCredits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
           saveUserCredits(currentCredits);
 
@@ -3206,7 +3224,9 @@
         } catch (err) {
           console.warn("initUserFirestoreDoc error:", err);
         }
-        subscribeToUserData(user.uid);
+        if (user.uid) {
+          subscribeToUserData(user.uid);
+        }
       }
       window.transitionToDashboard = transitionToDashboard;
 
@@ -3490,13 +3510,27 @@
         const numericCredits = Number(credits) || 0;
         localStorage.setItem('keyline_credits', Math.round(numericCredits).toString());
 
+        if (currentUser) {
+          currentUser.credits = numericCredits;
+          try {
+            const rawSession = localStorage.getItem('keyline_user_session');
+            if (rawSession) {
+              const sessionObj = JSON.parse(rawSession);
+              sessionObj.credits = numericCredits;
+              localStorage.setItem('keyline_user_session', JSON.stringify(sessionObj));
+            }
+          } catch (e) {}
+        }
+
         const formatted = Number.isInteger(numericCredits)
           ? numericCredits.toLocaleString()
           : numericCredits.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 
-        const balanceDisplays = document.querySelectorAll('.credit-balance, #credit-count, [data-credit-balance], #valCredits');
+        const balanceDisplays = document.querySelectorAll('.credit-balance, #credit-count, [data-credit-balance], #valCredits, #previewAvailableBalance');
         balanceDisplays.forEach(el => {
           el.innerText = formatted;
+          el.classList.add('balance-pulse');
+          setTimeout(() => el.classList.remove('balance-pulse'), 600);
         });
 
         const lblWalletCreditsScale = document.getElementById('lblWalletCreditsScale');
@@ -3526,47 +3560,92 @@
       }
 
       function subscribeToUserData(uid) {
-        if (!db || (currentUser && currentUser.isDemo)) return;
+        if (!uid || !db || (currentUser && currentUser.isDemo)) return;
 
-        // 1. Credits & Profile Doc Listener
+        // Clean up any existing active listeners before subscribing to prevent duplicate callbacks
+        if (unsubscribeUserDoc) {
+          try { unsubscribeUserDoc(); } catch (e) {}
+          unsubscribeUserDoc = null;
+        }
+        if (unsubscribeApiKeys) {
+          try { unsubscribeApiKeys(); } catch (e) {}
+          unsubscribeApiKeys = null;
+        }
+        if (unsubscribeLogs) {
+          try { unsubscribeLogs(); } catch (e) {}
+          unsubscribeLogs = null;
+        }
+
+        // 1. Credits & Profile Doc Real-Time Listener (onSnapshot on users/{uid})
         const userDocRef = doc(db, 'users', uid);
         unsubscribeUserDoc = onSnapshot(userDocRef, (snap) => {
           if (snap.exists()) {
             const data = snap.data();
             const credits = typeof data.credits === 'number' ? data.credits : 0;
             updateCreditProgressUI(credits);
+            console.log(`[Firestore Real-Time] Synced credits for ${uid}: ${credits}`);
           }
         }, (error) => {
+          console.warn(`[Firestore Real-Time] users/${uid} listener notice:`, error.message);
           handleFirestoreError(error, OperationType.GET, `users/${uid}`);
         });
 
-        // 2. API Keys Subcollection Listener
+        // 2. API Keys Subcollection Real-Time Listener
         const keysColRef = collection(db, 'users', uid, 'api_keys');
-        const keysQuery = query(keysColRef, orderBy('createdAt', 'desc'));
-        unsubscribeApiKeys = onSnapshot(keysQuery, (snapshot) => {
-          const keys = [];
-          snapshot.forEach(docSnap => {
-            keys.push({ id: docSnap.id, ...docSnap.data() });
+        try {
+          const keysQuery = query(keysColRef, orderBy('createdAt', 'desc'));
+          unsubscribeApiKeys = onSnapshot(keysQuery, (snapshot) => {
+            const keys = [];
+            snapshot.forEach(docSnap => {
+              keys.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            activeKeysList = keys;
+            renderApiKeys(keys);
+            updateIntegrationSnippet();
+          }, (error) => {
+            handleFirestoreError(error, OperationType.LIST, `users/${uid}/api_keys`);
           });
-          activeKeysList = keys;
-          renderApiKeys(keys);
-          updateIntegrationSnippet();
-        }, (error) => {
-          handleFirestoreError(error, OperationType.LIST, `users/${uid}/api_keys`);
-        });
+        } catch (keysErr) {
+          console.warn('[Firestore Real-Time] api_keys query listener warning:', keysErr);
+        }
 
-        // 3. Usage Logs Subcollection Listener
+        // 3. Usage Logs Subcollection Real-Time Listener (users/{uid}/usage_logs ordered by timestamp descending)
         const logsColRef = collection(db, 'users', uid, 'usage_logs');
-        const logsQuery = query(logsColRef, orderBy('timestamp', 'desc'));
-        unsubscribeLogs = onSnapshot(logsQuery, (snapshot) => {
-          const logs = [];
-          snapshot.forEach(docSnap => {
-            logs.push({ id: docSnap.id, ...docSnap.data() });
+        try {
+          const logsQuery = query(logsColRef, orderBy('timestamp', 'desc'));
+          unsubscribeLogs = onSnapshot(logsQuery, (snapshot) => {
+            const logs = [];
+            snapshot.forEach(docSnap => {
+              logs.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            logs.sort((a, b) => {
+              const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp || 0).getTime();
+              const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp || 0).getTime();
+              return timeB - timeA;
+            });
+            renderUsageLogs(logs);
+            console.log(`[Firestore Real-Time] Synced ${logs.length} telemetry logs for ${uid}`);
+          }, (error) => {
+            console.warn('[Firestore Real-Time] logs ordered query notice, listening on collection base:', error.message);
+            // Resilient fallback to unordered listener with client-side sorting
+            unsubscribeLogs = onSnapshot(logsColRef, (snapshot) => {
+              const logs = [];
+              snapshot.forEach(docSnap => {
+                logs.push({ id: docSnap.id, ...docSnap.data() });
+              });
+              logs.sort((a, b) => {
+                const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp || 0).getTime();
+                const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp || 0).getTime();
+                return timeB - timeA;
+              });
+              renderUsageLogs(logs);
+            }, (fallbackErr) => {
+              handleFirestoreError(fallbackErr, OperationType.LIST, `users/${uid}/usage_logs`);
+            });
           });
-          renderUsageLogs(logs);
-        }, (error) => {
-          handleFirestoreError(error, OperationType.LIST, `users/${uid}/usage_logs`);
-        });
+        } catch (logsErr) {
+          console.warn('[Firestore Real-Time] usage_logs query setup error:', logsErr);
+        }
       }
 
       // Render API Keys in Dashboard Table
@@ -3717,8 +3796,20 @@
           let formattedTime = 'Just now';
           if (log.timestamp) {
             try {
-              const d = typeof log.timestamp.toDate === 'function' ? log.timestamp.toDate() : new Date(log.timestamp);
-              formattedTime = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              const d = typeof log.timestamp.toDate === 'function' 
+                ? log.timestamp.toDate() 
+                : (log.timestamp.seconds ? new Date(log.timestamp.seconds * 1000) : new Date(log.timestamp));
+              if (!isNaN(d.getTime())) {
+                formattedTime = d.toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  second: '2-digit' 
+                });
+              } else {
+                formattedTime = String(log.timestamp);
+              }
             } catch (e) {
               formattedTime = String(log.timestamp);
             }
@@ -3728,12 +3819,15 @@
           const promptTok = Number(log.promptTokens || 0);
           const compTok = Number(log.completionTokens || 0);
           const reasoningTok = Number(log.reasoningTokens || 0);
+          const deduction = (log.creditsDeducted !== undefined && log.creditsDeducted !== null) 
+            ? Number(log.creditsDeducted) 
+            : (totalTok > 0 ? totalTok : 0);
 
           const creditsDisplay = `
             <div style="display: flex; flex-direction: column; gap: 3px;">
               <div style="display: flex; align-items: baseline; gap: 6px;">
                 <span style="font-weight: 700; color: var(--primary-orange); font-size: 0.86rem;">${totalTok.toLocaleString()} tokens</span>
-                ${(log.creditsDeducted !== undefined && log.creditsDeducted !== null) ? `<span style="font-size: 0.72rem; color: var(--text-secondary);">(${Number(log.creditsDeducted).toLocaleString()} credits)</span>` : ''}
+                <span style="font-size: 0.74rem; color: #FFA870; font-weight: 600;">(-${deduction.toLocaleString()} credits)</span>
               </div>
               <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.3;" title="Prompt: ${promptTok.toLocaleString()} | Completion: ${compTok.toLocaleString()}${reasoningTok > 0 ? ` | Thinking: ${reasoningTok.toLocaleString()}` : ''}">
                 <span style="color: #A8E6CF;">P: ${promptTok.toLocaleString()}</span> • 
@@ -3742,15 +3836,28 @@
               </div>
             </div>`;
 
+          const statusCode = Number(log.status) || 200;
+          let statusPillClass = 'status-pill success';
+          let statusLabel = `${statusCode} OK`;
+          if (statusCode >= 400 && statusCode < 500) {
+            statusPillClass = 'status-pill warning';
+            statusLabel = `${statusCode} ${statusCode === 429 ? 'Rate Limit' : 'Error'}`;
+          } else if (statusCode >= 500) {
+            statusPillClass = 'status-pill danger';
+            statusLabel = `${statusCode} Server Error`;
+          }
+
+          const keyIdDisplay = log.keyPrefix || (log.keyId ? (log.keyId.length > 14 ? `${log.keyId.slice(0, 10)}••••` : log.keyId) : 'keyline_live_••••');
+
           tr.innerHTML = `
             <td style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap;">${formattedTime}</td>
             <td><code class="mono" style="font-size: 0.82rem; color: var(--primary-orange);">${escapeHtml(log.endpoint || '/v1/chat/completions')}</code></td>
-            <td><span style="font-size: 0.84rem; font-weight: 600;">${escapeHtml(log.model || 'openai/gpt-oss-20b')}</span></td>
+            <td><span style="font-size: 0.84rem; font-weight: 600; color: #FFFFFF;">${escapeHtml(log.model || 'openai/gpt-oss-20b')}</span></td>
             <td>${creditsDisplay}</td>
             <td>
-              <span class="status-pill success">${log.status || 200} OK</span>
+              <span class="${statusPillClass}" style="font-size: 0.74rem; padding: 2px 8px;">${statusLabel}</span>
             </td>
-            <td><code class="mono" style="font-size: 0.74rem; color: var(--text-secondary);">${escapeHtml(log.keyPrefix || (log.keyId ? log.keyId.slice(0, 10) : '--'))}</code></td>
+            <td><code class="mono" style="font-size: 0.74rem; color: var(--text-secondary);">${escapeHtml(keyIdDisplay)}</code></td>
           `;
 
           tableBody.appendChild(tr);
@@ -4605,10 +4712,19 @@ print(response.choices[0].message.content)`;
         resetGoogleAuthButtonState();
         closeModal('modalManualSync');
 
-        // Store active session token if provided
+        // Store active session token if provided and authenticate in local Firebase container
         try {
           if (userData.idToken) {
             localStorage.setItem('keyline_auth_token', userData.idToken);
+            if (auth && typeof GoogleAuthProvider !== 'undefined' && typeof signInWithCredential !== 'undefined') {
+              try {
+                const cred = GoogleAuthProvider.credential(userData.idToken);
+                await signInWithCredential(auth, cred);
+                console.log("[Windows PWA Auth] Successfully authenticated in desktop Firebase context.");
+              } catch (credErr) {
+                console.warn("[Windows PWA Auth] Desktop signInWithCredential notice:", credErr.message);
+              }
+            }
           }
         } catch (e) {}
 
@@ -5279,28 +5395,151 @@ print(response.choices[0].message.content)`;
         btnConfirmDeleteAccount.addEventListener('click', executeDeleteAccount);
       }
 
-      // Real-time Firestore balance refresh sync
+      // =========================================================================
+      // REAL-TIME FIRESTORE DATA SYNC & MANUAL REFRESH HANDLER
+      // =========================================================================
+      async function syncFirestoreData(options = { showNotification: true }) {
+        if (!currentUser) {
+          showToast('Please sign in to sync Firestore data.', 'info');
+          return;
+        }
+
+        const btnSyncCredits = document.getElementById('btnSyncFirestoreCredits');
+        const iconSyncCredits = document.getElementById('iconSyncRefresh');
+        const textSyncCredits = document.getElementById('btnSyncCreditsText');
+        const btnSyncTelemetry = document.getElementById('btnSyncTelemetryLogs');
+        const iconSyncTelemetry = document.getElementById('iconSyncTelemetry');
+        const textSyncTelemetry = document.getElementById('btnSyncTelemetryText');
+
+        // Loading Indicator: Set spin and button state
+        if (iconSyncCredits) iconSyncCredits.classList.add('spin');
+        if (iconSyncTelemetry) iconSyncTelemetry.classList.add('spin');
+        if (textSyncCredits) textSyncCredits.textContent = 'Syncing...';
+        if (textSyncTelemetry) textSyncTelemetry.textContent = 'Syncing...';
+        if (btnSyncCredits) btnSyncCredits.disabled = true;
+        if (btnSyncTelemetry) btnSyncTelemetry.disabled = true;
+
+        const startTime = Date.now();
+
+        try {
+          // If demo reviewer mode, handle local state gracefully
+          if (currentUser.isDemo) {
+            await new Promise(r => setTimeout(r, 450));
+            const credits = parseInt(localStorage.getItem('keyline_credits') || '5000', 10);
+            updateCreditProgressUI(credits);
+            if (window.demoUsageLogs) {
+              renderUsageLogs(window.demoUsageLogs);
+            }
+            if (options.showNotification) {
+              showToast(`Reviewer data synced: ${credits.toLocaleString()} credits & ${(window.demoUsageLogs || []).length} logs.`);
+            }
+            return;
+          }
+
+          if (!db) {
+            throw new Error('Firestore database is not initialized.');
+          }
+
+          const uid = currentUser.uid;
+          if (!uid) {
+            throw new Error('User ID is missing.');
+          }
+
+          // 1. FRESH FETCH: users/${uid} (Credits & Profile)
+          const userDocRef = doc(db, 'users', uid);
+          let currentCredits = 1000;
+          try {
+            const userSnap = await getDoc(userDocRef);
+            if (userSnap.exists()) {
+              const userData = userSnap.data();
+              currentCredits = typeof userData.credits === 'number' ? userData.credits : 0;
+              updateCreditProgressUI(currentCredits);
+            } else {
+              // User doc does not exist yet: initialize it
+              await initUserFirestoreDoc(currentUser);
+              const freshSnap = await getDoc(userDocRef);
+              if (freshSnap.exists()) {
+                currentCredits = typeof freshSnap.data().credits === 'number' ? freshSnap.data().credits : 1000;
+                updateCreditProgressUI(currentCredits);
+              }
+            }
+          } catch (userDocErr) {
+            console.warn('[Sync] userDoc fetch warning:', userDocErr.message);
+          }
+
+          // 2. FRESH FETCH: users/${uid}/usage_logs (ordered by timestamp descending)
+          const logsColRef = collection(db, 'users', uid, 'usage_logs');
+          let logs = [];
+          try {
+            const logsQuery = query(logsColRef, orderBy('timestamp', 'desc'));
+            const logsSnap = await getDocs(logsQuery);
+            logsSnap.forEach(docSnap => {
+              logs.push({ id: docSnap.id, ...docSnap.data() });
+            });
+          } catch (queryErr) {
+            console.warn('[Sync] orderBy query notice, falling back to base collection fetch:', queryErr.message);
+            const logsSnap = await getDocs(logsColRef);
+            logsSnap.forEach(docSnap => {
+              logs.push({ id: docSnap.id, ...docSnap.data() });
+            });
+          }
+
+          // Always sort by timestamp descending
+          logs.sort((a, b) => {
+            const tA = a.timestamp?.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp || 0).getTime();
+            const tB = b.timestamp?.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp || 0).getTime();
+            return tB - tA;
+          });
+
+          // Render fresh logs in table
+          renderUsageLogs(logs);
+
+          // 3. FRESH FETCH: users/${uid}/api_keys
+          try {
+            const keysColRef = collection(db, 'users', uid, 'api_keys');
+            const keysSnap = await getDocs(query(keysColRef, orderBy('createdAt', 'desc')));
+            const keys = [];
+            keysSnap.forEach(d => keys.push({ id: d.id, ...d.data() }));
+            activeKeysList = keys;
+            renderApiKeys(keys);
+            updateIntegrationSnippet();
+          } catch (keysErr) {
+            console.warn('[Sync] API keys fetch notice:', keysErr.message);
+          }
+
+          // Ensure active listeners are subscribed for ongoing real-time synchronization
+          subscribeToUserData(uid);
+
+          if (options.showNotification) {
+            showToast(`Firestore synced! Balance: ${Number(currentCredits).toLocaleString()} credits • ${logs.length} telemetry logs loaded.`, 'success');
+          }
+        } catch (err) {
+          console.error('[Sync] Firestore fresh fetch failed:', err);
+          showToast('Sync error: ' + (err.message || 'Could not fetch Firestore data'), 'error');
+        } finally {
+          // Keep spinner spinning for at least 450ms for smooth user visual feedback
+          const elapsed = Date.now() - startTime;
+          const remainingDelay = Math.max(0, 450 - elapsed);
+          setTimeout(() => {
+            if (iconSyncCredits) iconSyncCredits.classList.remove('spin');
+            if (iconSyncTelemetry) iconSyncTelemetry.classList.remove('spin');
+            if (textSyncCredits) textSyncCredits.textContent = 'Sync';
+            if (textSyncTelemetry) textSyncTelemetry.textContent = 'Sync';
+            if (btnSyncCredits) btnSyncCredits.disabled = false;
+            if (btnSyncTelemetry) btnSyncTelemetry.disabled = false;
+          }, remainingDelay);
+        }
+      }
+      window.syncFirestoreData = syncFirestoreData;
+
+      // Real-time Firestore manual refresh sync button listeners
       const btnSyncCredits = document.getElementById('btnSyncFirestoreCredits');
       if (btnSyncCredits) {
-        btnSyncCredits.addEventListener('click', async () => {
-          if (!currentUser || !db) return;
-          const icon = document.getElementById('iconSyncRefresh');
-          if (icon) icon.classList.add('spin');
-          try {
-            const snap = await getDoc(doc(db, 'users', currentUser.uid));
-            if (snap.exists()) {
-              const credits = typeof snap.data().credits === 'number' ? snap.data().credits : 0;
-              updateCreditProgressUI(credits);
-              showToast(`Firestore balance synced: ${Number(credits).toLocaleString()} credits available.`);
-            }
-          } catch (err) {
-            showToast('Sync error: ' + err.message, 'error');
-          } finally {
-            setTimeout(() => {
-              if (icon) icon.classList.remove('spin');
-            }, 600);
-          }
-        });
+        btnSyncCredits.addEventListener('click', () => syncFirestoreData({ showNotification: true }));
+      }
+      const btnSyncTelemetry = document.getElementById('btnSyncTelemetryLogs');
+      if (btnSyncTelemetry) {
+        btnSyncTelemetry.addEventListener('click', () => syncFirestoreData({ showNotification: true }));
       }
 
       // =========================================================================
